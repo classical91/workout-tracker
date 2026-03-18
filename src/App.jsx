@@ -9,9 +9,9 @@ const T = {
 const font = "'DM Sans', sans-serif";
 const display = "'Bebas Neue', sans-serif";
 
-// ─── SHARED ───────────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ SHARED Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function BackButton({ onBack, color }) {
-  return <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:color||T.muted,fontSize:13,fontFamily:font,letterSpacing:1,padding:"0 0 4px",display:"flex",alignItems:"center",gap:6}}>← BACK</button>;
+  return <button onClick={onBack} style={{background:"none",border:"none",cursor:"pointer",color:color||T.muted,fontSize:13,fontFamily:font,letterSpacing:1,padding:"0 0 4px",display:"flex",alignItems:"center",gap:6}}>Ã¢â€ Â BACK</button>;
 }
 function ScreenHeader({ title, subtitle, emoji, color, onBack }) {
   return (
@@ -52,7 +52,7 @@ function CompletionBanner({ color, emoji, text }) {
   );
 }
 
-// ─── FIGURE BASE ──────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ FIGURE BASE Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function Fig({ color, children, h=140 }) {
   return (
     <svg viewBox={`0 0 120 ${h}`} style={{width:"100%",height:"100%"}}>
@@ -67,24 +67,15 @@ function Fig({ color, children, h=140 }) {
     </svg>
   );
 }
-// ─── WORKOUT ILLUSTRATIONS ────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ WORKOUT ILLUSTRATIONS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const WorkoutIllus = {
-  "Bicep Curls": ({c}) => <Fig color={c}><circle cx="60" cy="18" r="10" stroke={c} fill="none"/><line x1="60" y1="28" x2="60" y2="75"/><line x1="60" y1="38" x2="40" y2="55"/><line x1="40" y1="55" x2="38" y2="75"/><line x1="60" y1="38" x2="80" y2="50"/><line x1="80" y1="50" x2="72" y2="35"/><line x1="60" y1="75" x2="48" y2="115"/><line x1="60" y1="75" x2="72" y2="115"/><rect x="62" y="28" width="14" height="4" rx="2" fill={c} opacity="0.9"/><rect x="60" y="25" width="4" height="10" rx="2" fill={c}/><rect x="72" y="25" width="4" height="10" rx="2" fill={c}/></Fig>,
-  "Tricep Dips": ({c}) => <Fig color={c}><rect x="10" y="85" width="100" height="8" rx="3" stroke={c} fill={`${c}22`}/><circle cx="60" cy="30" r="10" stroke={c} fill="none"/><line x1="60" y1="40" x2="60" y2="72"/><line x1="60" y1="48" x2="38" y2="72"/><line x1="38" y1="72" x2="38" y2="85"/><line x1="60" y1="48" x2="82" y2="72"/><line x1="82" y1="72" x2="82" y2="85"/><line x1="38" y1="85" x2="18" y2="90"/><line x1="82" y1="85" x2="102" y2="90"/></Fig>,
-  "Lunges": ({c}) => <Fig color={c} h={145}><circle cx="55" cy="18" r="10" stroke={c} fill="none"/><line x1="55" y1="28" x2="55" y2="68"/><line x1="55" y1="38" x2="38" y2="60"/><line x1="55" y1="38" x2="72" y2="60"/><line x1="55" y1="68" x2="40" y2="95"/><line x1="40" y1="95" x2="30" y2="120"/><line x1="55" y1="68" x2="75" y2="90"/><line x1="75" y1="90" x2="85" y2="118"/><line x1="10" y1="128" x2="110" y2="128" strokeOpacity="0.3"/></Fig>,
-  "Shoulder Press": ({c}) => <Fig color={c}><circle cx="60" cy="22" r="10" stroke={c} fill="none"/><line x1="60" y1="32" x2="60" y2="78"/><line x1="60" y1="45" x2="35" y2="30"/><line x1="35" y1="30" x2="30" y2="12"/><line x1="60" y1="45" x2="85" y2="30"/><line x1="85" y1="30" x2="90" y2="12"/><line x1="60" y1="78" x2="47" y2="118"/><line x1="60" y1="78" x2="73" y2="118"/><rect x="22" y="8" width="14" height="4" rx="2" fill={c} opacity="0.9"/><rect x="20" y="5" width="4" height="10" rx="2" fill={c}/><rect x="32" y="5" width="4" height="10" rx="2" fill={c}/><rect x="86" y="8" width="14" height="4" rx="2" fill={c} opacity="0.9"/><rect x="84" y="5" width="4" height="10" rx="2" fill={c}/><rect x="96" y="5" width="4" height="10" rx="2" fill={c}/></Fig>,
-  "Bent-over Rows": ({c}) => <Fig color={c}><circle cx="35" cy="38" r="10" stroke={c} fill="none"/><line x1="42" y1="44" x2="80" y2="62"/><line x1="55" y1="52" x2="50" y2="36"/><line x1="70" y1="58" x2="75" y2="42"/><line x1="80" y1="62" x2="72" y2="95"/><line x1="72" y1="95" x2="68" y2="120"/><line x1="80" y1="62" x2="92" y2="92"/><line x1="92" y1="92" x2="95" y2="120"/><line x1="10" y1="125" x2="110" y2="125" strokeOpacity="0.3"/></Fig>,
-  "Standing Calf Raise": ({c}) => <Fig color={c}><circle cx="60" cy="18" r="10" stroke={c} fill="none"/><line x1="60" y1="28" x2="60" y2="75"/><line x1="60" y1="38" x2="40" y2="65"/><line x1="60" y1="38" x2="80" y2="65"/><line x1="60" y1="75" x2="48" y2="108"/><line x1="60" y1="75" x2="72" y2="108"/><line x1="48" y1="108" x2="42" y2="116"/><line x1="72" y1="108" x2="78" y2="116"/><line x1="10" y1="122" x2="110" y2="122" strokeOpacity="0.3"/></Fig>,
-  "Step-ups": ({c}) => <Fig color={c}><rect x="45" y="95" width="65" height="18" rx="3" stroke={c} fill={`${c}22`}/><circle cx="72" cy="22" r="10" stroke={c} fill="none"/><line x1="72" y1="32" x2="72" y2="72"/><line x1="72" y1="42" x2="52" y2="65"/><line x1="72" y1="42" x2="92" y2="65"/><line x1="72" y1="72" x2="78" y2="95"/><line x1="72" y1="72" x2="55" y2="88"/><line x1="55" y1="88" x2="40" y2="113"/><line x1="10" y1="118" x2="110" y2="118" strokeOpacity="0.3"/></Fig>,
-  "Sit-ups": ({c}) => <Fig color={c}><line x1="10" y1="110" x2="110" y2="110" strokeOpacity="0.3"/><circle cx="38" cy="55" r="10" stroke={c} fill="none"/><line x1="44" y1="62" x2="72" y2="88"/><line x1="72" y1="88" x2="55" y2="110"/><line x1="72" y1="88" x2="88" y2="108"/><line x1="55" y1="110" x2="38" y2="108"/><line x1="52" y1="68" x2="62" y2="60"/></Fig>,
-  "Russian Twists": ({c}) => <Fig color={c}><line x1="10" y1="112" x2="110" y2="112" strokeOpacity="0.3"/><circle cx="45" cy="58" r="10" stroke={c} fill="none"/><line x1="50" y1="66" x2="75" y2="88"/><line x1="75" y1="88" x2="58" y2="108"/><line x1="75" y1="88" x2="92" y2="105"/><line x1="55" y1="72" x2="35" y2="62"/><line x1="62" y1="75" x2="42" y2="65"/></Fig>,
-  "Reverse Fly": ({c}) => <Fig color={c}><circle cx="32" cy="42" r="10" stroke={c} fill="none"/><line x1="38" y1="50" x2="78" y2="68"/><line x1="55" y1="58" x2="40" y2="38"/><line x1="65" y1="63" x2="88" y2="44"/><line x1="78" y1="68" x2="68" y2="100"/><line x1="68" y1="100" x2="62" y2="122"/><line x1="78" y1="68" x2="90" y2="98"/><line x1="90" y1="98" x2="94" y2="122"/><line x1="10" y1="128" x2="110" y2="128" strokeOpacity="0.3"/></Fig>,
-  "Dumbbell Squats": ({c}) => <Fig color={c}><circle cx="60" cy="20" r="10" stroke={c} fill="none"/><line x1="60" y1="30" x2="58" y2="72"/><line x1="60" y1="42" x2="40" y2="68"/><line x1="60" y1="42" x2="80" y2="68"/><line x1="58" y1="72" x2="38" y2="95"/><line x1="38" y1="95" x2="32" y2="120"/><line x1="58" y1="72" x2="78" y2="95"/><line x1="78" y1="95" x2="85" y2="120"/><line x1="10" y1="126" x2="110" y2="126" strokeOpacity="0.3"/></Fig>,
-  "Chest Press": ({c}) => <Fig color={c}><rect x="20" y="85" width="80" height="10" rx="3" stroke={c} fill={`${c}22`}/><circle cx="28" cy="72" r="10" stroke={c} fill="none"/><line x1="36" y1="72" x2="95" y2="75"/><line x1="52" y1="73" x2="45" y2="52"/><line x1="75" y1="74" x2="80" y2="52"/><line x1="95" y1="75" x2="95" y2="95"/><line x1="95" y1="95" x2="85" y2="110"/><line x1="95" y1="95" x2="105" y2="108"/></Fig>,
-  "Lateral Raises": ({c}) => <Fig color={c}><circle cx="60" cy="18" r="10" stroke={c} fill="none"/><line x1="60" y1="28" x2="60" y2="75"/><line x1="60" y1="40" x2="22" y2="52"/><line x1="60" y1="40" x2="98" y2="52"/><line x1="60" y1="75" x2="48" y2="115"/><line x1="60" y1="75" x2="72" y2="115"/><line x1="10" y1="122" x2="110" y2="122" strokeOpacity="0.3"/></Fig>,
-  "Dumbbell Shrugs": ({c}) => <Fig color={c}><circle cx="60" cy="16" r="10" stroke={c} fill="none"/><line x1="60" y1="26" x2="60" y2="75"/><line x1="60" y1="32" x2="35" y2="38"/><line x1="60" y1="32" x2="85" y2="38"/><line x1="35" y1="38" x2="32" y2="68"/><line x1="85" y1="38" x2="88" y2="68"/><line x1="60" y1="75" x2="48" y2="115"/><line x1="60" y1="75" x2="72" y2="115"/></Fig>,
+  "Bicep Curls":    "https://s3assets.skimble.com/assets/2287282/image_full.jpg",
+  "Tricep Dips":    "https://training.fit/wp-content/uploads/2020/03/arnold-dips.png",
+  "Lunges":         "https://images.squarespace-cdn.com/content/v1/5ffcea9416aee143500ea103/1638425716168-GMKJB64MCPI0R9FWOB2U/Dumbbell%2BLunges.jpeg",
+  "Shoulder Press": "https://antofy.co.uk/wp-content/uploads/2024/09/image-4.png",
+  "Bent-over Rows": "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-bent-over-row.jpg",
 };
-// ─── STRETCH ILLUSTRATIONS ────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ STRETCH ILLUSTRATIONS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const StretchIllus = {
   // UPPER BODY
   "Neck": ({c}) => <Fig color={c}><circle cx="60" cy="22" r="10" stroke={c} fill="none"/><line x1="60" y1="32" x2="60" y2="75"/><line x1="60" y1="42" x2="40" y2="60"/><line x1="60" y1="42" x2="80" y2="60"/><line x1="60" y1="75" x2="48" y2="115"/><line x1="60" y1="75" x2="72" y2="115"/>{/* Head tilted, hand on head */}<line x1="60" y1="22" x2="75" y2="35" strokeDasharray="3"/></Fig>,
@@ -106,7 +97,7 @@ const StretchIllus = {
   "Feet": ({c}) => <Fig color={c}><line x1="10" y1="125" x2="110" y2="125" strokeOpacity="0.3"/>{/* Seated, toes pulled back */}<circle cx="40" cy="35" r="10" stroke={c} fill="none"/><line x1="40" y1="45" x2="40" y2="85"/><line x1="40" y1="55" x2="20" y2="72"/><line x1="40" y1="55" x2="60" y2="70"/>{/* legs extended */}<line x1="40" y1="85" x2="30" y2="122"/><line x1="40" y1="85" x2="80" y2="88"/><line x1="80" y1="88" x2="95" y2="122"/>{/* foot flexed, toes back */}<line x1="95" y1="122" x2="95" y2="110"/><line x1="95" y1="110" x2="85" y2="105"/>{/* hand pulling toes */}<line x1="60" y1="70" x2="88" y2="102"/></Fig>,
 };
 
-// ─── STRETCH DATA ─────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ STRETCH DATA Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const stretchSections = [
   { label:"Upper Body", color:"#378ADD", items:[
     { name:"Neck", muscles:"front, sides, back", hold:"30 sec/side", detail:"Slowly tilt ear toward shoulder. Use hand to gently increase stretch. Roll chin to chest for front stretch.", key:"neck" },
@@ -116,12 +107,12 @@ const stretchSections = [
     { name:"Upper Back", muscles:"traps, rhomboids", hold:"30 sec", detail:"Hug arms forward, interlace fingers, round upper back like a cat. Feel stretch between shoulder blades.", key:"upbk" },
   ]},
   { label:"Core", color:"#C77DFF", items:[
-    { name:"Abdominals", muscles:"front of torso", hold:"20–30 sec", detail:"Lie face down. Place hands under shoulders. Gently push up, keep hips on floor. (Cobra pose)", key:"abs" },
+    { name:"Abdominals", muscles:"front of torso", hold:"20Ã¢â‚¬â€œ30 sec", detail:"Lie face down. Place hands under shoulders. Gently push up, keep hips on floor. (Cobra pose)", key:"abs" },
     { name:"Obliques", muscles:"sides of your torso", hold:"20 sec/side", detail:"Stand tall. Raise one arm overhead, lean slowly to opposite side. Feel stretch along your side.", key:"obl" },
     { name:"Lower Back", muscles:"erector spinae, quadratus lumborum", hold:"45 sec", detail:"Child's pose: kneel, sit back on heels, extend arms forward on floor. Breathe deeply into your lower back.", key:"lbk" },
   ]},
   { label:"Lower Body", color:"#2ECC71", items:[
-    { name:"Hips", muscles:"hip flexors, glutes", hold:"45 sec/side", detail:"Pigeon pose: front leg bent at 90°, back leg extended. Stay upright or fold forward for deeper stretch.", key:"hips" },
+    { name:"Hips", muscles:"hip flexors, glutes", hold:"45 sec/side", detail:"Pigeon pose: front leg bent at 90Ã‚Â°, back leg extended. Stay upright or fold forward for deeper stretch.", key:"hips" },
     { name:"Groin", muscles:"adductors", hold:"30 sec", detail:"Butterfly: sit, bring soles of feet together, knees fall outward. Gently press knees toward floor.", key:"groin" },
     { name:"Hamstrings", muscles:"back of the thighs", hold:"30 sec/side", detail:"Stand, hinge at hips keeping back flat, reach toward toes. Or seated with one leg extended, reach for foot.", key:"hams" },
     { name:"Quadriceps", muscles:"front of the thighs", hold:"30 sec/side", detail:"Stand, pull one foot to glute. Keep knees together, stand tall. Hold a wall for balance if needed.", key:"quads" },
@@ -130,7 +121,7 @@ const stretchSections = [
     { name:"Feet", muscles:"arches, toes, peroneus tertius", hold:"20 sec/side", detail:"Seated: extend leg, use hand to pull toes back toward shin. Also roll foot on ball for arch massage.", key:"feet" },
   ]},
 ];
-// ─── ILLUS CARD (shared) ──────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ ILLUS CARD (shared) Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function IllusCard({ label, muscles, detail, reps, done, color, onToggle, illusKey, IllusMap }) {
   const [open, setOpen] = useState(false);
   const Illus = IllusMap && IllusMap[illusKey];
@@ -138,7 +129,7 @@ function IllusCard({ label, muscles, detail, reps, done, color, onToggle, illusK
     <div style={{background:T.surface,border:`1px solid ${T.border}`,borderRadius:14,marginBottom:8,overflow:"hidden"}}>
       <div onClick={onToggle} style={{display:"flex",gap:14,alignItems:"flex-start",padding:"14px 16px",cursor:"pointer"}}>
         <div style={{width:24,height:24,borderRadius:7,border:`2px solid ${color}`,background:done?color:"transparent",flexShrink:0,marginTop:2,display:"flex",alignItems:"center",justifyContent:"center"}}>
-          {done && <span style={{fontSize:13,color:"#000",fontWeight:800}}>✓</span>}
+          {done && <span style={{fontSize:13,color:"#000",fontWeight:800}}>Ã¢Å“â€œ</span>}
         </div>
         <div style={{flex:1}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:2}}>
@@ -150,15 +141,17 @@ function IllusCard({ label, muscles, detail, reps, done, color, onToggle, illusK
           {Illus && (
             <button onClick={e=>{e.stopPropagation();setOpen(o=>!o)}}
               style={{fontSize:10,fontWeight:700,letterSpacing:1,border:"none",background:"transparent",color,cursor:"pointer",paddingTop:6}}>
-              {open?"▲ HIDE FORM":"▼ SHOW FORM"}
+              {open?"Ã¢â€“Â² HIDE FORM":"Ã¢â€“Â¼ SHOW FORM"}
             </button>
           )}
         </div>
       </div>
       {Illus && open && (
         <div style={{padding:"0 16px 16px",display:"flex",justifyContent:"center"}}>
-          <div style={{width:180,height:200,background:`${color}08`,borderRadius:16,border:`1px solid ${color}20`,padding:8}}>
-            <Illus c={color}/>
+          <div style={{width:"100%",maxWidth:340,borderRadius:16,overflow:"hidden",border:`1px solid ${color}20`}}>
+            {typeof Illus === "string"
+              ? <img src={Illus} alt={illusKey} style={{width:"100%",display:"block",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>
+              : <Illus c={color}/>}
           </div>
         </div>
       )}
@@ -166,13 +159,13 @@ function IllusCard({ label, muscles, detail, reps, done, color, onToggle, illusK
   );
 }
 
-// ─── STRETCH SCREEN ───────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ STRETCH SCREEN Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function StretchScreen({ onBack, checked, setChecked }) {
   const allItems = stretchSections.flatMap(s => s.items);
   const done = allItems.filter(item => checked[`str-${item.key}`]).length;
   return (
     <div style={{minHeight:"100vh",background:T.bg,fontFamily:font,color:T.text,paddingBottom:60}}>
-      <ScreenHeader title="Stretch" subtitle="FLEXIBILITY · 10 MIN" emoji="🧘" color={T.green} onBack={onBack}/>
+      <ScreenHeader title="Stretch" subtitle="FLEXIBILITY Ã‚Â· 10 MIN" emoji="Ã°Å¸Â§Ëœ" color={T.green} onBack={onBack}/>
       <div style={{maxWidth:500,margin:"0 auto",padding:"0 20px"}}>
         <ProgressBar done={done} total={allItems.length} color={T.green}/>
         {stretchSections.map(section => (
@@ -188,24 +181,24 @@ function StretchScreen({ onBack, checked, setChecked }) {
             ))}
           </div>
         ))}
-        {done === allItems.length && <CompletionBanner color={T.green} emoji="🌿" text="FULLY STRETCHED!"/>}
+        {done === allItems.length && <CompletionBanner color={T.green} emoji="Ã°Å¸Å’Â¿" text="FULLY STRETCHED!"/>}
       </div>
     </div>
   );
 }
 
-// ─── FOAM ROLLER ──────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ FOAM ROLLER Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const foamTech = [
-  { area:"Upper Back", emoji:"🔵", detail:"Lie with roller across shoulder blades. Support head, lift hips. Gently arch back over roller. Roll slowly from mid-back to upper back.", tip:"Keep core engaged. Never roll the lower back." },
-  { area:"IT Band", emoji:"🟠", detail:"Side-lying, roller under outer thigh. Support with top foot flat. Roll from hip to just above knee. Go slow — intense!", tip:"Cross top leg in front for less pressure." },
-  { area:"Calves", emoji:"🟢", detail:"Sit on floor, roller under calves. Lift hips. Roll from ankle to below knee. Stack one leg for more intensity.", tip:"Rotate foot inward and outward to hit all angles." },
-  { area:"Hamstrings", emoji:"🟡", detail:"Sit with roller under back of thighs. Lift hips, roll from just below glutes to above knee.", tip:"Turn toes in/out to target medial and lateral hamstrings." },
-  { area:"Glutes / Piriformis", emoji:"🔴", detail:"Sit on roller at a slight angle. Cross one ankle over opposite knee. Lean toward crossed-leg side and roll slowly.", tip:"Sink your weight gradually — this is a dense area." },
-  { area:"Quads", emoji:"🟣", detail:"Face down, roller under front of thighs. Support on forearms. Roll from just above knee to hip flexor.", tip:"Avoid rolling directly over the kneecap." },
-  { area:"Lats", emoji:"🔵", detail:"Side-lying with roller under armpit. Arm extended overhead. Roll from armpit to mid-torso.", tip:"Rotate slightly onto your back to access deeper fibres." },
-  { area:"Hip Flexors", emoji:"🟠", detail:"Face down, roller angled under hip/groin. Keep toes on floor, roll gently.", tip:"Move slowly. Hold on tight spots for 20 sec." },
-  { area:"Thoracic Spine", emoji:"🟢", detail:"Roller horizontal across mid-back. Hands behind head, knees bent. Let upper back extend over roller.", tip:"Never roll on the neck or lower lumbar spine." },
-  { area:"Plantar Fascia", emoji:"🟡", detail:"Standing or seated, roller under foot arch. Roll from heel to ball of foot slowly.", tip:"Use a lacrosse ball for deeper, more targeted work." },
+  { area:"Upper Back", emoji:"Ã°Å¸â€Âµ", detail:"Lie with roller across shoulder blades. Support head, lift hips. Gently arch back over roller. Roll slowly from mid-back to upper back.", tip:"Keep core engaged. Never roll the lower back." },
+  { area:"IT Band", emoji:"Ã°Å¸Å¸Â ", detail:"Side-lying, roller under outer thigh. Support with top foot flat. Roll from hip to just above knee. Go slow Ã¢â‚¬â€ intense!", tip:"Cross top leg in front for less pressure." },
+  { area:"Calves", emoji:"Ã°Å¸Å¸Â¢", detail:"Sit on floor, roller under calves. Lift hips. Roll from ankle to below knee. Stack one leg for more intensity.", tip:"Rotate foot inward and outward to hit all angles." },
+  { area:"Hamstrings", emoji:"Ã°Å¸Å¸Â¡", detail:"Sit with roller under back of thighs. Lift hips, roll from just below glutes to above knee.", tip:"Turn toes in/out to target medial and lateral hamstrings." },
+  { area:"Glutes / Piriformis", emoji:"Ã°Å¸â€Â´", detail:"Sit on roller at a slight angle. Cross one ankle over opposite knee. Lean toward crossed-leg side and roll slowly.", tip:"Sink your weight gradually Ã¢â‚¬â€ this is a dense area." },
+  { area:"Quads", emoji:"Ã°Å¸Å¸Â£", detail:"Face down, roller under front of thighs. Support on forearms. Roll from just above knee to hip flexor.", tip:"Avoid rolling directly over the kneecap." },
+  { area:"Lats", emoji:"Ã°Å¸â€Âµ", detail:"Side-lying with roller under armpit. Arm extended overhead. Roll from armpit to mid-torso.", tip:"Rotate slightly onto your back to access deeper fibres." },
+  { area:"Hip Flexors", emoji:"Ã°Å¸Å¸Â ", detail:"Face down, roller angled under hip/groin. Keep toes on floor, roll gently.", tip:"Move slowly. Hold on tight spots for 20 sec." },
+  { area:"Thoracic Spine", emoji:"Ã°Å¸Å¸Â¢", detail:"Roller horizontal across mid-back. Hands behind head, knees bent. Let upper back extend over roller.", tip:"Never roll on the neck or lower lumbar spine." },
+  { area:"Plantar Fascia", emoji:"Ã°Å¸Å¸Â¡", detail:"Standing or seated, roller under foot arch. Roll from heel to ball of foot slowly.", tip:"Use a lacrosse ball for deeper, more targeted work." },
 ];
 
 function FoamRollerScreen({ onBack, checked, setChecked }) {
@@ -213,7 +206,7 @@ function FoamRollerScreen({ onBack, checked, setChecked }) {
   const done = foamTech.filter((_,i) => checked[`foam-${i}`]).length;
   return (
     <div style={{minHeight:"100vh",background:T.bg,fontFamily:font,color:T.text,paddingBottom:60}}>
-      <ScreenHeader title="Foam Roller" subtitle="RECOVERY · 10 MIN" emoji="🧴" color={color} onBack={onBack}/>
+      <ScreenHeader title="Foam Roller" subtitle="RECOVERY Ã‚Â· 10 MIN" emoji="Ã°Å¸Â§Â´" color={color} onBack={onBack}/>
       <div style={{maxWidth:500,margin:"0 auto",padding:"0 20px"}}>
         <ProgressBar done={done} total={foamTech.length} color={color}/>
         {foamTech.map((t,i) => (
@@ -221,34 +214,34 @@ function FoamRollerScreen({ onBack, checked, setChecked }) {
             <div onClick={() => setChecked(p => ({...p,[`foam-${i}`]:!p[`foam-${i}`]}))}
               style={{display:"flex",gap:14,alignItems:"flex-start",padding:"14px 16px",cursor:"pointer"}}>
               <div style={{width:24,height:24,borderRadius:7,border:`2px solid ${color}`,background:checked[`foam-${i}`]?color:"transparent",flexShrink:0,marginTop:2,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                {checked[`foam-${i}`] && <span style={{fontSize:13,color:"#000",fontWeight:800}}>✓</span>}
+                {checked[`foam-${i}`] && <span style={{fontSize:13,color:"#000",fontWeight:800}}>Ã¢Å“â€œ</span>}
               </div>
               <div style={{flex:1}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
                   <span style={{fontWeight:700,fontSize:14,color:checked[`foam-${i}`]?T.muted:T.text,textDecoration:checked[`foam-${i}`]?"line-through":"none"}}>{t.emoji} {t.area}</span>
                 </div>
                 <p style={{fontSize:12,color:T.muted,lineHeight:1.5,marginBottom:6}}>{t.detail}</p>
-                {!checked[`foam-${i}`] && <div style={{background:`${color}10`,borderLeft:`3px solid ${color}`,borderRadius:6,padding:"8px 10px",fontSize:11,color}}>💡 {t.tip}</div>}
+                {!checked[`foam-${i}`] && <div style={{background:`${color}10`,borderLeft:`3px solid ${color}`,borderRadius:6,padding:"8px 10px",fontSize:11,color}}>Ã°Å¸â€™Â¡ {t.tip}</div>}
               </div>
             </div>
           </div>
         ))}
-        {done === foamTech.length && <CompletionBanner color={color} emoji="✨" text="RECOVERY COMPLETE!"/>}
+        {done === foamTech.length && <CompletionBanner color={color} emoji="Ã¢Å“Â¨" text="RECOVERY COMPLETE!"/>}
       </div>
     </div>
   );
 }
 
-// ─── SIMPLE WORKOUTS ──────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ SIMPLE WORKOUTS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const simpleEx = [
-  { name:"Wall Push-Ups", reps:"3 × 15", detail:"Hands on wall at shoulder height. Great for all levels." },
-  { name:"Chair Squats", reps:"3 × 12", detail:"Stand in front of chair, lower until you almost touch it, stand back up." },
+  { name:"Wall Push-Ups", reps:"3 Ãƒâ€” 15", detail:"Hands on wall at shoulder height. Great for all levels." },
+  { name:"Chair Squats", reps:"3 Ãƒâ€” 12", detail:"Stand in front of chair, lower until you almost touch it, stand back up." },
   { name:"Marching in Place", reps:"3 min", detail:"High knees, pump arms. Easy cardio anywhere." },
-  { name:"Seated Leg Raises", reps:"3 × 15", detail:"Sit on edge of chair, extend one leg, hold 2 sec, lower." },
-  { name:"Glute Bridges", reps:"3 × 15", detail:"Lie on back, knees bent. Push hips up, squeeze glutes at top." },
-  { name:"Standing Side Crunches", reps:"3 × 12/side", detail:"Stand tall, bring elbow to same-side knee by crunching sideways." },
-  { name:"Wall Sit", reps:"3 × 30 sec", detail:"Back against wall, thighs parallel to floor. Hold." },
-  { name:"Toe Touches", reps:"3 × 10", detail:"Stand, reach down toward toes. Slow and controlled." },
+  { name:"Seated Leg Raises", reps:"3 Ãƒâ€” 15", detail:"Sit on edge of chair, extend one leg, hold 2 sec, lower." },
+  { name:"Glute Bridges", reps:"3 Ãƒâ€” 15", detail:"Lie on back, knees bent. Push hips up, squeeze glutes at top." },
+  { name:"Standing Side Crunches", reps:"3 Ãƒâ€” 12/side", detail:"Stand tall, bring elbow to same-side knee by crunching sideways." },
+  { name:"Wall Sit", reps:"3 Ãƒâ€” 30 sec", detail:"Back against wall, thighs parallel to floor. Hold." },
+  { name:"Toe Touches", reps:"3 Ãƒâ€” 10", detail:"Stand, reach down toward toes. Slow and controlled." },
 ];
 
 function SimpleWorkoutsScreen({ onBack, checked, setChecked }) {
@@ -256,7 +249,7 @@ function SimpleWorkoutsScreen({ onBack, checked, setChecked }) {
   const done = simpleEx.filter((_,i) => checked[`sim-${i}`]).length;
   return (
     <div style={{minHeight:"100vh",background:T.bg,fontFamily:font,color:T.text,paddingBottom:60}}>
-      <ScreenHeader title="Simple Workouts" subtitle="BODYWEIGHT · NO EQUIPMENT" emoji="🏃" color={color} onBack={onBack}/>
+      <ScreenHeader title="Simple Workouts" subtitle="BODYWEIGHT Ã‚Â· NO EQUIPMENT" emoji="Ã°Å¸ÂÆ’" color={color} onBack={onBack}/>
       <div style={{maxWidth:500,margin:"0 auto",padding:"0 20px"}}>
         <ProgressBar done={done} total={simpleEx.length} color={color}/>
         {simpleEx.map((s,i) => (
@@ -264,7 +257,7 @@ function SimpleWorkoutsScreen({ onBack, checked, setChecked }) {
             <div onClick={() => setChecked(p => ({...p,[`sim-${i}`]:!p[`sim-${i}`]}))}
               style={{display:"flex",gap:14,alignItems:"flex-start",padding:"14px 16px",cursor:"pointer"}}>
               <div style={{width:24,height:24,borderRadius:7,border:`2px solid ${color}`,background:checked[`sim-${i}`]?color:"transparent",flexShrink:0,marginTop:2,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                {checked[`sim-${i}`] && <span style={{fontSize:13,color:"#000",fontWeight:800}}>✓</span>}
+                {checked[`sim-${i}`] && <span style={{fontSize:13,color:"#000",fontWeight:800}}>Ã¢Å“â€œ</span>}
               </div>
               <div style={{flex:1}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
@@ -276,12 +269,12 @@ function SimpleWorkoutsScreen({ onBack, checked, setChecked }) {
             </div>
           </div>
         ))}
-        {done === simpleEx.length && <CompletionBanner color={color} emoji="🏅" text="NICE WORK!"/>}
+        {done === simpleEx.length && <CompletionBanner color={color} emoji="Ã°Å¸Ââ€¦" text="NICE WORK!"/>}
       </div>
     </div>
   );
 }
-// ─── LOG SCREEN ───────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ LOG SCREEN Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function LogScreen({ onBack, log, onClear }) {
   const color = T.yellow;
   const grouped = log.reduce((acc,e) => {
@@ -292,11 +285,11 @@ function LogScreen({ onBack, log, onClear }) {
   const days = Object.keys(grouped).reverse();
   return (
     <div style={{minHeight:"100vh",background:T.bg,fontFamily:font,color:T.text,paddingBottom:60}}>
-      <ScreenHeader title="Exercise Log" subtitle="HISTORY" emoji="📋" color={color} onBack={onBack}/>
+      <ScreenHeader title="Exercise Log" subtitle="HISTORY" emoji="Ã°Å¸â€œâ€¹" color={color} onBack={onBack}/>
       <div style={{maxWidth:500,margin:"0 auto",padding:"0 20px"}}>
         {log.length===0?(
           <div style={{textAlign:"center",padding:"60px 0",color:T.muted}}>
-            <div style={{fontSize:48,marginBottom:16}}>📋</div>
+            <div style={{fontSize:48,marginBottom:16}}>Ã°Å¸â€œâ€¹</div>
             <p>No activities logged yet.<br/>Complete a session to see it here.</p>
           </div>
         ):(
@@ -310,7 +303,7 @@ function LogScreen({ onBack, log, onClear }) {
                       <div style={{fontWeight:700,fontSize:14}}>{e.emoji} {e.name}</div>
                       <div style={{fontSize:11,color:T.muted,marginTop:2}}>{e.duration}</div>
                     </div>
-                    <div style={{fontFamily:display,fontSize:20,color:e.color||color}}>✓</div>
+                    <div style={{fontFamily:display,fontSize:20,color:e.color||color}}>Ã¢Å“â€œ</div>
                   </div>
                 ))}
               </div>
@@ -323,7 +316,7 @@ function LogScreen({ onBack, log, onClear }) {
   );
 }
 
-// ─── TIMER SCREEN ─────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ TIMER SCREEN Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 function TimerScreen({ title, subtitle, emoji, color, defaultMins, onBack, onComplete, note }) {
   const total = defaultMins * 60;
   const [remaining, setRemaining] = useState(total);
@@ -353,7 +346,7 @@ function TimerScreen({ title, subtitle, emoji, color, defaultMins, onBack, onCom
           </svg>
           <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",textAlign:"center"}}>
             <div style={{fontFamily:display,fontSize:48,color:done?color:T.text,lineHeight:1}}>{done?"DONE":`${mins}:${secs}`}</div>
-            <div style={{fontSize:11,color:T.muted,letterSpacing:1,marginTop:4}}>{done?"🎉":running?"RUNNING":"READY"}</div>
+            <div style={{fontSize:11,color:T.muted,letterSpacing:1,marginTop:4}}>{done?"Ã°Å¸Å½â€°":running?"RUNNING":"READY"}</div>
           </div>
         </div>
         <div style={{display:"flex",gap:12}}>
@@ -366,7 +359,7 @@ function TimerScreen({ title, subtitle, emoji, color, defaultMins, onBack, onCom
   );
 }
 
-// ─── BREATHING ────────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ BREATHING Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const breathModes = [
   { name:"Box", steps:["Inhale","Hold","Exhale","Hold"], durations:[4,4,4,4], color:T.teal, desc:"Stress relief & focus" },
   { name:"4-7-8", steps:["Inhale","Hold","Exhale"], durations:[4,7,8], color:T.purple, desc:"Sleep & anxiety relief" },
@@ -400,7 +393,7 @@ function BreathingScreen({ onBack }) {
   const C = 2*Math.PI*80;
   return (
     <div style={{minHeight:"100vh",background:T.bg,fontFamily:font,color:T.text}}>
-      <ScreenHeader title="Breathing" subtitle="BREATHWORK" emoji="🌬️" color={m.color} onBack={() => { stop(); onBack(); }}/>
+      <ScreenHeader title="Breathing" subtitle="BREATHWORK" emoji="Ã°Å¸Å’Â¬Ã¯Â¸Â" color={m.color} onBack={() => { stop(); onBack(); }}/>
       <div style={{maxWidth:500,margin:"0 auto",padding:"0 20px 40px"}}>
         <div style={{display:"flex",gap:8,marginBottom:20}}>
           {breathModes.map((bm,i) => (
@@ -441,33 +434,33 @@ function BreathingScreen({ onBack }) {
     </div>
   );
 }
-// ─── WORKOUT SETS ─────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ WORKOUT SETS Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const workouts = [
-  { title:"Upper & Lower Dumbbell", color:"#FF6B35", emoji:"💪", tag:"Workout 1", steps:[
-    { phase:"Warm-Up", reps:"5–10 min", detail:"Light cardio — jogging in place or jumping jacks", type:"warmup" },
-    { phase:"Bicep Curls", reps:"3 × 12–15", detail:"Curl dumbbells up to shoulder height, squeeze at the top", type:"exercise" },
-    { phase:"Tricep Dips", reps:"3 × 12–15", detail:"Lower body slowly, keep elbows close to body", type:"exercise" },
-    { phase:"Lunges", reps:"3 × 12–15", detail:"Step forward, lower back knee toward floor, alternate legs", type:"exercise" },
-    { phase:"Shoulder Press", reps:"3 × 12–15", detail:"Press dumbbells overhead from shoulder height", type:"exercise" },
-    { phase:"Bent-over Rows", reps:"3 × 12–15", detail:"Hinge at hips, pull dumbbells to ribcage, squeeze back", type:"exercise" },
-    { phase:"Cool-Down", reps:"5–10 min", detail:"Stretching to improve flexibility & prevent soreness", type:"cooldown" },
+  { title:"Upper & Lower Dumbbell", color:"#FF6B35", emoji:"Ã°Å¸â€™Âª", tag:"Workout 1", steps:[
+    { phase:"Warm-Up", reps:"5Ã¢â‚¬â€œ10 min", detail:"Light cardio Ã¢â‚¬â€ jogging in place or jumping jacks", type:"warmup" },
+    { phase:"Bicep Curls", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Curl dumbbells up to shoulder height, squeeze at the top", type:"exercise" },
+    { phase:"Tricep Dips", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Lower body slowly, keep elbows close to body", type:"exercise" },
+    { phase:"Lunges", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Step forward, lower back knee toward floor, alternate legs", type:"exercise" },
+    { phase:"Shoulder Press", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Press dumbbells overhead from shoulder height", type:"exercise" },
+    { phase:"Bent-over Rows", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Hinge at hips, pull dumbbells to ribcage, squeeze back", type:"exercise" },
+    { phase:"Cool-Down", reps:"5Ã¢â‚¬â€œ10 min", detail:"Stretching to improve flexibility & prevent soreness", type:"cooldown" },
   ]},
-  { title:"Core & Lower Body Burn", color:"#FFD93D", emoji:"🔥", tag:"Workout 2", steps:[
-    { phase:"Warm-Up", reps:"5–10 min", detail:"Light cardio to prepare your body", type:"warmup" },
-    { phase:"Standing Calf Raise", reps:"3 × 12–15", detail:"Rise onto toes slowly, hold 1 sec, lower back down", type:"exercise" },
-    { phase:"Step-ups", reps:"3 × 12–15", detail:"Step up onto a sturdy surface, alternate legs", type:"exercise" },
-    { phase:"Sit-ups", reps:"3 × 12–15", detail:"Hold dumbbell at chest, engage core on the way up", type:"exercise" },
-    { phase:"Russian Twists", reps:"3 × 12–15", detail:"Hold dumbbell, rotate torso side to side", type:"exercise" },
-    { phase:"Reverse Fly", reps:"3 × 12–15", detail:"Hinge forward, raise dumbbells out to sides", type:"exercise" },
-    { phase:"Cool-Down", reps:"5–10 min", detail:"Stretching to relax muscles and promote recovery", type:"cooldown" },
+  { title:"Core & Lower Body Burn", color:"#FFD93D", emoji:"Ã°Å¸â€Â¥", tag:"Workout 2", steps:[
+    { phase:"Warm-Up", reps:"5Ã¢â‚¬â€œ10 min", detail:"Light cardio to prepare your body", type:"warmup" },
+    { phase:"Standing Calf Raise", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Rise onto toes slowly, hold 1 sec, lower back down", type:"exercise" },
+    { phase:"Step-ups", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Step up onto a sturdy surface, alternate legs", type:"exercise" },
+    { phase:"Sit-ups", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Hold dumbbell at chest, engage core on the way up", type:"exercise" },
+    { phase:"Russian Twists", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Hold dumbbell, rotate torso side to side", type:"exercise" },
+    { phase:"Reverse Fly", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Hinge forward, raise dumbbells out to sides", type:"exercise" },
+    { phase:"Cool-Down", reps:"5Ã¢â‚¬â€œ10 min", detail:"Stretching to relax muscles and promote recovery", type:"cooldown" },
   ]},
-  { title:"Total Body Tone-Up", color:"#C77DFF", emoji:"🧘", tag:"Workout 3", steps:[
-    { phase:"Warm-Up", reps:"5–10 min", detail:"Light cardio to get warmed up", type:"warmup" },
-    { phase:"Dumbbell Squats", reps:"3 × 12–15", detail:"Feet shoulder-width apart, sit back and down", type:"exercise" },
-    { phase:"Chest Press", reps:"3 × 12–15", detail:"Lie on back, press dumbbells up from chest", type:"exercise" },
-    { phase:"Lateral Raises", reps:"3 × 12–15", detail:"Raise arms out to sides to shoulder height", type:"exercise" },
-    { phase:"Dumbbell Shrugs", reps:"3 × 12–15", detail:"Lift shoulders toward ears", type:"exercise" },
-    { phase:"Cool-Down", reps:"5–10 min", detail:"Stretching to cool down and recover", type:"cooldown" },
+  { title:"Total Body Tone-Up", color:"#C77DFF", emoji:"Ã°Å¸Â§Ëœ", tag:"Workout 3", steps:[
+    { phase:"Warm-Up", reps:"5Ã¢â‚¬â€œ10 min", detail:"Light cardio to get warmed up", type:"warmup" },
+    { phase:"Dumbbell Squats", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Feet shoulder-width apart, sit back and down", type:"exercise" },
+    { phase:"Chest Press", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Lie on back, press dumbbells up from chest", type:"exercise" },
+    { phase:"Lateral Raises", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Raise arms out to sides to shoulder height", type:"exercise" },
+    { phase:"Dumbbell Shrugs", reps:"3 Ãƒâ€” 12Ã¢â‚¬â€œ15", detail:"Lift shoulders toward ears", type:"exercise" },
+    { phase:"Cool-Down", reps:"5Ã¢â‚¬â€œ10 min", detail:"Stretching to cool down and recover", type:"cooldown" },
   ]},
 ];
 const tsStyle = { warmup:{bg:"#0F1F1A",ac:"#4ECDC4"}, exercise:{bg:"#16161A",ac:null}, cooldown:{bg:"#0F0F1F",ac:"#4ECDC4"} };
@@ -492,7 +485,7 @@ function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
           <BackButton onBack={onBack} color={w.color}/>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginTop:12}}>
             <div>
-              <p style={{fontSize:10,letterSpacing:3,color:T.muted,fontWeight:600,marginBottom:2}}>WORKOUT SETS · 30 MIN</p>
+              <p style={{fontSize:10,letterSpacing:3,color:T.muted,fontWeight:600,marginBottom:2}}>WORKOUT SETS Ã‚Â· 30 MIN</p>
               <h1 style={{fontFamily:display,fontSize:36,letterSpacing:1,lineHeight:1}}>MY WORKOUTS</h1>
             </div>
             <div style={{textAlign:"right"}}>
@@ -507,7 +500,7 @@ function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
           {workouts.map((wk,i) => (
             <div key={i} onClick={() => setAw(i)}
               style={{padding:"14px 10px",background:aw===i?`${wk.color}18`:T.surface,border:`2px solid ${aw===i?wk.color:T.border}`,borderRadius:14,textAlign:"center",cursor:"pointer"}}>
-              <div style={{fontSize:24,marginBottom:5}}>{allDone[i]?"✅":wk.emoji}</div>
+              <div style={{fontSize:24,marginBottom:5}}>{allDone[i]?"Ã¢Å“â€¦":wk.emoji}</div>
               <div style={{fontSize:9,fontWeight:700,letterSpacing:1.5,color:aw===i?wk.color:T.muted}}>{wk.tag.toUpperCase()}</div>
             </div>
           ))}
@@ -544,7 +537,7 @@ function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
             />
           );
         })}
-        {pct===100 && <CompletionBanner color={w.color} emoji="🎉" text="WORKOUT COMPLETE!"/>}
+        {pct===100 && <CompletionBanner color={w.color} emoji="Ã°Å¸Å½â€°" text="WORKOUT COMPLETE!"/>}
         <div style={{marginTop:16,background:T.surface,borderRadius:14,padding:"14px 16px",border:`1px solid ${T.border}`}}>
           <p style={{fontSize:10,letterSpacing:2,color:T.muted,fontWeight:600,marginBottom:10}}>ALWAYS REMEMBER</p>
           {["Ankle mobility warm-up","Neck rolls before & after","Breathing cooldown"].map((item,i,arr) => (
@@ -559,17 +552,17 @@ function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
   );
 }
 
-// ─── HOME ─────────────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ HOME Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const activities = [
-  { id:"workout-sets", label:"Workout Sets", emoji:"💪", duration:"30 min", color:"#FF6B35", desc:"3 dumbbell routines" },
-  { id:"stretch", label:"Stretch", emoji:"🧘", duration:"10 min", color:"#2ECC71", desc:"Full body flexibility" },
-  { id:"simple", label:"Simple Workouts", emoji:"🏃", duration:"15 min", color:"#378ADD", desc:"Bodyweight, no gear" },
-  { id:"breathing", label:"Breathing", emoji:"🌬️", duration:"5–10 min", color:"#4ECDC4", desc:"Box, 4-7-8, belly" },
-  { id:"bike", label:"Bike", emoji:"🚴", duration:"20 min", color:"#378ADD", desc:"Cardio timer" },
-  { id:"sauna", label:"Sauna", emoji:"🧖", duration:"20 min", color:"#E74C3C", desc:"Recovery timer" },
-  { id:"ohming", label:"Ohming", emoji:"🕉️", duration:"5 min", color:"#C77DFF", desc:"Meditation timer" },
-  { id:"foam-roller", label:"Foam Roller", emoji:"🧴", duration:"10 min", color:"#4ECDC4", desc:"Recovery techniques" },
-  { id:"log", label:"Exercise Log", emoji:"📋", duration:null, color:"#FFD93D", desc:"View past activities" },
+  { id:"workout-sets", label:"Workout Sets", emoji:"Ã°Å¸â€™Âª", duration:"30 min", color:"#FF6B35", desc:"3 dumbbell routines" },
+  { id:"stretch", label:"Stretch", emoji:"Ã°Å¸Â§Ëœ", duration:"10 min", color:"#2ECC71", desc:"Full body flexibility" },
+  { id:"simple", label:"Simple Workouts", emoji:"Ã°Å¸ÂÆ’", duration:"15 min", color:"#378ADD", desc:"Bodyweight, no gear" },
+  { id:"breathing", label:"Breathing", emoji:"Ã°Å¸Å’Â¬Ã¯Â¸Â", duration:"5Ã¢â‚¬â€œ10 min", color:"#4ECDC4", desc:"Box, 4-7-8, belly" },
+  { id:"bike", label:"Bike", emoji:"Ã°Å¸Å¡Â´", duration:"20 min", color:"#378ADD", desc:"Cardio timer" },
+  { id:"sauna", label:"Sauna", emoji:"Ã°Å¸Â§â€“", duration:"20 min", color:"#E74C3C", desc:"Recovery timer" },
+  { id:"ohming", label:"Ohming", emoji:"Ã°Å¸â€¢â€°Ã¯Â¸Â", duration:"5 min", color:"#C77DFF", desc:"Meditation timer" },
+  { id:"foam-roller", label:"Foam Roller", emoji:"Ã°Å¸Â§Â´", duration:"10 min", color:"#4ECDC4", desc:"Recovery techniques" },
+  { id:"log", label:"Exercise Log", emoji:"Ã°Å¸â€œâ€¹", duration:null, color:"#FFD93D", desc:"View past activities" },
 ];
 function HomeScreen({ onNavigate }) {
   return (
@@ -605,7 +598,7 @@ function HomeScreen({ onNavigate }) {
   );
 }
 
-// ─── ROOT ─────────────────────────────────────────────────────────────────────
+// Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ ROOT Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 const LOG_KEY = "wellness_log";
 const CHK_KEY = "wellness_checked";
 export default function App() {
@@ -627,8 +620,8 @@ export default function App() {
   if (screen==="breathing") return <BreathingScreen onBack={() => setScreen("home")}/>;
   if (screen==="foam-roller") return <FoamRollerScreen onBack={() => setScreen("home")} checked={checked} setChecked={setChecked}/>;
   if (screen==="log") return <LogScreen onBack={() => setScreen("home")} log={log} onClear={() => setLog([])}/>;
-  if (screen==="bike") return <TimerScreen title="Bike" subtitle="CARDIO · 20 MIN" emoji="🚴" color="#378ADD" defaultMins={20} onBack={() => setScreen("home")} onComplete={() => timerDone("Bike","🚴","#378ADD","20 min")} note="Steady pace cardio. Aim for 60–70% max heart rate. Stay hydrated."/>;
-  if (screen==="sauna") return <TimerScreen title="Sauna" subtitle="RECOVERY · 20 MIN" emoji="🧖" color="#E74C3C" defaultMins={20} onBack={() => setScreen("home")} onComplete={() => timerDone("Sauna","🧖","#E74C3C","20 min")} note="Hydrate well before and after. Exit if you feel dizzy or uncomfortable."/>;
-  if (screen==="ohming") return <TimerScreen title="Ohming" subtitle="MEDITATION · 5 MIN" emoji="🕉️" color="#C77DFF" defaultMins={5} onBack={() => setScreen("home")} onComplete={() => timerDone("Ohming","🕉️","#C77DFF","5 min")} note="Sit comfortably, close eyes. Inhale deeply, exhale with a low Ohhhmm sound. Let thoughts pass."/>;
+  if (screen==="bike") return <TimerScreen title="Bike" subtitle="CARDIO Ã‚Â· 20 MIN" emoji="Ã°Å¸Å¡Â´" color="#378ADD" defaultMins={20} onBack={() => setScreen("home")} onComplete={() => timerDone("Bike","Ã°Å¸Å¡Â´","#378ADD","20 min")} note="Steady pace cardio. Aim for 60Ã¢â‚¬â€œ70% max heart rate. Stay hydrated."/>;
+  if (screen==="sauna") return <TimerScreen title="Sauna" subtitle="RECOVERY Ã‚Â· 20 MIN" emoji="Ã°Å¸Â§â€“" color="#E74C3C" defaultMins={20} onBack={() => setScreen("home")} onComplete={() => timerDone("Sauna","Ã°Å¸Â§â€“","#E74C3C","20 min")} note="Hydrate well before and after. Exit if you feel dizzy or uncomfortable."/>;
+  if (screen==="ohming") return <TimerScreen title="Ohming" subtitle="MEDITATION Ã‚Â· 5 MIN" emoji="Ã°Å¸â€¢â€°Ã¯Â¸Â" color="#C77DFF" defaultMins={5} onBack={() => setScreen("home")} onComplete={() => timerDone("Ohming","Ã°Å¸â€¢â€°Ã¯Â¸Â","#C77DFF","5 min")} note="Sit comfortably, close eyes. Inhale deeply, exhale with a low Ohhhmm sound. Let thoughts pass."/>;
   return <HomeScreen onNavigate={setScreen}/>;
 }
