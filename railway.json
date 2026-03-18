@@ -1,1 +1,1 @@
-{ "deploy": { "startCommand": "npx serve dist -l $PORT" } }
+{ "build": { "builder": "DOCKERFILE", "dockerfilePath": "Dockerfile" } }
