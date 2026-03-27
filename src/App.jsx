@@ -55,12 +55,12 @@ function CompletionBanner({ color, emoji, text }) {
 // ─── FIGURE BASE ──────────────────────────────────────────────────────────────
 // ─── WORKOUT ILLUSTRATIONS ────────────────────────────────────────────────────
 const WorkoutIllus = {
-  // Workout 1 — Upper & Lower Dumbbell
-  "Bicep Curls":         "https://www.inspireusafoundation.org/wp-content/uploads/2021/10/dumbbell-bicep-curl.png",
-  "Tricep Dips":         "https://www.inspireusafoundation.org/wp-content/uploads/2022/04/tricep-dips.png",
-  "Lunges":              "https://www.inspireusafoundation.org/wp-content/uploads/2021/11/dumbbell-lunge.png",
-  "Shoulder Press":      "https://www.inspireusafoundation.org/wp-content/uploads/2021/11/dumbbell-shoulder-press.png",
-  "Bent-over Rows":      "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/bent-over-dumbbell-row.png",
+  // Workout 1 — original photos Jason provided
+  "Bicep Curls":         "https://s3assets.skimble.com/assets/2287282/image_full.jpg",
+  "Tricep Dips":         "https://training.fit/wp-content/uploads/2020/03/arnold-dips.png",
+  "Lunges":              "https://images.squarespace-cdn.com/content/v1/5ffcea9416aee143500ea103/1638425716168-GMKJB64MCPI0R9FWOB2U/Dumbbell%2BLunges.jpeg",
+  "Shoulder Press":      "https://antofy.co.uk/wp-content/uploads/2024/09/image-4.png",
+  "Bent-over Rows":      "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-bent-over-row.jpg",
   // Workout 2 — Core & Lower Body
   "Standing Calf Raise": "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-calf-raise.png",
   "Step-ups":            "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-step-up.png",
