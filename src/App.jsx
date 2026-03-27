@@ -548,6 +548,38 @@ const DietPlanLink = () => (
     target="_blank"
     rel="noreferrer"
     style={{
+      position: 'fixed',
+      bottom: '24px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      zIndex: 9999,
+      background: 'rgba(200,146,42,0.2)',
+      border: '1px solid rgba(200,146,42,0.6)',
+      color: '#c8922a',
+      textDecoration: 'none',
+      fontFamily: font,
+      fontSize: '11px',
+      fontWeight: '600',
+      letterSpacing: '0.15em',
+      textTransform: 'uppercase',
+      padding: '10px 20px',
+      borderRadius: '20px',
+      backdropFilter: 'blur(10px)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      whiteSpace: 'nowrap'
+    }}
+  >
+    🥗 Diet Plan
+  </a>
+);
+const _DietPlanLink_replaced = () => (
+  <a
+    href="https://diet-plan-production-30bd.up.railway.app"
+    target="_blank"
+    rel="noreferrer"
+    style={{
       position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000,
       background: 'rgba(200,146,42,0.12)', border: '1px solid rgba(200,146,42,0.3)',
       color: '#c8922a', textDecoration: 'none', fontFamily: font,
