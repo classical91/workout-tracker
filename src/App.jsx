@@ -55,22 +55,22 @@ function CompletionBanner({ color, emoji, text }) {
 // ─── FIGURE BASE ──────────────────────────────────────────────────────────────
 // ─── WORKOUT ILLUSTRATIONS ────────────────────────────────────────────────────
 const WorkoutIllus = {
-  // Workout 1
-  "Bicep Curls":         "https://s3assets.skimble.com/assets/2287282/image_full.jpg",
-  "Tricep Dips":         "https://training.fit/wp-content/uploads/2020/03/arnold-dips.png",
-  "Lunges":              "https://hips.hearstapps.com/hmg-prod/images/hdm119918mh15842-1545237096.png",
-  "Shoulder Press":      "https://antofy.co.uk/wp-content/uploads/2024/09/image-4.png",
-  "Bent-over Rows":      "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-bent-over-row.jpg",
-  // Workout 2
-  "Standing Calf Raise": "https://www.dumbbell-exercises.com/wp-content/uploads/2014/06/standing-calf-raise.png",
+  // Workout 1 — Upper & Lower Dumbbell
+  "Bicep Curls":         "https://www.inspireusafoundation.org/wp-content/uploads/2021/10/dumbbell-bicep-curl.png",
+  "Tricep Dips":         "https://www.inspireusafoundation.org/wp-content/uploads/2022/04/tricep-dips.png",
+  "Lunges":              "https://www.inspireusafoundation.org/wp-content/uploads/2021/11/dumbbell-lunge.png",
+  "Shoulder Press":      "https://www.inspireusafoundation.org/wp-content/uploads/2021/11/dumbbell-shoulder-press.png",
+  "Bent-over Rows":      "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/bent-over-dumbbell-row.png",
+  // Workout 2 — Core & Lower Body
+  "Standing Calf Raise": "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-calf-raise.png",
   "Step-ups":            "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-step-up.png",
   "Sit-ups":             "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/weighted-sit-up.png",
   "Russian Twists":      "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-russian-twist.png",
   "Reverse Fly":         "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/bent-over-dumbbell-reverse-fly.png",
-  // Workout 3
-  "Dumbbell Squats":     "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-squat.png",
-  "Chest Press":         "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-chest-press.png",
-  "Lateral Raises":      "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-lateral-raise.png",
+  // Workout 3 — Total Body
+  "Dumbbell Squats":     "https://www.inspireusafoundation.org/wp-content/uploads/2021/11/dumbbell-squat.png",
+  "Chest Press":         "https://www.inspireusafoundation.org/wp-content/uploads/2021/11/dumbbell-chest-press.png",
+  "Lateral Raises":      "https://www.inspireusafoundation.org/wp-content/uploads/2021/11/dumbbell-lateral-raise.png",
   "Dumbbell Shrugs":     "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-shrug.png",
 };
 // ─── STRETCH ILLUSTRATIONS ────────────────────────────────────────────────────
