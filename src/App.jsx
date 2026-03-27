@@ -53,49 +53,28 @@ function CompletionBanner({ color, emoji, text }) {
 }
 
 // ─── FIGURE BASE ──────────────────────────────────────────────────────────────
-function Fig({ color, children, h=140 }) {
-  return (
-    <svg viewBox={`0 0 120 ${h}`} style={{width:"100%",height:"100%"}}>
-      <defs><radialGradient id={`bg${color.replace('#','')}`} cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor={color} stopOpacity="0.08"/>
-        <stop offset="100%" stopColor={color} stopOpacity="0"/>
-      </radialGradient></defs>
-      <circle cx="60" cy={h/2} r="55" fill={`url(#bg${color.replace('#','')})`}/>
-      <g stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none">
-        {children}
-      </g>
-    </svg>
-  );
-}
 // ─── WORKOUT ILLUSTRATIONS ────────────────────────────────────────────────────
 const WorkoutIllus = {
-  "Bicep Curls":    "https://s3assets.skimble.com/assets/2287282/image_full.jpg",
-  "Tricep Dips":    "https://training.fit/wp-content/uploads/2020/03/arnold-dips.png",
-  "Lunges":         "https://images.squarespace-cdn.com/content/v1/5ffcea9416aee143500ea103/1638425716168-GMKJB64MCPI0R9FWOB2U/Dumbbell%2BLunges.jpeg",
-  "Shoulder Press": "https://antofy.co.uk/wp-content/uploads/2024/09/image-4.png",
-  "Bent-over Rows": "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-bent-over-row.jpg",
+  // Workout 1
+  "Bicep Curls":         "https://s3assets.skimble.com/assets/2287282/image_full.jpg",
+  "Tricep Dips":         "https://training.fit/wp-content/uploads/2020/03/arnold-dips.png",
+  "Lunges":              "https://hips.hearstapps.com/hmg-prod/images/hdm119918mh15842-1545237096.png",
+  "Shoulder Press":      "https://antofy.co.uk/wp-content/uploads/2024/09/image-4.png",
+  "Bent-over Rows":      "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-bent-over-row.jpg",
+  // Workout 2
+  "Standing Calf Raise": "https://www.dumbbell-exercises.com/wp-content/uploads/2014/06/standing-calf-raise.png",
+  "Step-ups":            "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-step-up.png",
+  "Sit-ups":             "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/weighted-sit-up.png",
+  "Russian Twists":      "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-russian-twist.png",
+  "Reverse Fly":         "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/bent-over-dumbbell-reverse-fly.png",
+  // Workout 3
+  "Dumbbell Squats":     "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-squat.png",
+  "Chest Press":         "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-chest-press.png",
+  "Lateral Raises":      "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-lateral-raise.png",
+  "Dumbbell Shrugs":     "https://www.inspireusafoundation.org/wp-content/uploads/2022/01/dumbbell-shrug.png",
 };
 // ─── STRETCH ILLUSTRATIONS ────────────────────────────────────────────────────
-const StretchIllus = {
-  // UPPER BODY
-  "Neck": ({c}) => <Fig color={c}><circle cx="60" cy="22" r="10" stroke={c} fill="none"/><line x1="60" y1="32" x2="60" y2="75"/><line x1="60" y1="42" x2="40" y2="60"/><line x1="60" y1="42" x2="80" y2="60"/><line x1="60" y1="75" x2="48" y2="115"/><line x1="60" y1="75" x2="72" y2="115"/>{/* Head tilted, hand on head */}<line x1="60" y1="22" x2="75" y2="35" strokeDasharray="3"/></Fig>,
-  "Shoulder": ({c}) => <Fig color={c}><circle cx="60" cy="18" r="10" stroke={c} fill="none"/><line x1="60" y1="28" x2="60" y2="75"/>{/* Cross-body arm */}<line x1="60" y1="40" x2="25" y2="50"/><line x1="25" y1="50" x2="18" y2="60"/>{/* Other hand pressing */}<line x1="60" y1="40" x2="80" y2="60"/><line x1="80" y1="60" x2="26" y2="60"/><line x1="60" y1="75" x2="48" y2="115"/><line x1="60" y1="75" x2="72" y2="115"/></Fig>,
-  "Chest": ({c}) => <Fig color={c}><circle cx="60" cy="18" r="10" stroke={c} fill="none"/><line x1="60" y1="28" x2="60" y2="75"/>{/* Arms spread wide back */}<line x1="60" y1="40" x2="15" y2="52"/><line x1="60" y1="40" x2="105" y2="52"/><line x1="60" y1="75" x2="48" y2="115"/><line x1="60" y1="75" x2="72" y2="115"/>{/* Chest puffed forward curve */}<path d="M 40 40 Q 60 50 80 40" strokeDasharray="4" fill="none"/></Fig>,
-  "Arms": ({c}) => <Fig color={c}><circle cx="60" cy="18" r="10" stroke={c} fill="none"/><line x1="60" y1="28" x2="60" y2="75"/>{/* One arm bent overhead tricep */}<line x1="60" y1="38" x2="80" y2="30"/><line x1="80" y1="30" x2="78" y2="55"/>{/* Other hand at elbow */}<line x1="60" y1="38" x2="40" y2="58"/><line x1="40" y1="58" x2="75" y2="52"/><line x1="60" y1="75" x2="48" y2="115"/><line x1="60" y1="75" x2="72" y2="115"/></Fig>,
-  "Upper Back": ({c}) => <Fig color={c}><circle cx="60" cy="22" r="10" stroke={c} fill="none"/>{/* Rounded back, arms hugged forward */}<line x1="60" y1="32" x2="55" y2="75"/>{/* Back curve */}<path d="M 60 32 Q 40 55 55 75" fill="none"/><line x1="55" y1="42" x2="35" y2="52"/><line x1="35" y1="52" x2="40" y2="62"/><line x1="55" y1="42" x2="75" y2="52"/><line x1="75" y1="52" x2="70" y2="62"/><line x1="40" y1="62" x2="70" y2="62"/><line x1="55" y1="75" x2="45" y2="115"/><line x1="55" y1="75" x2="65" y2="115"/></Fig>,
-  // CORE
-  "Abdominals": ({c}) => <Fig color={c} h={160}><line x1="10" y1="130" x2="110" y2="130" strokeOpacity="0.3"/>{/* Cobra pose - face down, arms up */}<circle cx="35" cy="72" r="10" stroke={c} fill="none"/><line x1="42" y1="78" x2="90" y2="108"/>{/* body on floor */}<line x1="90" y1="108" x2="60" y2="128"/><line x1="90" y1="108" x2="108" y2="126"/>{/* arms pushing up */}<line x1="52" y1="82" x2="45" y2="62"/><line x1="52" y1="82" x2="68" y2="90"/><line x1="45" y1="62" x2="68" y2="90"/></Fig>,
-  "Obliques": ({c}) => <Fig color={c}><circle cx="60" cy="18" r="10" stroke={c} fill="none"/>{/* Side bend, one arm overhead */}<line x1="60" y1="28" x2="55" y2="78"/>{/* body leaning */}<line x1="60" y1="40" x2="80" y2="35"/><line x1="80" y1="35" x2="75" y2="15"/>{/* arm overhead arching */}<line x1="60" y1="40" x2="45" y2="60"/><line x1="55" y1="78" x2="44" y2="118"/><line x1="55" y1="78" x2="68" y2="115"/></Fig>,
-  "Lower Back": ({c}) => <Fig color={c} h={130}><line x1="10" y1="118" x2="110" y2="118" strokeOpacity="0.3"/>{/* Childs pose */}<circle cx="60" cy="25" r="10" stroke={c} fill="none"/><line x1="60" y1="35" x2="60" y2="65"/><line x1="60" y1="50" x2="38" y2="68"/><line x1="38" y1="68" x2="35" y2="85"/><line x1="60" y1="50" x2="78" y2="65"/><line x1="78" y1="65" x2="80" y2="80"/>{/* torso folded down */}<line x1="60" y1="65" x2="50" y2="90"/><line x1="50" y1="90" x2="45" y2="115"/><line x1="50" y1="90" x2="70" y2="110"/>{/* arms extended forward on floor */}<line x1="60" y1="35" x2="25" y2="55"/><line x1="25" y1="55" x2="15" y2="80"/></Fig>,
-  // LOWER BODY
-  "Hips": ({c}) => <Fig color={c} h={150}><line x1="10" y1="138" x2="110" y2="138" strokeOpacity="0.3"/>{/* Pigeon pose */}<circle cx="50" cy="22" r="10" stroke={c} fill="none"/><line x1="50" y1="32" x2="50" y2="68"/><line x1="50" y1="42" x2="30" y2="58"/><line x1="50" y1="42" x2="70" y2="55"/>{/* Front leg bent */}<line x1="50" y1="68" x2="35" y2="90"/><line x1="35" y1="90" x2="55" y2="100"/>{/* Back leg extended */}<line x1="50" y1="68" x2="78" y2="85"/><line x1="78" y1="85" x2="95" y2="135"/><line x1="55" y1="100" x2="20" y2="135"/></Fig>,
-  "Groin": ({c}) => <Fig color={c} h={150}><line x1="10" y1="138" x2="110" y2="138" strokeOpacity="0.3"/>{/* Butterfly stretch */}<circle cx="60" cy="22" r="10" stroke={c} fill="none"/><line x1="60" y1="32" x2="60" y2="72"/>{/* arms to feet */}<line x1="60" y1="42" x2="45" y2="62"/><line x1="60" y1="42" x2="75" y2="62"/>{/* legs butterfly */}<line x1="60" y1="72" x2="28" y2="90"/><line x1="28" y1="90" x2="45" y2="115"/><line x1="60" y1="72" x2="92" y2="90"/><line x1="92" y1="90" x2="75" y2="115"/><line x1="45" y1="115" x2="75" y2="115"/></Fig>,
-  "Hamstrings": ({c}) => <Fig color={c}><line x1="10" y1="122" x2="110" y2="122" strokeOpacity="0.3"/>{/* Standing forward fold */}<circle cx="60" cy="18" r="10" stroke={c} fill="none"/>{/* bent forward at hips */}<line x1="60" y1="28" x2="60" y2="58"/>{/* torso down */}<line x1="60" y1="58" x2="55" y2="90"/>{/* legs straight */}<line x1="60" y1="58" x2="65" y2="90"/><line x1="55" y1="90" x2="50" y2="120"/><line x1="65" y1="90" x2="70" y2="120"/>{/* arms reaching down */}<line x1="60" y1="38" x2="40" y2="70"/><line x1="60" y1="38" x2="78" y2="68"/></Fig>,
-  "Quadriceps": ({c}) => <Fig color={c}><line x1="10" y1="125" x2="110" y2="125" strokeOpacity="0.3"/>{/* Standing quad stretch */}<circle cx="55" cy="18" r="10" stroke={c} fill="none"/><line x1="55" y1="28" x2="55" y2="75"/><line x1="55" y1="42" x2="35" y2="60"/>{/* one arm out for balance */}{/* standing leg */}<line x1="55" y1="75" x2="50" y2="122"/>{/* raised leg bent back */}<line x1="55" y1="75" x2="72" y2="88"/><line x1="72" y1="88" x2="68" y2="65"/>{/* hand holding foot */}<line x1="55" y1="42" x2="72" y2="55"/><line x1="72" y1="55" x2="70" y2="66"/></Fig>,
-  "Calves": ({c}) => <Fig color={c}><line x1="10" y1="125" x2="110" y2="125" strokeOpacity="0.3"/>{/* Wall calf stretch */}<rect x="100" y="10" width="8" height="115" rx="2" fill={`${c}22`} stroke={c}/><circle cx="52" cy="22" r="10" stroke={c} fill="none"/><line x1="52" y1="32" x2="52" y2="72"/><line x1="52" y1="42" x2="72" y2="55"/><line x1="72" y1="55" x2="96" y2="55"/>{/* arms to wall */}<line x1="52" y1="42" x2="72" y2="65"/><line x1="72" y1="65" x2="96" y2="65"/>{/* front leg bent */}<line x1="52" y1="72" x2="60" y2="98"/><line x1="60" y1="98" x2="58" y2="122"/>{/* back leg straight */}<line x1="52" y1="72" x2="38" y2="90"/><line x1="38" y1="90" x2="36" y2="122"/></Fig>,
-  "Ankles": ({c}) => <Fig color={c}><line x1="10" y1="125" x2="110" y2="125" strokeOpacity="0.3"/>{/* Seated ankle circle */}<circle cx="55" cy="22" r="10" stroke={c} fill="none"/><line x1="55" y1="32" x2="55" y2="75"/><line x1="55" y1="42" x2="35" y2="58"/><line x1="55" y1="42" x2="75" y2="55"/>{/* seated, legs bent */}<line x1="55" y1="75" x2="38" y2="95"/><line x1="38" y1="95" x2="30" y2="122"/><line x1="55" y1="75" x2="75" y2="88"/><line x1="75" y1="88" x2="80" y2="112"/>{/* circle around ankle */}<ellipse cx="82" cy="108" rx="8" ry="6" strokeDasharray="3" fill="none" stroke={c}/></Fig>,
-  "Feet": ({c}) => <Fig color={c}><line x1="10" y1="125" x2="110" y2="125" strokeOpacity="0.3"/>{/* Seated, toes pulled back */}<circle cx="40" cy="35" r="10" stroke={c} fill="none"/><line x1="40" y1="45" x2="40" y2="85"/><line x1="40" y1="55" x2="20" y2="72"/><line x1="40" y1="55" x2="60" y2="70"/>{/* legs extended */}<line x1="40" y1="85" x2="30" y2="122"/><line x1="40" y1="85" x2="80" y2="88"/><line x1="80" y1="88" x2="95" y2="122"/>{/* foot flexed, toes back */}<line x1="95" y1="122" x2="95" y2="110"/><line x1="95" y1="110" x2="85" y2="105"/>{/* hand pulling toes */}<line x1="60" y1="70" x2="88" y2="102"/></Fig>,
-};
+const StretchIllus = {};
 
 // ─── STRETCH DATA ─────────────────────────────────────────────────────────────
 const stretchSections = [
