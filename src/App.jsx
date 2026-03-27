@@ -562,6 +562,25 @@ const activities = [
   { id:"foam-roller", label:"Foam Roller", emoji:"🧴", duration:"10 min", color:"#4ECDC4", desc:"Recovery techniques" },
   { id:"log", label:"Exercise Log", emoji:"📋", duration:null, color:"#FFD93D", desc:"View past activities" },
 ];
+// Floating Diet Plan link
+const DietPlanLink = () => (
+  <a
+    href="https://diet-plan-production-30bd.up.railway.app"
+    target="_blank"
+    rel="noreferrer"
+    style={{
+      position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000,
+      background: 'rgba(200,146,42,0.12)', border: '1px solid rgba(200,146,42,0.3)',
+      color: '#c8922a', textDecoration: 'none', fontFamily: font,
+      fontSize: '11px', fontWeight: '500', letterSpacing: '0.12em',
+      textTransform: 'uppercase', padding: '8px 14px', borderRadius: '20px',
+      backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', gap: '6px'
+    }}
+  >
+    🥗 Diet Plan
+  </a>
+);
+
 function HomeScreen({ onNavigate }) {
   return (
     <div style={{minHeight:"100vh",background:T.bg,fontFamily:font,color:T.text,paddingBottom:60}}>
@@ -621,5 +640,5 @@ export default function App() {
   if (screen==="bike") return <TimerScreen title="Bike" subtitle="CARDIO · 20 MIN" emoji="🚴" color="#378ADD" defaultMins={20} onBack={() => setScreen("home")} onComplete={() => timerDone("Bike","🚴","#378ADD","20 min")} note="Steady pace cardio. Aim for 60–70% max heart rate. Stay hydrated."/>;
   if (screen==="sauna") return <TimerScreen title="Sauna" subtitle="RECOVERY · 20 MIN" emoji="🧖" color="#E74C3C" defaultMins={20} onBack={() => setScreen("home")} onComplete={() => timerDone("Sauna","🧖","#E74C3C","20 min")} note="Hydrate well before and after. Exit if you feel dizzy or uncomfortable."/>;
   if (screen==="ohming") return <TimerScreen title="Ohming" subtitle="MEDITATION · 5 MIN" emoji="🕉️" color="#C77DFF" defaultMins={5} onBack={() => setScreen("home")} onComplete={() => timerDone("Ohming","🕉️","#C77DFF","5 min")} note="Sit comfortably, close eyes. Inhale deeply, exhale with a low Ohhhmm sound. Let thoughts pass."/>;
-  return <HomeScreen onNavigate={setScreen}/>;
+  return <><HomeScreen onNavigate={setScreen}/><DietPlanLink /></>;
 }
