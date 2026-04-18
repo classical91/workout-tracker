@@ -529,6 +529,367 @@ function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
   );
 }
 
+// ─── TRIGGER POINTS ───────────────────────────────────────────────────────────
+const triggerPointSections = [
+  {
+    label: "Head / Neck",
+    color: "#E74C3C",
+    items: [
+      {
+        key: "suboccipitals",
+        name: "Suboccipitals",
+        muscle: "Base of skull",
+        pain: "Tension headaches, pain behind eyes, upper neck stiffness",
+        symptoms: "Headaches, neck tightness, pain when looking up/down",
+        release: "Use two tennis balls in a sock under the base of the skull. Hold gentle pressure for 30–60 sec.",
+        stretch: "Chin tuck + gentle neck nods",
+        notes: "Do not press aggressively. Avoid if dizzy."
+      },
+      {
+        key: "upper-traps",
+        name: "Upper Trapezius",
+        muscle: "Top of shoulders / neck",
+        pain: "Pain into neck, jaw, temple, shoulder",
+        symptoms: "Shoulder elevation, tight neck, stress tension",
+        release: "Use a ball against wall between upper shoulder and wall. Slow pressure, small circles.",
+        stretch: "Ear to shoulder stretch, 20–30 sec/side",
+        notes: "Great after desk work."
+      },
+      {
+        key: "levator-scapulae",
+        name: "Levator Scapulae",
+        muscle: "Side/back of neck",
+        pain: "Pain at top inside shoulder blade and neck turning restriction",
+        symptoms: "Pain when turning head, stiff neck",
+        release: "Ball against wall near top inner shoulder blade. Turn head slightly down toward armpit.",
+        stretch: "Look into armpit and gently pull head forward",
+        notes: "Common 'slept wrong' trigger point."
+      },
+    ],
+  },
+  {
+    label: "Shoulders / Chest",
+    color: "#FF6B35",
+    items: [
+      {
+        key: "pec-major",
+        name: "Pectoralis Major",
+        muscle: "Front chest",
+        pain: "Front shoulder pain, chest tightness, pulling posture forward",
+        symptoms: "Rounded shoulders, discomfort pressing or reaching",
+        release: "Use ball on wall just inside shoulder/chest area. Breathe slowly.",
+        stretch: "Doorway chest stretch",
+        notes: "Helps with posture and shoulder mobility."
+      },
+      {
+        key: "pec-minor",
+        name: "Pectoralis Minor",
+        muscle: "Upper outer chest",
+        pain: "Front shoulder, arm tension, numb/heavy feeling",
+        symptoms: "Tight shoulders, forward shoulder posture",
+        release: "Place ball just below collarbone near shoulder and lean gently into wall.",
+        stretch: "Corner pec stretch",
+        notes: "Go light here."
+      },
+      {
+        key: "rear-delt",
+        name: "Rear Deltoid",
+        muscle: "Back of shoulder",
+        pain: "Back/side shoulder ache",
+        symptoms: "Pain during pulling or lifting arm back",
+        release: "Ball on wall behind shoulder, arm across body to expose tissue.",
+        stretch: "Cross-body shoulder stretch",
+        notes: "Useful after upper body workouts."
+      },
+    ],
+  },
+  {
+    label: "Upper / Mid Back",
+    color: "#378ADD",
+    items: [
+      {
+        key: "rhomboids",
+        name: "Rhomboids",
+        muscle: "Between shoulder blades",
+        pain: "Ache between shoulder blades",
+        symptoms: "Desk posture fatigue, pulling tightness",
+        release: "Ball against wall between spine and shoulder blade. Hug yourself to open space.",
+        stretch: "Upper back reach / self-hug stretch",
+        notes: "Do not place pressure directly on spine."
+      },
+      {
+        key: "infraspinatus",
+        name: "Infraspinatus",
+        muscle: "Back of shoulder blade",
+        pain: "Deep shoulder pain, pain down front/side of arm",
+        symptoms: "Pain reaching overhead or behind back",
+        release: "Ball on wall over back of shoulder blade, just below shoulder ridge.",
+        stretch: "Sleeper stretch or gentle cross-body stretch",
+        notes: "Very common rotator cuff trigger point."
+      },
+      {
+        key: "lats",
+        name: "Latissimus Dorsi",
+        muscle: "Side of upper back / ribs",
+        pain: "Shoulder restriction, side/back tightness",
+        symptoms: "Limited overhead reach, pulling tightness under armpit",
+        release: "Ball or foam roller on side body under armpit area.",
+        stretch: "Child's pose with hands reaching long",
+        notes: "Good for lifters and pull-up work."
+      },
+    ],
+  },
+  {
+    label: "Lower Back / Hips / Glutes",
+    color: "#2ECC71",
+    items: [
+      {
+        key: "ql",
+        name: "Quadratus Lumborum",
+        muscle: "Side of lower back",
+        pain: "Low back ache, hip hike, one-sided stiffness",
+        symptoms: "Pain standing long, side bending tightness",
+        release: "Use ball against wall above pelvis and beside spine, not on spine.",
+        stretch: "Child's pose with hands walking to side",
+        notes: "Use moderate pressure only."
+      },
+      {
+        key: "glute-max",
+        name: "Glute Max",
+        muscle: "Main buttock muscle",
+        pain: "Buttock tightness, low back compensation",
+        symptoms: "Tight hips, soreness after sitting",
+        release: "Sit on lacrosse ball and lean into tender spots.",
+        stretch: "Figure-4 stretch",
+        notes: "Easy and very effective."
+      },
+      {
+        key: "glute-med",
+        name: "Glute Medius",
+        muscle: "Outer hip",
+        pain: "Outer hip pain, side leg ache",
+        symptoms: "Pain walking, stairs, standing on one leg",
+        release: "Ball on outer upper glute near side hip.",
+        stretch: "Figure-4 or lying hip stretch",
+        notes: "Often confused with general hip tightness."
+      },
+      {
+        key: "piriformis",
+        name: "Piriformis",
+        muscle: "Deep glute",
+        pain: "Buttock pain, possible sciatic-like referral down leg",
+        symptoms: "Pain sitting, crossing legs, deep hip tightness",
+        release: "Sit on ball and cross ankle over knee on same side.",
+        stretch: "Seated or lying figure-4 stretch",
+        notes: "Avoid aggressive pressure if nerve symptoms flare up."
+      },
+      {
+        key: "hip-flexors",
+        name: "Hip Flexors",
+        muscle: "Front of hip",
+        pain: "Front hip pinching, low back pulling",
+        symptoms: "Tightness after sitting, limited hip extension",
+        release: "Gentle ball work high front hip area, slightly to the side.",
+        stretch: "Half-kneeling hip flexor stretch",
+        notes: "Be careful around sensitive structures."
+      },
+    ],
+  },
+  {
+    label: "Legs / Feet",
+    color: "#C77DFF",
+    items: [
+      {
+        key: "quads",
+        name: "Quadriceps",
+        muscle: "Front thigh",
+        pain: "Thigh tightness, knee pulling",
+        symptoms: "Stiff knees, tight front legs after workouts",
+        release: "Foam roll front thigh slowly from hip to above knee.",
+        stretch: "Standing quad stretch",
+        notes: "Avoid rolling directly on knee."
+      },
+      {
+        key: "hamstrings",
+        name: "Hamstrings",
+        muscle: "Back thigh",
+        pain: "Back thigh tightness, pulling into sit bone",
+        symptoms: "Tight bend, limited hinge/flexibility",
+        release: "Sit on roller or ball and slowly extend/flex leg.",
+        stretch: "Seated hamstring stretch",
+        notes: "Go slow and breathe."
+      },
+      {
+        key: "calves",
+        name: "Calves",
+        muscle: "Gastrocnemius / soleus",
+        pain: "Calf tightness, Achilles tension, foot stress",
+        symptoms: "Cramping, ankle stiffness, soreness walking",
+        release: "Foam roll calf or use ball on wall/floor.",
+        stretch: "Wall calf stretch",
+        notes: "Change foot angle to hit different fibers."
+      },
+      {
+        key: "tibialis",
+        name: "Tibialis Anterior",
+        muscle: "Front outer shin",
+        pain: "Shin tightness, front ankle tension",
+        symptoms: "Shin discomfort after walking or running",
+        release: "Use hands or a soft ball gently on outer shin muscle, not bone.",
+        stretch: "Toe-point / kneeling shin stretch",
+        notes: "Keep pressure light."
+      },
+      {
+        key: "plantar",
+        name: "Plantar Fascia",
+        muscle: "Bottom of foot",
+        pain: "Arch pain, heel pain, foot fatigue",
+        symptoms: "Pain first steps in morning, sore arches",
+        release: "Roll foot on lacrosse ball or frozen water bottle.",
+        stretch: "Pull toes back toward shin",
+        notes: "One of the best daily foot maintenance tools."
+      },
+    ],
+  },
+];
+
+function TriggerPointsScreen({ onBack, checked, setChecked }) {
+  const allItems = triggerPointSections.flatMap(section => section.items);
+  const done = allItems.filter(item => checked[`tp-${item.key}`]).length;
+  return (
+    <div style={{ minHeight: "100vh", background: T.bg, fontFamily: font, color: T.text, paddingBottom: 60 }}>
+      <ScreenHeader
+        title="Trigger Points"
+        subtitle="RELEASE · MOBILITY · PAIN MAP"
+        emoji="🎯"
+        color={T.red}
+        onBack={onBack}
+      />
+      <div style={{ maxWidth: 500, margin: "0 auto", padding: "0 20px" }}>
+        <ProgressBar done={done} total={allItems.length} color={T.red} />
+        <div style={{
+          background: `${T.red}12`,
+          border: `1px solid ${T.red}35`,
+          borderRadius: 14,
+          padding: "14px 16px",
+          marginBottom: 16,
+          fontSize: 12,
+          color: T.text,
+          lineHeight: 1.6
+        }}>
+          Trigger points are tight, tender spots in muscles that can refer pain somewhere else.
+          Tap each one as you work through it.
+        </div>
+        {triggerPointSections.map(section => (
+          <div key={section.label} style={{ marginBottom: 18 }}>
+            <p style={{
+              fontSize: 10,
+              letterSpacing: 2,
+              color: section.color,
+              fontWeight: 700,
+              marginBottom: 10,
+              marginTop: 8
+            }}>
+              {section.label.toUpperCase()}
+            </p>
+            {section.items.map(item => {
+              const key = `tp-${item.key}`;
+              const isDone = !!checked[key];
+              return (
+                <div
+                  key={item.key}
+                  onClick={() => setChecked(prev => ({ ...prev, [key]: !prev[key] }))}
+                  style={{
+                    background: T.surface,
+                    border: `1px solid ${T.border}`,
+                    borderRadius: 14,
+                    marginBottom: 8,
+                    padding: "14px 16px",
+                    cursor: "pointer"
+                  }}
+                >
+                  <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+                    <div
+                      style={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: 7,
+                        border: `2px solid ${section.color}`,
+                        background: isDone ? section.color : "transparent",
+                        flexShrink: 0,
+                        marginTop: 2,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
+                      }}
+                    >
+                      {isDone && <span style={{ fontSize: 13, color: "#000", fontWeight: 800 }}>✓</span>}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                        <span style={{
+                          fontWeight: 700,
+                          fontSize: 14,
+                          color: isDone ? T.muted : T.text,
+                          textDecoration: isDone ? "line-through" : "none"
+                        }}>
+                          {item.name}
+                        </span>
+                        <span style={{
+                          fontSize: 10,
+                          fontWeight: 700,
+                          color: section.color,
+                          background: `${section.color}18`,
+                          borderRadius: 99,
+                          padding: "3px 9px",
+                          whiteSpace: "nowrap"
+                        }}>
+                          {item.muscle}
+                        </span>
+                      </div>
+                      <div style={{ display: "grid", gap: 8 }}>
+                        <div>
+                          <p style={{ fontSize: 10, color: section.color, fontWeight: 700, letterSpacing: 1, marginBottom: 3 }}>PAIN PATTERN</p>
+                          <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.pain}</p>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: 10, color: section.color, fontWeight: 700, letterSpacing: 1, marginBottom: 3 }}>SYMPTOMS</p>
+                          <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.symptoms}</p>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: 10, color: section.color, fontWeight: 700, letterSpacing: 1, marginBottom: 3 }}>RELEASE</p>
+                          <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.release}</p>
+                        </div>
+                        <div>
+                          <p style={{ fontSize: 10, color: section.color, fontWeight: 700, letterSpacing: 1, marginBottom: 3 }}>STRETCH</p>
+                          <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.stretch}</p>
+                        </div>
+                        <div style={{
+                          background: `${section.color}10`,
+                          borderLeft: `3px solid ${section.color}`,
+                          borderRadius: 6,
+                          padding: "8px 10px",
+                          fontSize: 11,
+                          color: section.color
+                        }}>
+                          💡 {item.notes}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+        {done === allItems.length && (
+          <CompletionBanner color={T.red} emoji="🎯" text="TRIGGER POINTS COMPLETE!" />
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── HOME ─────────────────────────────────────────────────────────────────────
 const activities = [
   { id:"workout-sets", label:"Workout Sets", emoji:"💪", duration:"30 min", color:"#FF6B35", desc:"3 dumbbell routines" },
@@ -539,6 +900,7 @@ const activities = [
   { id:"sauna", label:"Sauna", emoji:"🧖", duration:"20 min", color:"#E74C3C", desc:"Recovery timer" },
   { id:"ohming", label:"Ohming", emoji:"🕉️", duration:"5 min", color:"#C77DFF", desc:"Meditation timer" },
   { id:"foam-roller", label:"Foam Roller", emoji:"🧴", duration:"10 min", color:"#4ECDC4", desc:"Recovery techniques" },
+  { id:"trigger-points", label:"Trigger Points", emoji:"🎯", duration:"10–15 min", color:"#E74C3C", desc:"Categorized release guide" },
   { id:"log", label:"Exercise Log", emoji:"📋", duration:null, color:"#FFD93D", desc:"View past activities" },
 ];
 
@@ -611,6 +973,7 @@ export default function App() {
   if (screen==="simple") return <SimpleWorkoutsScreen onBack={() => setScreen("home")} checked={checked} setChecked={setChecked}/>;
   if (screen==="breathing") return <BreathingScreen onBack={() => setScreen("home")}/>;
   if (screen==="foam-roller") return <FoamRollerScreen onBack={() => setScreen("home")} checked={checked} setChecked={setChecked}/>;
+  if (screen==="trigger-points") return <TriggerPointsScreen onBack={() => setScreen("home")} checked={checked} setChecked={setChecked}/>;
   if (screen==="log") return <LogScreen onBack={() => setScreen("home")} log={log} onClear={() => setLog([])}/>;
   if (screen==="bike") return <TimerScreen title="Bike" subtitle="CARDIO · 20 MIN" emoji="🚴" color="#378ADD" defaultMins={20} onBack={() => setScreen("home")} onComplete={() => timerDone("Bike","🚴","#378ADD","20 min")} note="Steady pace cardio. Aim for 60–70% max heart rate. Stay hydrated."/>;
   if (screen==="sauna") return <TimerScreen title="Sauna" subtitle="RECOVERY · 20 MIN" emoji="🧖" color="#E74C3C" defaultMins={20} onBack={() => setScreen("home")} onComplete={() => timerDone("Sauna","🧖","#E74C3C","20 min")} note="Hydrate well before and after. Exit if you feel dizzy or uncomfortable."/>;
