@@ -530,6 +530,28 @@ function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
 }
 
 // ─── TRIGGER POINTS ───────────────────────────────────────────────────────────
+const TriggerPointIllus = {
+  "suboccipitals":    "https://img.youtube.com/vi/W4Wbx5TzJcU/hqdefault.jpg",
+  "upper-traps":      "https://img.youtube.com/vi/7E056Om62cs/hqdefault.jpg",
+  "levator-scapulae": "https://img.youtube.com/vi/5QiUzWE9Z7M/hqdefault.jpg",
+  "pec-major":        "https://img.youtube.com/vi/GadpiOUfuZQ/hqdefault.jpg",
+  "pec-minor":        "https://img.youtube.com/vi/FL3oZiZUQq4/hqdefault.jpg",
+  "rear-delt":        "https://img.youtube.com/vi/p73s52sC4pg/hqdefault.jpg",
+  "rhomboids":        "https://img.youtube.com/vi/qw2G4opQO3w/hqdefault.jpg",
+  "infraspinatus":    "https://img.youtube.com/vi/jojTdCYg8ds/hqdefault.jpg",
+  "lats":             "https://img.youtube.com/vi/gR0AQOFORuE/hqdefault.jpg",
+  "ql":               "https://img.youtube.com/vi/nYVeNqhcD6c/hqdefault.jpg",
+  "glute-max":        "https://img.youtube.com/vi/IrPG9WoaJ7w/hqdefault.jpg",
+  "glute-med":        "https://img.youtube.com/vi/xZdlUcw4FvM/hqdefault.jpg",
+  "piriformis":       "https://img.youtube.com/vi/1Ei-c9pXlIY/hqdefault.jpg",
+  "hip-flexors":      "https://img.youtube.com/vi/4VbmiMEs22c/hqdefault.jpg",
+  "quads":            "https://img.youtube.com/vi/1XzS9y-vJD8/hqdefault.jpg",
+  "hamstrings":       "https://img.youtube.com/vi/Ze0x0e9fI1k/hqdefault.jpg",
+  "calves":           "https://img.youtube.com/vi/mICDmcWkVE4/hqdefault.jpg",
+  "tibialis":         "https://img.youtube.com/vi/47dOO6srSew/hqdefault.jpg",
+  "plantar":          "https://img.youtube.com/vi/2MhXA5eKtj0/hqdefault.jpg",
+};
+
 const triggerPointSections = [
   {
     label: "Head / Neck",
@@ -753,6 +775,128 @@ const triggerPointSections = [
   },
 ];
 
+function TriggerPointCard({ item, section, isDone, onToggle }) {
+  const [open, setOpen] = useState(false);
+  const illus = TriggerPointIllus[item.key];
+  return (
+    <div
+      style={{
+        background: T.surface,
+        border: `1px solid ${T.border}`,
+        borderRadius: 14,
+        marginBottom: 8,
+        overflow: "hidden"
+      }}
+    >
+      <div
+        onClick={onToggle}
+        style={{ padding: "14px 16px", cursor: "pointer" }}
+      >
+        <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+          <div
+            style={{
+              width: 24,
+              height: 24,
+              borderRadius: 7,
+              border: `2px solid ${section.color}`,
+              background: isDone ? section.color : "transparent",
+              flexShrink: 0,
+              marginTop: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            {isDone && <span style={{ fontSize: 13, color: "#000", fontWeight: 800 }}>✓</span>}
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+              <span style={{
+                fontWeight: 700,
+                fontSize: 14,
+                color: isDone ? T.muted : T.text,
+                textDecoration: isDone ? "line-through" : "none"
+              }}>
+                {item.name}
+              </span>
+              <span style={{
+                fontSize: 10,
+                fontWeight: 700,
+                color: section.color,
+                background: `${section.color}18`,
+                borderRadius: 99,
+                padding: "3px 9px",
+                whiteSpace: "nowrap"
+              }}>
+                {item.muscle}
+              </span>
+            </div>
+            <div style={{ display: "grid", gap: 8 }}>
+              <div>
+                <p style={{ fontSize: 10, color: section.color, fontWeight: 700, letterSpacing: 1, marginBottom: 3 }}>PAIN PATTERN</p>
+                <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.pain}</p>
+              </div>
+              <div>
+                <p style={{ fontSize: 10, color: section.color, fontWeight: 700, letterSpacing: 1, marginBottom: 3 }}>SYMPTOMS</p>
+                <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.symptoms}</p>
+              </div>
+              <div>
+                <p style={{ fontSize: 10, color: section.color, fontWeight: 700, letterSpacing: 1, marginBottom: 3 }}>RELEASE</p>
+                <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.release}</p>
+              </div>
+              <div>
+                <p style={{ fontSize: 10, color: section.color, fontWeight: 700, letterSpacing: 1, marginBottom: 3 }}>STRETCH</p>
+                <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.stretch}</p>
+              </div>
+              <div style={{
+                background: `${section.color}10`,
+                borderLeft: `3px solid ${section.color}`,
+                borderRadius: 6,
+                padding: "8px 10px",
+                fontSize: 11,
+                color: section.color
+              }}>
+                💡 {item.notes}
+              </div>
+              {illus && (
+                <button
+                  onClick={e => { e.stopPropagation(); setOpen(o => !o); }}
+                  style={{
+                    fontSize: 10, fontWeight: 700, letterSpacing: 1,
+                    border: "none", background: "transparent",
+                    color: section.color, cursor: "pointer",
+                    textAlign: "left", padding: "4px 0"
+                  }}
+                >
+                  {open ? "▲ HIDE DEMO" : "▼ SHOW DEMO"}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      {illus && open && (
+        <div style={{ padding: "0 16px 16px", display: "flex", justifyContent: "center" }}>
+          <div style={{
+            width: "100%", maxWidth: 340,
+            background: `${section.color}08`,
+            borderRadius: 12,
+            border: `1px solid ${section.color}20`,
+            overflow: "hidden"
+          }}>
+            <img
+              src={illus}
+              alt={item.name}
+              style={{ width: "100%", display: "block", objectFit: "cover" }}
+              onError={e => e.target.style.display = "none"}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function TriggerPointsScreen({ onBack, checked, setChecked }) {
   const allItems = triggerPointSections.flatMap(section => section.items);
   const done = allItems.filter(item => checked[`tp-${item.key}`]).length;
@@ -794,90 +938,14 @@ function TriggerPointsScreen({ onBack, checked, setChecked }) {
             </p>
             {section.items.map(item => {
               const key = `tp-${item.key}`;
-              const isDone = !!checked[key];
               return (
-                <div
+                <TriggerPointCard
                   key={item.key}
-                  onClick={() => setChecked(prev => ({ ...prev, [key]: !prev[key] }))}
-                  style={{
-                    background: T.surface,
-                    border: `1px solid ${T.border}`,
-                    borderRadius: 14,
-                    marginBottom: 8,
-                    padding: "14px 16px",
-                    cursor: "pointer"
-                  }}
-                >
-                  <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                    <div
-                      style={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: 7,
-                        border: `2px solid ${section.color}`,
-                        background: isDone ? section.color : "transparent",
-                        flexShrink: 0,
-                        marginTop: 2,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center"
-                      }}
-                    >
-                      {isDone && <span style={{ fontSize: 13, color: "#000", fontWeight: 800 }}>✓</span>}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                        <span style={{
-                          fontWeight: 700,
-                          fontSize: 14,
-                          color: isDone ? T.muted : T.text,
-                          textDecoration: isDone ? "line-through" : "none"
-                        }}>
-                          {item.name}
-                        </span>
-                        <span style={{
-                          fontSize: 10,
-                          fontWeight: 700,
-                          color: section.color,
-                          background: `${section.color}18`,
-                          borderRadius: 99,
-                          padding: "3px 9px",
-                          whiteSpace: "nowrap"
-                        }}>
-                          {item.muscle}
-                        </span>
-                      </div>
-                      <div style={{ display: "grid", gap: 8 }}>
-                        <div>
-                          <p style={{ fontSize: 10, color: section.color, fontWeight: 700, letterSpacing: 1, marginBottom: 3 }}>PAIN PATTERN</p>
-                          <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.pain}</p>
-                        </div>
-                        <div>
-                          <p style={{ fontSize: 10, color: section.color, fontWeight: 700, letterSpacing: 1, marginBottom: 3 }}>SYMPTOMS</p>
-                          <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.symptoms}</p>
-                        </div>
-                        <div>
-                          <p style={{ fontSize: 10, color: section.color, fontWeight: 700, letterSpacing: 1, marginBottom: 3 }}>RELEASE</p>
-                          <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.release}</p>
-                        </div>
-                        <div>
-                          <p style={{ fontSize: 10, color: section.color, fontWeight: 700, letterSpacing: 1, marginBottom: 3 }}>STRETCH</p>
-                          <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.stretch}</p>
-                        </div>
-                        <div style={{
-                          background: `${section.color}10`,
-                          borderLeft: `3px solid ${section.color}`,
-                          borderRadius: 6,
-                          padding: "8px 10px",
-                          fontSize: 11,
-                          color: section.color
-                        }}>
-                          💡 {item.notes}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  item={item}
+                  section={section}
+                  isDone={!!checked[key]}
+                  onToggle={() => setChecked(prev => ({ ...prev, [key]: !prev[key] }))}
+                />
               );
             })}
           </div>
