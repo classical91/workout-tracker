@@ -1,15 +1,18 @@
 # Workout Tracker (React + Vite)
 
 ## Overview
+
 Workout Tracker is a single-page wellness app built with React. It provides guided workout/checklist screens, timers, breathing patterns, recovery guides (foam rolling + trigger points), and an activity log persisted in browser `localStorage`. The app is currently structured as a frontend-first project, with static hosting as the active runtime path and an unused Express server file still present in the repository.
 
 ## Project Type
+
 - **Type:** Frontend SPA / static site
 - **Build system:** Vite
 - **Runtime model in active scripts:** static file serving from `dist/` using `serve`
 - **Repository shape:** single-package repo (not a monorepo)
 
 ## Current Features (from code)
+
 - Home dashboard with cards for:
   - Workout Sets
   - Stretch
@@ -35,6 +38,7 @@ Workout Tracker is a single-page wellness app built with React. It provides guid
 - External “Go to Diet Plan” link on the home screen.
 
 ## Tech Stack
+
 - **Frontend:** React 18, ReactDOM 18
 - **Bundler/dev server:** Vite 5 + `@vitejs/plugin-react`
 - **Production static server (scripts):** `serve`
@@ -42,6 +46,7 @@ Workout Tracker is a single-page wellness app built with React. It provides guid
 - **Deployment configs:** Dockerfile, Railway config, Nixpacks config
 
 ## Installation
+
 ```bash
 npm install
 ```
@@ -49,6 +54,7 @@ npm install
 If your environment blocks npm registry access, dependency installation/build will fail until registry/network policy is resolved.
 
 ## Run Locally (Development)
+
 ```bash
 npm run dev
 ```
@@ -56,6 +62,7 @@ npm run dev
 Then open the local URL printed by Vite (commonly `http://localhost:5173`).
 
 ## Build
+
 ```bash
 npm run build
 ```
@@ -63,6 +70,7 @@ npm run build
 Build output is generated in `dist/`.
 
 ## Production Start
+
 This repo currently supports static production serving from prebuilt assets:
 
 ```bash
@@ -70,20 +78,25 @@ npm run start
 ```
 
 By default this runs:
+
 - `serve dist -l ${PORT:-3000}`
 
 > Note: `server.js` exists, but it is not used by the current npm scripts.
 
 ## Environment Variables
+
 No required app-specific environment variables are read by frontend code.
 
 For hosting/runtime, these may be relevant:
+
 - `PORT` (optional) — port used by static server command.
 
 Use placeholders in deployment systems as needed, for example:
+
 - `PORT=<YOUR_PORT>`
 
 ## Deployment Notes
+
 - `railway.json` points Railway to build using the repository `Dockerfile`.
 - `Dockerfile` serves prebuilt `dist/` (it does **not** run a build stage).
   - Ensure `dist/` is freshly built before image build/deploy.
@@ -91,6 +104,7 @@ Use placeholders in deployment systems as needed, for example:
 - There are multiple deployment patterns/config files (`serve`, Docker, and an Express server file). Align these before production hardening to avoid drift.
 
 ## Folder Structure
+
 ```text
 .
 ├─ src/
@@ -108,6 +122,7 @@ Use placeholders in deployment systems as needed, for example:
 ```
 
 ## Important Files
+
 - `src/App.jsx`: Contains UI components, screen routing-by-state, workout/stretch/recovery data, timers, and persistence logic.
 - `src/main.jsx`: Mounts the React app.
 - `package.json`: Source of truth for local dev/build/start commands.
@@ -115,6 +130,7 @@ Use placeholders in deployment systems as needed, for example:
 - `server.js`: Alternative Express server implementation not used by npm scripts.
 
 ## Developer Notes (for Codex / Claude / OpenClaw agents)
+
 - Verify behavior from `package.json` scripts first; they define the active runtime path.
 - Treat `src/App.jsx` as a high-impact file: many features and datasets are centralized there.
 - If adding documentation for features, confirm they are represented in:
@@ -126,6 +142,7 @@ Use placeholders in deployment systems as needed, for example:
 - Confirm whether `server.js` should remain (legacy/alternative) or be removed for clarity.
 
 ## Known Limitations / TODOs visible in code
+
 - Large single-file app (`src/App.jsx`) increases maintenance complexity.
 - App data and progress live only in browser storage; no account sync or backend persistence.
 - Several exercise images are hotlinked from third-party URLs and may break if remote sources change.
