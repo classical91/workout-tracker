@@ -1,8 +1,17 @@
-import { T, font, buttonReset } from "../theme.js";
+import { T, font } from "../theme.js";
 import { simpleEx } from "../data/simpleExercises.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { ProgressBar } from "../components/ProgressBar.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
+
+function handleKey(toggle) {
+  return (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggle();
+    }
+  };
+}
 
 export function SimpleWorkoutsScreen({ onBack, checked, setChecked }) {
   const color = T.blue;
@@ -28,6 +37,7 @@ export function SimpleWorkoutsScreen({ onBack, checked, setChecked }) {
         <ProgressBar done={done} total={simpleEx.length} color={color} />
         {simpleEx.map((s, i) => {
           const isDone = !!checked[`sim-${i}`];
+          const toggle = () => setChecked((p) => ({ ...p, [`sim-${i}`]: !p[`sim-${i}`] }));
           return (
             <div
               key={i}
@@ -38,16 +48,18 @@ export function SimpleWorkoutsScreen({ onBack, checked, setChecked }) {
                 marginBottom: 8,
               }}
             >
-              <button
-                type="button"
-                onClick={() => setChecked((p) => ({ ...p, [`sim-${i}`]: !p[`sim-${i}`] }))}
+              <div
+                role="button"
+                tabIndex={0}
                 aria-pressed={isDone}
+                onClick={toggle}
+                onKeyDown={handleKey(toggle)}
                 style={{
-                  ...buttonReset,
                   display: "flex",
                   gap: 14,
                   alignItems: "flex-start",
                   padding: "14px 16px",
+                  cursor: "pointer",
                 }}
               >
                 <div
@@ -97,7 +109,7 @@ export function SimpleWorkoutsScreen({ onBack, checked, setChecked }) {
                   </div>
                   <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{s.detail}</p>
                 </div>
-              </button>
+              </div>
             </div>
           );
         })}

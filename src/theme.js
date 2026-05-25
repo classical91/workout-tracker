@@ -17,15 +17,3 @@ export const T = {
 
 export const font = "'DM Sans', sans-serif";
 export const display = "'Bebas Neue', sans-serif";
-
-export const buttonReset = {
-  background: "none",
-  border: "none",
-  padding: 0,
-  margin: 0,
-  font: "inherit",
-  color: "inherit",
-  textAlign: "left",
-  width: "100%",
-  cursor: "pointer",
-};

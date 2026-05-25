@@ -1,8 +1,17 @@
-import { T, font, buttonReset } from "../theme.js";
+import { T, font } from "../theme.js";
 import { foamTech } from "../data/foamRoller.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { ProgressBar } from "../components/ProgressBar.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
+
+function handleKey(toggle) {
+  return (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      toggle();
+    }
+  };
+}
 
 export function FoamRollerScreen({ onBack, checked, setChecked }) {
   const color = T.teal;
@@ -28,6 +37,7 @@ export function FoamRollerScreen({ onBack, checked, setChecked }) {
         <ProgressBar done={done} total={foamTech.length} color={color} />
         {foamTech.map((t, i) => {
           const isDone = !!checked[`foam-${i}`];
+          const toggle = () => setChecked((p) => ({ ...p, [`foam-${i}`]: !p[`foam-${i}`] }));
           return (
             <div
               key={i}
@@ -39,16 +49,18 @@ export function FoamRollerScreen({ onBack, checked, setChecked }) {
                 overflow: "hidden",
               }}
             >
-              <button
-                type="button"
-                onClick={() => setChecked((p) => ({ ...p, [`foam-${i}`]: !p[`foam-${i}`] }))}
+              <div
+                role="button"
+                tabIndex={0}
                 aria-pressed={isDone}
+                onClick={toggle}
+                onKeyDown={handleKey(toggle)}
                 style={{
-                  ...buttonReset,
                   display: "flex",
                   gap: 14,
                   alignItems: "flex-start",
                   padding: "14px 16px",
+                  cursor: "pointer",
                 }}
               >
                 <div
@@ -107,7 +119,7 @@ export function FoamRollerScreen({ onBack, checked, setChecked }) {
                     </div>
                   )}
                 </div>
-              </button>
+              </div>
             </div>
           );
         })}
