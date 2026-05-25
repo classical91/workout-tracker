@@ -1,10 +1,21 @@
-import { T, buttonReset } from "../theme.js";
+import { T } from "../theme.js";
+
+function handleKey(onSelect, id) {
+  return (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onSelect(id);
+    }
+  };
+}
 
 export function ActivityCard({ activity, onSelect }) {
   return (
-    <button
-      type="button"
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => onSelect(activity.id)}
+      onKeyDown={handleKey(onSelect, activity.id)}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = activity.color;
       }}
@@ -12,13 +23,12 @@ export function ActivityCard({ activity, onSelect }) {
         e.currentTarget.style.borderColor = T.border;
       }}
       style={{
-        ...buttonReset,
         background: T.surface,
         border: `1px solid ${T.border}`,
         borderRadius: 16,
         padding: "18px 16px",
+        cursor: "pointer",
         gridColumn: activity.id === "log" ? "1 / -1" : undefined,
-        display: "block",
       }}
     >
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
@@ -45,6 +55,6 @@ export function ActivityCard({ activity, onSelect }) {
           </div>
         )}
       </div>
-    </button>
+    </div>
   );
 }

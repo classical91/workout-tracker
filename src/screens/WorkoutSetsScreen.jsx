@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { T, font, display, buttonReset } from "../theme.js";
+import { T, font, display } from "../theme.js";
 import { workouts, WorkoutIllus, tsStyle } from "../data/workouts.js";
 import { BackButton } from "../components/BackButton.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
@@ -73,18 +73,25 @@ export function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
           style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 16 }}
         >
           {workouts.map((wk, i) => (
-            <button
+            <div
               key={i}
-              type="button"
-              onClick={() => setAw(i)}
+              role="button"
+              tabIndex={0}
               aria-pressed={aw === i}
+              onClick={() => setAw(i)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setAw(i);
+                }
+              }}
               style={{
-                ...buttonReset,
                 padding: "14px 10px",
                 background: aw === i ? `${wk.color}18` : T.surface,
                 border: `2px solid ${aw === i ? wk.color : T.border}`,
                 borderRadius: 14,
                 textAlign: "center",
+                cursor: "pointer",
               }}
             >
               <div style={{ fontSize: 24, marginBottom: 5 }}>{allDone[i] ? "✅" : wk.emoji}</div>
@@ -98,7 +105,7 @@ export function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
               >
                 {wk.tag.toUpperCase()}
               </div>
-            </button>
+            </div>
           ))}
         </div>
         <div
