@@ -33,6 +33,7 @@ Workout Tracker is a single-page wellness app built with React. It provides guid
 - Generic countdown timer screen used by Bike, Sauna, and Ohming flows.
 - Breathing screen with multiple breathing patterns.
 - Exercise log view with "Reset Today" (removes only today's entries) and "Clear Log" (removes all) actions. Every completed session is kept, including multiple sessions of the same activity on the same day.
+- Per-session notes: each logged session can have a free-text note (reps, weight, how it felt), edited inline in the log and persisted with the entry.
 - Progress screen derived from the log: current streak, best streak, sessions this week, total sessions, total minutes, and a per-activity breakdown. Stat calculations live in `src/utils/stats.js`.
 - Persistent state via `localStorage` keys (centralized in `src/constants/storageKeys.js`):
   - `wellness_checked`

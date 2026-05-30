@@ -17,5 +17,20 @@ export function useWorkoutLog() {
     setLog((prev) => prev.filter((e) => new Date(e.ts).toDateString() !== today));
   };
 
-  return { log, addLog, clearLog, clearToday, saveError };
+  // Attach (or update) a free-text note on a session, identified by its
+  // timestamp. An empty note is dropped so it doesn't render.
+  const setNote = (ts, note) => {
+    const trimmed = note.trim();
+    setLog((prev) =>
+      prev.map((e) => {
+        if (e.ts !== ts) return e;
+        const next = { ...e };
+        if (trimmed) next.note = trimmed;
+        else delete next.note;
+        return next;
+      })
+    );
+  };
+
+  return { log, addLog, clearLog, clearToday, setNote, saveError };
 }
