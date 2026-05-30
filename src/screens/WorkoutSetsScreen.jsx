@@ -1,18 +1,34 @@
 import { useState, useEffect, useRef } from "react";
 import { T, font, display } from "../theme.js";
-import { workouts, tsStyle } from "../data/workouts.js";
+import { workouts as builtInWorkouts, tsStyle } from "../data/workouts.js";
 import { BackButton } from "../components/BackButton.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
 import { IllusCard } from "../components/IllusCard.jsx";
+import { WorkoutBuilder } from "../components/WorkoutBuilder.jsx";
 
-export function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
+export function WorkoutSetsScreen({
+  onBack,
+  checked,
+  setChecked,
+  onLog,
+  customWorkouts,
+  onAddWorkout,
+  onDeleteWorkout,
+}) {
+  const workouts = [...builtInWorkouts, ...customWorkouts];
   const [aw, setAw] = useState(0);
-  const w = workouts[aw];
-  const doneSteps = w.steps.filter((_, si) => checked[`w${aw}-${si}`]).length;
-  const doneEx = w.steps.filter((s, si) => s.type === "exercise" && checked[`w${aw}-${si}`]).length;
+  const [building, setBuilding] = useState(false);
+
+  // Keep the active index in range if the list shrinks (e.g. a routine is deleted).
+  const safeAw = Math.min(aw, workouts.length - 1);
+  const w = workouts[safeAw];
+  const stepKey = (si) => `w-${w.id}-${si}`;
+  const doneSteps = w.steps.filter((_, si) => checked[stepKey(si)]).length;
+  const doneEx = w.steps.filter((s, si) => s.type === "exercise" && checked[stepKey(si)]).length;
   const totalEx = w.steps.filter((s) => s.type === "exercise").length;
   const pct = Math.round((doneSteps / w.steps.length) * 100);
-  const allDone = workouts.map((wk, wi) => wk.steps.every((_, si) => checked[`w${wi}-${si}`]));
+  const allDone = workouts.map((wk) => wk.steps.every((_, si) => checked[`w-${wk.id}-${si}`]));
+  const isCustom = safeAw >= builtInWorkouts.length;
   const prevPct = useRef(pct);
 
   useEffect(() => {
@@ -21,6 +37,27 @@ export function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
     }
     prevPct.current = pct;
   }, [pct]);
+
+  const handleSave = (workout) => {
+    onAddWorkout(workout);
+    setBuilding(false);
+    setAw(workouts.length); // select the newly added routine
+  };
+
+  const handleDelete = () => {
+    onDeleteWorkout(w.id);
+    setAw(0);
+  };
+
+  if (building) {
+    return (
+      <WorkoutBuilder
+        onSave={handleSave}
+        onCancel={() => setBuilding(false)}
+        count={customWorkouts.length}
+      />
+    );
+  }
 
   return (
     <div
@@ -74,10 +111,10 @@ export function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
         >
           {workouts.map((wk, i) => (
             <div
-              key={i}
+              key={wk.id}
               role="button"
               tabIndex={0}
-              aria-pressed={aw === i}
+              aria-pressed={safeAw === i}
               onClick={() => setAw(i)}
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") {
@@ -87,8 +124,8 @@ export function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
               }}
               style={{
                 padding: "14px 10px",
-                background: aw === i ? `${wk.color}18` : T.surface,
-                border: `2px solid ${aw === i ? wk.color : T.border}`,
+                background: safeAw === i ? `${wk.color}18` : T.surface,
+                border: `2px solid ${safeAw === i ? wk.color : T.border}`,
                 borderRadius: 14,
                 textAlign: "center",
                 cursor: "pointer",
@@ -100,13 +137,38 @@ export function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
                   fontSize: 9,
                   fontWeight: 700,
                   letterSpacing: 1.5,
-                  color: aw === i ? wk.color : T.muted,
+                  color: safeAw === i ? wk.color : T.muted,
                 }}
               >
                 {wk.tag.toUpperCase()}
               </div>
             </div>
           ))}
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label="Create new workout"
+            onClick={() => setBuilding(true)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                setBuilding(true);
+              }
+            }}
+            style={{
+              padding: "14px 10px",
+              background: T.surface,
+              border: `2px dashed ${T.border}`,
+              borderRadius: 14,
+              textAlign: "center",
+              cursor: "pointer",
+            }}
+          >
+            <div style={{ fontSize: 24, marginBottom: 5 }}>➕</div>
+            <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.5, color: T.muted }}>
+              NEW
+            </div>
+          </div>
         </div>
         <div
           style={{
@@ -167,7 +229,7 @@ export function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
           </div>
         </div>
         {w.steps.map((step, si) => {
-          const key = `w${aw}-${si}`;
+          const key = stepKey(si);
           const done = !!checked[key];
           const ts = tsStyle[step.type];
           const ac = ts.ac || w.color;
@@ -184,7 +246,7 @@ export function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
               link={
                 step.type === "exercise"
                   ? `https://www.google.com/search?udm=2&q=${encodeURIComponent(
-                      `${step.phase} dumbbell exercise`
+                      `${step.phase} ${isCustom ? "exercise" : "dumbbell exercise"}`
                     )}`
                   : undefined
               }
@@ -192,6 +254,26 @@ export function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
           );
         })}
         {pct === 100 && <CompletionBanner color={w.color} emoji="🎉" text="WORKOUT COMPLETE!" />}
+        {isCustom && (
+          <button
+            onClick={handleDelete}
+            style={{
+              width: "100%",
+              marginTop: 12,
+              background: "none",
+              border: `1px solid ${T.red}55`,
+              borderRadius: 10,
+              padding: "11px",
+              color: T.red,
+              cursor: "pointer",
+              fontSize: 12,
+              fontWeight: 700,
+              fontFamily: font,
+            }}
+          >
+            Delete this workout
+          </button>
+        )}
         <div
           style={{
             marginTop: 16,

@@ -25,7 +25,7 @@ Workout Tracker is a single-page wellness app built with React. It provides guid
   - Trigger Points
   - Progress (stats)
   - Exercise Log
-- Workout Sets flow with three predefined dumbbell routines and per-step completion state.
+- Workout Sets flow with three predefined dumbbell routines and per-step completion state, plus user-created custom routines (build via the "New" tab, run through the same checklist, delete when done). Custom routines persist in `localStorage` (`wellness_custom_workouts`) and checklist progress is keyed by a stable workout id so deleting one routine never shifts another's saved progress.
 - Stretch checklist grouped by body regions.
 - Simple bodyweight workouts checklist.
 - Foam roller technique checklist with tips.
@@ -38,6 +38,7 @@ Workout Tracker is a single-page wellness app built with React. It provides guid
 - Persistent state via `localStorage` keys (centralized in `src/constants/storageKeys.js`):
   - `wellness_checked`
   - `wellness_log`
+  - `wellness_custom_workouts`
 - A non-blocking warning banner if `localStorage` writes fail (storage full, disabled, or private browsing), so progress is never lost silently.
 - External “Go to Diet Plan” link on the home screen.
 
@@ -120,7 +121,7 @@ Use placeholders in deployment systems as needed, for example:
 │  ├─ theme.js         # Shared colors/fonts
 │  ├─ screens/         # One component per screen (Home, Stretch, Timer, Log, …)
 │  ├─ components/      # Reusable UI (cards, headers, banners, timer circle, …)
-│  ├─ hooks/           # useLocalStorage, useWorkoutLog
+│  ├─ hooks/           # useLocalStorage, useWorkoutLog, useCustomWorkouts
 │  ├─ constants/       # storageKeys.js (centralized localStorage keys)
 │  ├─ utils/           # stats.js (streaks/weekly/totals derived from the log)
 │  └─ data/            # Workout/stretch/recovery datasets + illustration maps
