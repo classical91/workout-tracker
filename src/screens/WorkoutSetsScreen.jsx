@@ -20,6 +20,7 @@ export function WorkoutSetsScreen({
   const [aw, setAw] = useState(0);
   const [building, setBuilding] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   // Keep the active index in range if the list shrinks (e.g. a routine is deleted).
   const safeAw = Math.min(aw, workouts.length - 1);
@@ -39,6 +40,11 @@ export function WorkoutSetsScreen({
     }
     prevPct.current = pct;
   }, [pct]);
+
+  // Cancel a pending delete confirmation when the active routine changes.
+  useEffect(() => {
+    setConfirmingDelete(false);
+  }, [w.id]);
 
   // Clear any saved checklist progress for a routine (its steps may have changed).
   const clearProgress = (workout) =>
@@ -64,6 +70,7 @@ export function WorkoutSetsScreen({
   const handleDelete = () => {
     clearProgress(w);
     onDeleteWorkout(w.id);
+    setConfirmingDelete(false);
     setAw(0);
   };
 
@@ -286,44 +293,95 @@ export function WorkoutSetsScreen({
           );
         })}
         {pct === 100 && <CompletionBanner color={w.color} emoji="🎉" text="WORKOUT COMPLETE!" />}
-        {isCustom && (
-          <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
-            <button
-              onClick={() => setEditingId(w.id)}
+        {isCustom &&
+          (confirmingDelete ? (
+            <div
               style={{
-                flex: 1,
-                background: "none",
-                border: `1px solid ${w.color}55`,
-                borderRadius: 10,
-                padding: "11px",
-                color: w.color,
-                cursor: "pointer",
-                fontSize: 12,
-                fontWeight: 700,
-                fontFamily: font,
-              }}
-            >
-              Edit this workout
-            </button>
-            <button
-              onClick={handleDelete}
-              style={{
-                flex: 1,
-                background: "none",
+                marginTop: 12,
+                background: `${T.red}10`,
                 border: `1px solid ${T.red}55`,
-                borderRadius: 10,
-                padding: "11px",
-                color: T.red,
-                cursor: "pointer",
-                fontSize: 12,
-                fontWeight: 700,
-                fontFamily: font,
+                borderRadius: 12,
+                padding: "14px 16px",
               }}
             >
-              Delete this workout
-            </button>
-          </div>
-        )}
+              <p style={{ fontSize: 13, color: T.text, marginBottom: 12 }}>
+                Delete <strong>{w.title}</strong>? This can&apos;t be undone.
+              </p>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  onClick={handleDelete}
+                  style={{
+                    flex: 1,
+                    background: T.red,
+                    border: "none",
+                    borderRadius: 10,
+                    padding: "11px",
+                    color: "#fff",
+                    cursor: "pointer",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    fontFamily: font,
+                  }}
+                >
+                  Delete
+                </button>
+                <button
+                  onClick={() => setConfirmingDelete(false)}
+                  style={{
+                    flex: 1,
+                    background: "none",
+                    border: `1px solid ${T.border}`,
+                    borderRadius: 10,
+                    padding: "11px",
+                    color: T.muted,
+                    cursor: "pointer",
+                    fontSize: 12,
+                    fontWeight: 700,
+                    fontFamily: font,
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+              <button
+                onClick={() => setEditingId(w.id)}
+                style={{
+                  flex: 1,
+                  background: "none",
+                  border: `1px solid ${w.color}55`,
+                  borderRadius: 10,
+                  padding: "11px",
+                  color: w.color,
+                  cursor: "pointer",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  fontFamily: font,
+                }}
+              >
+                Edit this workout
+              </button>
+              <button
+                onClick={() => setConfirmingDelete(true)}
+                style={{
+                  flex: 1,
+                  background: "none",
+                  border: `1px solid ${T.red}55`,
+                  borderRadius: 10,
+                  padding: "11px",
+                  color: T.red,
+                  cursor: "pointer",
+                  fontSize: 12,
+                  fontWeight: 700,
+                  fontFamily: font,
+                }}
+              >
+                Delete this workout
+              </button>
+            </div>
+          ))}
         <div
           style={{
             marginTop: 16,

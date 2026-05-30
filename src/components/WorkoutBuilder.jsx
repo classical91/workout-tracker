@@ -51,6 +51,15 @@ export function WorkoutBuilder({ onSave, onCancel, count, initial }) {
     setExercises((prev) => prev.map((e, j) => (j === i ? { ...e, [field]: value } : e)));
   const addRow = () => setExercises((prev) => [...prev, emptyExercise()]);
   const removeRow = (i) => setExercises((prev) => prev.filter((_, j) => j !== i));
+  // Swap a row with its neighbour (dir -1 = up, +1 = down), ignoring out-of-range moves.
+  const moveRow = (i, dir) =>
+    setExercises((prev) => {
+      const j = i + dir;
+      if (j < 0 || j >= prev.length) return prev;
+      const next = [...prev];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
 
   const save = () => {
     if (!canSave) return;
@@ -163,6 +172,38 @@ export function WorkoutBuilder({ onSave, onCancel, count, initial }) {
                 placeholder="3 × 12"
                 style={{ ...inputStyle(color), flex: 1 }}
               />
+              <button
+                onClick={() => moveRow(i, -1)}
+                aria-label="move exercise up"
+                disabled={i === 0}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: T.muted,
+                  cursor: i === 0 ? "default" : "pointer",
+                  fontSize: 14,
+                  opacity: i === 0 ? 0.25 : 1,
+                  padding: "0 2px",
+                }}
+              >
+                ▲
+              </button>
+              <button
+                onClick={() => moveRow(i, 1)}
+                aria-label="move exercise down"
+                disabled={i === exercises.length - 1}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: T.muted,
+                  cursor: i === exercises.length - 1 ? "default" : "pointer",
+                  fontSize: 14,
+                  opacity: i === exercises.length - 1 ? 0.25 : 1,
+                  padding: "0 2px",
+                }}
+              >
+                ▼
+              </button>
               <button
                 onClick={() => removeRow(i)}
                 aria-label="remove exercise"
