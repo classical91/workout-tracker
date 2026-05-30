@@ -20,6 +20,7 @@ export function IllusCard({
   onToggle,
   illusKey,
   IllusMap,
+  link,
 }) {
   const [open, setOpen] = useState(false);
   const Illus = IllusMap && IllusMap[illusKey];
@@ -102,6 +103,25 @@ export function IllusCard({
             <p style={{ fontSize: 10, color, marginBottom: 4, letterSpacing: 0.3 }}>{muscles}</p>
           )}
           <p style={{ fontSize: 12, color: done ? T.dim : T.muted, lineHeight: 1.5 }}>{detail}</p>
+          {link && (
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                display: "inline-block",
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 1,
+                color,
+                textDecoration: "none",
+                paddingTop: 6,
+              }}
+            >
+              🔍 SEARCH ON GOOGLE
+            </a>
+          )}
           {Illus && (
             <button
               type="button"
