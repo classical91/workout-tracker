@@ -2,7 +2,7 @@
 
 ## Overview
 
-Workout Tracker is a single-page wellness app built with React. It provides guided workout/checklist screens, timers, breathing patterns, recovery guides (foam rolling + trigger points), and an activity log persisted in browser `localStorage`. The app is currently structured as a frontend-first project, with static hosting as the active runtime path and an unused Express server file still present in the repository.
+Workout Tracker is a single-page wellness app built with React. It provides guided workout/checklist screens, timers, breathing patterns, recovery guides (foam rolling + trigger points), and an activity log persisted in browser `localStorage`. The app is a frontend-only static site: the source is bundled with Vite and the resulting `dist/` is served by a static file server. There is no backend.
 
 ## Project Type
 
@@ -31,10 +31,11 @@ Workout Tracker is a single-page wellness app built with React. It provides guid
 - Trigger point reference/checklist by body area.
 - Generic countdown timer screen used by Bike, Sauna, and Ohming flows.
 - Breathing screen with multiple breathing patterns.
-- Exercise log view and clear-log action.
-- Persistent state via `localStorage` keys:
+- Exercise log view and clear-log action. Every completed session is kept, including multiple sessions of the same activity on the same day.
+- Persistent state via `localStorage` keys (centralized in `src/constants/storageKeys.js`):
   - `wellness_checked`
   - `wellness_log`
+- A non-blocking warning banner if `localStorage` writes fail (storage full, disabled, or private browsing), so progress is never lost silently.
 - External “Go to Diet Plan” link on the home screen.
 
 ## Tech Stack
@@ -42,7 +43,6 @@ Workout Tracker is a single-page wellness app built with React. It provides guid
 - **Frontend:** React 18, ReactDOM 18
 - **Bundler/dev server:** Vite 5 + `@vitejs/plugin-react`
 - **Production static server (scripts):** `serve`
-- **Optional/legacy file present:** Express server (`server.js`)
 - **Deployment configs:** Dockerfile, Railway config, Nixpacks config
 
 ## Installation
@@ -81,7 +81,7 @@ By default this runs:
 
 - `serve dist -l ${PORT:-3000}`
 
-> Note: `server.js` exists, but it is not used by the current npm scripts.
+This serves the prebuilt `dist/` output. Run `npm run build` first if `dist/` is stale.
 
 ## Environment Variables
 
@@ -98,24 +98,33 @@ Use placeholders in deployment systems as needed, for example:
 ## Deployment Notes
 
 - `railway.json` points Railway to build using the repository `Dockerfile`.
-- `Dockerfile` serves prebuilt `dist/` (it does **not** run a build stage).
-  - Ensure `dist/` is freshly built before image build/deploy.
-- `nixpacks.toml` defines a start command with `npx serve dist -l $PORT`.
-- There are multiple deployment patterns/config files (`serve`, Docker, and an Express server file). Align these before production hardening to avoid drift.
+- `Dockerfile` is a multi-stage build: it runs `npm ci && npm run build` inside the
+  container, then copies the freshly generated `dist/` into a minimal runtime image
+  served by `serve`. It does **not** depend on a prebuilt `dist/` from the repo.
+- `nixpacks.toml` defines a start command with `npx serve dist -l $PORT` (note:
+  unlike the Dockerfile, this path does **not** build, so it relies on a committed
+  `dist/`). Railway uses the Dockerfile, so this only matters if you switch builders.
+- The canonical path is: **Vite build → static `dist/` → `serve`**. There is no
+  backend server; keep deploy configs aligned with this single static-site model.
 
 ## Folder Structure
 
 ```text
 .
 ├─ src/
-│  ├─ App.jsx          # Main SPA with all screens/components/data in one file
-│  └─ main.jsx         # React entry point
-├─ dist/               # Built static assets (generated)
+│  ├─ App.jsx          # Root component: screen routing + shared state wiring
+│  ├─ main.jsx         # React entry point
+│  ├─ theme.js         # Shared colors/fonts
+│  ├─ screens/         # One component per screen (Home, Stretch, Timer, Log, …)
+│  ├─ components/      # Reusable UI (cards, headers, banners, timer circle, …)
+│  ├─ hooks/           # useLocalStorage, useWorkoutLog
+│  ├─ constants/       # storageKeys.js (centralized localStorage keys)
+│  └─ data/            # Workout/stretch/recovery datasets + illustration maps
+├─ dist/               # Built static assets (generated; committed for nixpacks)
 ├─ index.html          # Vite HTML entry for development/build
 ├─ package.json        # Scripts + dependencies
 ├─ vite.config.js      # Vite config
-├─ server.js           # Express static server (not wired to scripts)
-├─ Dockerfile          # Static runtime image using prebuilt dist/
+├─ Dockerfile          # Multi-stage build (npm ci + build) → serve dist/
 ├─ railway.json        # Railway Dockerfile build config
 ├─ nixpacks.toml       # Nixpacks start command
 └─ REPOSITORY_REVIEW.md
@@ -123,28 +132,26 @@ Use placeholders in deployment systems as needed, for example:
 
 ## Important Files
 
-- `src/App.jsx`: Contains UI components, screen routing-by-state, workout/stretch/recovery data, timers, and persistence logic.
+- `src/App.jsx`: Root component. Holds screen state, wires shared `checked`/`log` state into screens via the `screen` switch, and renders the storage-warning banner.
+- `src/hooks/useLocalStorage.js`: Persists state to `localStorage` and reports a save error.
+- `src/hooks/useWorkoutLog.js`: Owns the activity log (add/clear) backed by `useLocalStorage`.
 - `src/main.jsx`: Mounts the React app.
 - `package.json`: Source of truth for local dev/build/start commands.
-- `Dockerfile`: Container runtime currently expects pre-existing `dist/`.
-- `server.js`: Alternative Express server implementation not used by npm scripts.
+- `Dockerfile`: Multi-stage image that builds in-container, then serves `dist/`.
 
 ## Developer Notes (for Codex / Claude / OpenClaw agents)
 
 - Verify behavior from `package.json` scripts first; they define the active runtime path.
-- Treat `src/App.jsx` as a high-impact file: many features and datasets are centralized there.
+- Screens live in `src/screens/`, reusable UI in `src/components/`, and datasets in `src/data/`. `src/App.jsx` only routes between screens and owns shared state.
 - If adding documentation for features, confirm they are represented in:
-  1. `activities` list
-  2. corresponding screen component
-  3. screen switch logic near the bottom of `App.jsx`
+  1. `activities` list (`src/data/activities.js`)
+  2. corresponding screen component in `src/screens/`
+  3. screen switch logic in `App.jsx`
 - If changing deploy docs, cross-check `Dockerfile`, `railway.json`, and `nixpacks.toml` together.
-- Avoid claiming backend/API functionality unless code is added and wired into scripts.
-- Confirm whether `server.js` should remain (legacy/alternative) or be removed for clarity.
+- Avoid claiming backend/API functionality; this is a static frontend with no server.
 
 ## Known Limitations / TODOs visible in code
 
-- Large single-file app (`src/App.jsx`) increases maintenance complexity.
 - App data and progress live only in browser storage; no account sync or backend persistence.
-- Several exercise images are hotlinked from third-party URLs and may break if remote sources change.
-- Deployment path is not fully unified (`serve` scripts vs `server.js` vs multiple deploy configs).
-- Docker build currently relies on a prebuilt `dist/`, which can become stale if not rebuilt before deploy.
+- Several exercise images are hotlinked from third-party URLs (YouTube thumbnails and fitness sites) and may break if remote sources change or block hotlinking. Hosting them under `public/` is a recommended follow-up.
+- `dist/` is committed so the `nixpacks` start command can serve it without a build step; remember to rebuild and commit `dist/` after changing source if you rely on that path. (The Dockerfile/Railway path rebuilds automatically.)

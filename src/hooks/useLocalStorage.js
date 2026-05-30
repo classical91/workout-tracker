@@ -10,13 +10,18 @@ export function useLocalStorage(key, initialValue) {
     }
   });
 
+  // Tracks whether the most recent save failed (storage full, disabled, or
+  // private mode) so the UI can warn the user instead of silently losing data.
+  const [saveError, setSaveError] = useState(false);
+
   useEffect(() => {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+      setSaveError(false);
     } catch {
-      // storage may be full or disabled; ignore
+      setSaveError(true);
     }
   }, [key, value]);
 
-  return [value, setValue];
+  return [value, setValue, saveError];
 }
