@@ -1,7 +1,136 @@
+import { useState } from "react";
 import { T, font, display } from "../theme.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 
-export function LogScreen({ onBack, log, onClear, onClearToday }) {
+function LogEntry({ entry, color, onSetNote }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(entry.note || "");
+  const accent = entry.color || color;
+
+  const save = () => {
+    onSetNote(entry.ts, draft);
+    setEditing(false);
+  };
+  const cancel = () => {
+    setDraft(entry.note || "");
+    setEditing(false);
+  };
+
+  return (
+    <div
+      style={{
+        background: T.surface,
+        border: `1px solid ${T.border}`,
+        borderRadius: 12,
+        padding: "12px 16px",
+        marginBottom: 8,
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 14 }}>
+            {entry.emoji} {entry.name}
+          </div>
+          <div style={{ fontSize: 11, color: T.muted, marginTop: 2 }}>{entry.duration}</div>
+        </div>
+        <div style={{ fontFamily: display, fontSize: 20, color: accent }}>✓</div>
+      </div>
+
+      {!editing && entry.note && (
+        <p
+          style={{
+            fontSize: 12,
+            color: T.text,
+            background: T.surface2,
+            borderRadius: 8,
+            padding: "8px 10px",
+            margin: "10px 0 0",
+            lineHeight: 1.5,
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {entry.note}
+        </p>
+      )}
+
+      {editing ? (
+        <div style={{ marginTop: 10 }}>
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            autoFocus
+            rows={3}
+            placeholder="reps, weight, how it felt…"
+            style={{
+              width: "100%",
+              boxSizing: "border-box",
+              background: T.bg,
+              border: `1px solid ${accent}55`,
+              borderRadius: 8,
+              color: T.text,
+              fontFamily: font,
+              fontSize: 12,
+              padding: "8px 10px",
+              resize: "vertical",
+            }}
+          />
+          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <button
+              onClick={save}
+              style={{
+                background: accent,
+                border: "none",
+                borderRadius: 8,
+                padding: "7px 16px",
+                color: "#000",
+                fontWeight: 700,
+                cursor: "pointer",
+                fontSize: 12,
+                fontFamily: font,
+              }}
+            >
+              Save
+            </button>
+            <button
+              onClick={cancel}
+              style={{
+                background: "none",
+                border: `1px solid ${T.border}`,
+                borderRadius: 8,
+                padding: "7px 16px",
+                color: T.muted,
+                cursor: "pointer",
+                fontSize: 12,
+                fontFamily: font,
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setEditing(true)}
+          style={{
+            background: "none",
+            border: "none",
+            color: T.muted,
+            cursor: "pointer",
+            fontSize: 11,
+            fontWeight: 700,
+            letterSpacing: 0.5,
+            padding: "8px 0 0",
+            fontFamily: font,
+          }}
+        >
+          {entry.note ? "✏️ Edit note" : "+ Add note"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+export function LogScreen({ onBack, log, onClear, onClearToday, onSetNote }) {
   const color = T.yellow;
   const today = new Date().toDateString();
   const hasToday = log.some((e) => new Date(e.ts).toDateString() === today);
@@ -58,30 +187,8 @@ export function LogScreen({ onBack, log, onClear, onClearToday }) {
                 >
                   {day.toUpperCase()}
                 </p>
-                {grouped[day].map((e, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      background: T.surface,
-                      border: `1px solid ${T.border}`,
-                      borderRadius: 12,
-                      padding: "12px 16px",
-                      marginBottom: 8,
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: 14 }}>
-                        {e.emoji} {e.name}
-                      </div>
-                      <div style={{ fontSize: 11, color: T.muted, marginTop: 2 }}>{e.duration}</div>
-                    </div>
-                    <div style={{ fontFamily: display, fontSize: 20, color: e.color || color }}>
-                      ✓
-                    </div>
-                  </div>
+                {grouped[day].map((e) => (
+                  <LogEntry key={e.ts} entry={e} color={color} onSetNote={onSetNote} />
                 ))}
               </div>
             ))}

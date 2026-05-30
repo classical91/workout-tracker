@@ -17,7 +17,7 @@ import { TimerScreen } from "./screens/TimerScreen.jsx";
 export default function App() {
   const [screen, setScreen] = useState("home");
   const [checked, setChecked, checkedSaveError] = useLocalStorage(STORAGE_KEYS.checked, {});
-  const { log, addLog, clearLog, clearToday, saveError: logSaveError } = useWorkoutLog();
+  const { log, addLog, clearLog, clearToday, setNote, saveError: logSaveError } = useWorkoutLog();
 
   const goHome = () => setScreen("home");
 
@@ -45,7 +45,15 @@ export default function App() {
       case "trigger-points":
         return <TriggerPointsScreen onBack={goHome} checked={checked} setChecked={setChecked} />;
       case "log":
-        return <LogScreen onBack={goHome} log={log} onClear={clearLog} onClearToday={clearToday} />;
+        return (
+          <LogScreen
+            onBack={goHome}
+            log={log}
+            onClear={clearLog}
+            onClearToday={clearToday}
+            onSetNote={setNote}
+          />
+        );
       case "stats":
         return <StatsScreen onBack={goHome} log={log} />;
       case "bike":
