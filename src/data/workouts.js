@@ -1,5 +1,6 @@
 export const workouts = [
   {
+    id: "builtin-1",
     title: "Upper & Lower Dumbbell",
     color: "#FF6B35",
     emoji: "💪",
@@ -50,6 +51,7 @@ export const workouts = [
     ],
   },
   {
+    id: "builtin-2",
     title: "Core & Lower Body Burn",
     color: "#FFD93D",
     emoji: "🔥",
@@ -100,6 +102,7 @@ export const workouts = [
     ],
   },
   {
+    id: "builtin-3",
     title: "Total Body Tone-Up",
     color: "#C77DFF",
     emoji: "🧘",

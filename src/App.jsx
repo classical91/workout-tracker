@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocalStorage } from "./hooks/useLocalStorage.js";
 import { useWorkoutLog } from "./hooks/useWorkoutLog.js";
+import { useCustomWorkouts } from "./hooks/useCustomWorkouts.js";
 import { STORAGE_KEYS } from "./constants/storageKeys.js";
 import { StorageWarning } from "./components/StorageWarning.jsx";
 import { HomeScreen } from "./screens/HomeScreen.jsx";
@@ -18,6 +19,12 @@ export default function App() {
   const [screen, setScreen] = useState("home");
   const [checked, setChecked, checkedSaveError] = useLocalStorage(STORAGE_KEYS.checked, {});
   const { log, addLog, clearLog, clearToday, setNote, saveError: logSaveError } = useWorkoutLog();
+  const {
+    customWorkouts,
+    addWorkout,
+    deleteWorkout,
+    saveError: customSaveError,
+  } = useCustomWorkouts();
 
   const goHome = () => setScreen("home");
 
@@ -32,6 +39,9 @@ export default function App() {
             checked={checked}
             setChecked={setChecked}
             onLog={addLog}
+            customWorkouts={customWorkouts}
+            onAddWorkout={addWorkout}
+            onDeleteWorkout={deleteWorkout}
           />
         );
       case "stretch":
@@ -104,7 +114,7 @@ export default function App() {
   return (
     <>
       {renderScreen()}
-      {(checkedSaveError || logSaveError) && <StorageWarning />}
+      {(checkedSaveError || logSaveError || customSaveError) && <StorageWarning />}
     </>
   );
 }
