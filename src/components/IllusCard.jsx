@@ -119,7 +119,7 @@ export function IllusCard({
                 paddingTop: 6,
               }}
             >
-              🔍 SEARCH ON GOOGLE
+              🔍 VIEW IMAGES
             </a>
           )}
           {Illus && (
