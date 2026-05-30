@@ -17,7 +17,12 @@ export function useCustomWorkouts() {
     return id;
   };
 
+  // Replace a routine's editable fields in place, preserving its id (and thus
+  // its checklist progress keys) and its position in the list.
+  const updateWorkout = (id, workout) =>
+    setCustomWorkouts((prev) => prev.map((w) => (w.id === id ? { ...workout, id } : w)));
+
   const deleteWorkout = (id) => setCustomWorkouts((prev) => prev.filter((w) => w.id !== id));
 
-  return { customWorkouts, addWorkout, deleteWorkout, saveError };
+  return { customWorkouts, addWorkout, updateWorkout, deleteWorkout, saveError };
 }

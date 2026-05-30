@@ -25,7 +25,7 @@ Workout Tracker is a single-page wellness app built with React. It provides guid
   - Trigger Points
   - Progress (stats)
   - Exercise Log
-- Workout Sets flow with three predefined dumbbell routines and per-step completion state, plus user-created custom routines (build via the "New" tab, run through the same checklist, delete when done). Custom routines persist in `localStorage` (`wellness_custom_workouts`) and checklist progress is keyed by a stable workout id so deleting one routine never shifts another's saved progress.
+- Workout Sets flow with three predefined dumbbell routines and per-step completion state, plus user-created custom routines (build via the "New" tab, run through the same checklist, edit or delete when done). Custom routines persist in `localStorage` (`wellness_custom_workouts`) and checklist progress is keyed by a stable workout id so adding, editing, or deleting one routine never shifts another's saved progress. Editing a routine clears its own checklist progress, since its steps may have changed.
 - Stretch checklist grouped by body regions.
 - Simple bodyweight workouts checklist.
 - Foam roller technique checklist with tips.

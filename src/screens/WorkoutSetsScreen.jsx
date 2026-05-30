@@ -13,11 +13,13 @@ export function WorkoutSetsScreen({
   onLog,
   customWorkouts,
   onAddWorkout,
+  onUpdateWorkout,
   onDeleteWorkout,
 }) {
   const workouts = [...builtInWorkouts, ...customWorkouts];
   const [aw, setAw] = useState(0);
   const [building, setBuilding] = useState(false);
+  const [editingId, setEditingId] = useState(null);
 
   // Keep the active index in range if the list shrinks (e.g. a routine is deleted).
   const safeAw = Math.min(aw, workouts.length - 1);
@@ -38,16 +40,46 @@ export function WorkoutSetsScreen({
     prevPct.current = pct;
   }, [pct]);
 
+  // Clear any saved checklist progress for a routine (its steps may have changed).
+  const clearProgress = (workout) =>
+    setChecked((prev) => {
+      const next = { ...prev };
+      workout.steps.forEach((_, si) => delete next[`w-${workout.id}-${si}`]);
+      return next;
+    });
+
   const handleSave = (workout) => {
     onAddWorkout(workout);
     setBuilding(false);
     setAw(workouts.length); // select the newly added routine
   };
 
+  const handleUpdate = (workout) => {
+    const original = customWorkouts.find((cw) => cw.id === editingId);
+    if (original) clearProgress(original);
+    onUpdateWorkout(editingId, workout);
+    setEditingId(null);
+  };
+
   const handleDelete = () => {
+    clearProgress(w);
     onDeleteWorkout(w.id);
     setAw(0);
   };
+
+  if (editingId) {
+    const initial = customWorkouts.find((cw) => cw.id === editingId);
+    // Guard against the routine vanishing (e.g. cleared elsewhere).
+    if (initial) {
+      return (
+        <WorkoutBuilder
+          initial={initial}
+          onSave={handleUpdate}
+          onCancel={() => setEditingId(null)}
+        />
+      );
+    }
+  }
 
   if (building) {
     return (
@@ -255,24 +287,42 @@ export function WorkoutSetsScreen({
         })}
         {pct === 100 && <CompletionBanner color={w.color} emoji="🎉" text="WORKOUT COMPLETE!" />}
         {isCustom && (
-          <button
-            onClick={handleDelete}
-            style={{
-              width: "100%",
-              marginTop: 12,
-              background: "none",
-              border: `1px solid ${T.red}55`,
-              borderRadius: 10,
-              padding: "11px",
-              color: T.red,
-              cursor: "pointer",
-              fontSize: 12,
-              fontWeight: 700,
-              fontFamily: font,
-            }}
-          >
-            Delete this workout
-          </button>
+          <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+            <button
+              onClick={() => setEditingId(w.id)}
+              style={{
+                flex: 1,
+                background: "none",
+                border: `1px solid ${w.color}55`,
+                borderRadius: 10,
+                padding: "11px",
+                color: w.color,
+                cursor: "pointer",
+                fontSize: 12,
+                fontWeight: 700,
+                fontFamily: font,
+              }}
+            >
+              Edit this workout
+            </button>
+            <button
+              onClick={handleDelete}
+              style={{
+                flex: 1,
+                background: "none",
+                border: `1px solid ${T.red}55`,
+                borderRadius: 10,
+                padding: "11px",
+                color: T.red,
+                cursor: "pointer",
+                fontSize: 12,
+                fontWeight: 700,
+                fontFamily: font,
+              }}
+            >
+              Delete this workout
+            </button>
+          </div>
         )}
         <div
           style={{
