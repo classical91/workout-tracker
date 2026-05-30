@@ -23,6 +23,7 @@ Workout Tracker is a single-page wellness app built with React. It provides guid
   - Ohming timer
   - Foam Roller
   - Trigger Points
+  - Progress (stats)
   - Exercise Log
 - Workout Sets flow with three predefined dumbbell routines and per-step completion state.
 - Stretch checklist grouped by body regions.
@@ -32,6 +33,7 @@ Workout Tracker is a single-page wellness app built with React. It provides guid
 - Generic countdown timer screen used by Bike, Sauna, and Ohming flows.
 - Breathing screen with multiple breathing patterns.
 - Exercise log view and clear-log action. Every completed session is kept, including multiple sessions of the same activity on the same day.
+- Progress screen derived from the log: current streak, best streak, sessions this week, total sessions, total minutes, and a per-activity breakdown. Stat calculations live in `src/utils/stats.js`.
 - Persistent state via `localStorage` keys (centralized in `src/constants/storageKeys.js`):
   - `wellness_checked`
   - `wellness_log`
@@ -119,6 +121,7 @@ Use placeholders in deployment systems as needed, for example:
 │  ├─ components/      # Reusable UI (cards, headers, banners, timer circle, …)
 │  ├─ hooks/           # useLocalStorage, useWorkoutLog
 │  ├─ constants/       # storageKeys.js (centralized localStorage keys)
+│  ├─ utils/           # stats.js (streaks/weekly/totals derived from the log)
 │  └─ data/            # Workout/stretch/recovery datasets + illustration maps
 ├─ dist/               # Built static assets (generated; committed for nixpacks)
 ├─ index.html          # Vite HTML entry for development/build

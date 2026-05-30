@@ -72,6 +72,14 @@ export const activities = [
     desc: "Categorized release guide",
   },
   {
+    id: "stats",
+    label: "Progress",
+    emoji: "📊",
+    duration: null,
+    color: "#FFD93D",
+    desc: "Streaks & weekly stats",
+  },
+  {
     id: "log",
     label: "Exercise Log",
     emoji: "📋",
