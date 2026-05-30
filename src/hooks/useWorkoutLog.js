@@ -11,5 +11,11 @@ export function useWorkoutLog() {
 
   const clearLog = () => setLog([]);
 
-  return { log, addLog, clearLog, saveError };
+  // Remove only the entries logged today, keeping the rest of the history.
+  const clearToday = () => {
+    const today = new Date().toDateString();
+    setLog((prev) => prev.filter((e) => new Date(e.ts).toDateString() !== today));
+  };
+
+  return { log, addLog, clearLog, clearToday, saveError };
 }
