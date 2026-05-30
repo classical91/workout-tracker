@@ -52,10 +52,13 @@ This tracks the bugs/inconsistencies previously identified and their current sta
 - **Resolution:** `useLocalStorage` now reports a save error, and `App` renders a
   non-blocking warning banner (`StorageWarning`) when a write fails.
 
-## 7) Heavy dependence on third-party image URLs — ⚠️ Open
+## 7) Heavy dependence on third-party image URLs — ✅ Resolved
 
-- **Files:** `src/data/workouts.js`, `src/data/triggerPoints.js`
-- **Issue:** Many exercise images are loaded from external domains (YouTube thumbnails and
-  fitness sites). If a host blocks hotlinking or removes content, the media silently disappears.
-- **Suggested fix:** Host critical assets under `public/` (e.g. `public/images/...`) and
-  reference them locally, optionally with placeholder fallbacks.
+- **Files:** `src/data/workouts.js`, `src/data/triggerPoints.js`, `src/screens/WorkoutSetsScreen.jsx`,
+  `src/components/TriggerPointCard.jsx`
+- **Issue:** Many exercise images were hotlinked from external domains (YouTube thumbnails and
+  fitness sites). If a host blocked hotlinking or removed content, the media silently disappeared.
+- **Resolution:** Hotlinked images were removed in favor of links (the same pattern the stretches
+  screen already used). Workout exercises link to a Google image search; trigger points link to
+  their instructional YouTube videos (using the IDs the thumbnails were derived from). No remote
+  images are embedded, so there is nothing left to break.

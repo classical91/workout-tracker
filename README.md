@@ -153,5 +153,5 @@ Use placeholders in deployment systems as needed, for example:
 ## Known Limitations / TODOs visible in code
 
 - App data and progress live only in browser storage; no account sync or backend persistence.
-- Several exercise images are hotlinked from third-party URLs (YouTube thumbnails and fitness sites) and may break if remote sources change or block hotlinking. Hosting them under `public/` is a recommended follow-up.
+- The app no longer hotlinks third-party exercise images. Workout exercises and stretches link out to a Google image search, and trigger points link to their instructional YouTube videos, so nothing breaks if a remote host changes. There are no bundled image assets to keep in sync.
 - `dist/` is committed so the `nixpacks` start command can serve it without a build step; remember to rebuild and commit `dist/` after changing source if you rely on that path. (The Dockerfile/Railway path rebuilds automatically.)

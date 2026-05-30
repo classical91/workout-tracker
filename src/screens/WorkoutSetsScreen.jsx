@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { T, font, display } from "../theme.js";
-import { workouts, WorkoutIllus, tsStyle } from "../data/workouts.js";
+import { workouts, tsStyle } from "../data/workouts.js";
 import { BackButton } from "../components/BackButton.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
 import { IllusCard } from "../components/IllusCard.jsx";
@@ -181,7 +181,13 @@ export function WorkoutSetsScreen({ onBack, checked, setChecked, onLog }) {
               color={ac}
               onToggle={() => setChecked((p) => ({ ...p, [key]: !p[key] }))}
               illusKey={step.phase}
-              IllusMap={step.type === "exercise" ? WorkoutIllus : null}
+              link={
+                step.type === "exercise"
+                  ? `https://www.google.com/search?udm=2&q=${encodeURIComponent(
+                      `${step.phase} dumbbell exercise`
+                    )}`
+                  : undefined
+              }
             />
           );
         })}
