@@ -55,7 +55,7 @@ export function StretchScreen({ onBack, checked, setChecked }) {
                 }
                 illusKey={item.name}
                 IllusMap={StretchIllus}
-                link={`https://www.google.com/search?q=${encodeURIComponent(
+                link={`https://www.google.com/search?udm=2&q=${encodeURIComponent(
                   `${item.name} stretch`,
                 )}`}
               />
