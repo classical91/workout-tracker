@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { T } from "../theme.js";
-import { TriggerPointIllus } from "../data/triggerPoints.js";
+import { triggerPointVideos } from "../data/triggerPoints.js";
 
 function handleKey(onToggle) {
   return (e) => {
@@ -12,8 +11,7 @@ function handleKey(onToggle) {
 }
 
 export function TriggerPointCard({ item, section, isDone, onToggle }) {
-  const [open, setOpen] = useState(false);
-  const illus = TriggerPointIllus[item.key];
+  const videoUrl = triggerPointVideos[item.key];
   return (
     <div
       style={{
@@ -151,55 +149,28 @@ export function TriggerPointCard({ item, section, isDone, onToggle }) {
               >
                 💡 {item.notes}
               </div>
-              {illus && (
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpen((o) => !o);
-                  }}
+              {videoUrl && (
+                <a
+                  href={videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
                   style={{
                     fontSize: 10,
                     fontWeight: 700,
                     letterSpacing: 1,
-                    border: "none",
-                    background: "transparent",
                     color: section.color,
-                    cursor: "pointer",
-                    textAlign: "left",
+                    textDecoration: "none",
                     padding: "4px 0",
                   }}
                 >
-                  {open ? "▲ HIDE DEMO" : "▼ SHOW DEMO"}
-                </button>
+                  ▶ WATCH DEMO
+                </a>
               )}
             </div>
           </div>
         </div>
       </div>
-      {illus && open && (
-        <div style={{ padding: "0 16px 16px", display: "flex", justifyContent: "center" }}>
-          <div
-            style={{
-              width: "100%",
-              maxWidth: 340,
-              background: `${section.color}08`,
-              borderRadius: 12,
-              border: `1px solid ${section.color}20`,
-              overflow: "hidden",
-            }}
-          >
-            <img
-              src={illus}
-              alt={item.name}
-              style={{ width: "100%", display: "block", objectFit: "cover" }}
-              onError={(e) => {
-                e.target.style.display = "none";
-              }}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,23 +1,27 @@
-export const TriggerPointIllus = {
-  suboccipitals: "https://img.youtube.com/vi/W4Wbx5TzJcU/hqdefault.jpg",
-  "upper-traps": "https://img.youtube.com/vi/7E056Om62cs/hqdefault.jpg",
-  "levator-scapulae": "https://img.youtube.com/vi/5QiUzWE9Z7M/hqdefault.jpg",
-  "pec-major": "https://img.youtube.com/vi/GadpiOUfuZQ/hqdefault.jpg",
-  "pec-minor": "https://img.youtube.com/vi/FL3oZiZUQq4/hqdefault.jpg",
-  "rear-delt": "https://img.youtube.com/vi/p73s52sC4pg/hqdefault.jpg",
-  rhomboids: "https://img.youtube.com/vi/qw2G4opQO3w/hqdefault.jpg",
-  infraspinatus: "https://img.youtube.com/vi/jojTdCYg8ds/hqdefault.jpg",
-  lats: "https://img.youtube.com/vi/gR0AQOFORuE/hqdefault.jpg",
-  ql: "https://img.youtube.com/vi/nYVeNqhcD6c/hqdefault.jpg",
-  "glute-max": "https://img.youtube.com/vi/IrPG9WoaJ7w/hqdefault.jpg",
-  "glute-med": "https://img.youtube.com/vi/xZdlUcw4FvM/hqdefault.jpg",
-  piriformis: "https://img.youtube.com/vi/1Ei-c9pXlIY/hqdefault.jpg",
-  "hip-flexors": "https://img.youtube.com/vi/4VbmiMEs22c/hqdefault.jpg",
-  quads: "https://img.youtube.com/vi/1XzS9y-vJD8/hqdefault.jpg",
-  hamstrings: "https://img.youtube.com/vi/Ze0x0e9fI1k/hqdefault.jpg",
-  calves: "https://img.youtube.com/vi/mICDmcWkVE4/hqdefault.jpg",
-  tibialis: "https://img.youtube.com/vi/47dOO6srSew/hqdefault.jpg",
-  plantar: "https://img.youtube.com/vi/2MhXA5eKtj0/hqdefault.jpg",
+// Links to instructional YouTube videos for each trigger point. Previously these
+// were hotlinked img.youtube.com thumbnails, which could break if a video was
+// removed or hotlinking was blocked; linking to the video itself is more useful
+// and carries no image-reliability risk.
+export const triggerPointVideos = {
+  suboccipitals: "https://www.youtube.com/watch?v=W4Wbx5TzJcU",
+  "upper-traps": "https://www.youtube.com/watch?v=7E056Om62cs",
+  "levator-scapulae": "https://www.youtube.com/watch?v=5QiUzWE9Z7M",
+  "pec-major": "https://www.youtube.com/watch?v=GadpiOUfuZQ",
+  "pec-minor": "https://www.youtube.com/watch?v=FL3oZiZUQq4",
+  "rear-delt": "https://www.youtube.com/watch?v=p73s52sC4pg",
+  rhomboids: "https://www.youtube.com/watch?v=qw2G4opQO3w",
+  infraspinatus: "https://www.youtube.com/watch?v=jojTdCYg8ds",
+  lats: "https://www.youtube.com/watch?v=gR0AQOFORuE",
+  ql: "https://www.youtube.com/watch?v=nYVeNqhcD6c",
+  "glute-max": "https://www.youtube.com/watch?v=IrPG9WoaJ7w",
+  "glute-med": "https://www.youtube.com/watch?v=xZdlUcw4FvM",
+  piriformis: "https://www.youtube.com/watch?v=1Ei-c9pXlIY",
+  "hip-flexors": "https://www.youtube.com/watch?v=4VbmiMEs22c",
+  quads: "https://www.youtube.com/watch?v=1XzS9y-vJD8",
+  hamstrings: "https://www.youtube.com/watch?v=Ze0x0e9fI1k",
+  calves: "https://www.youtube.com/watch?v=mICDmcWkVE4",
+  tibialis: "https://www.youtube.com/watch?v=47dOO6srSew",
+  plantar: "https://www.youtube.com/watch?v=2MhXA5eKtj0",
 };
 
 export const triggerPointSections = [

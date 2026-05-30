@@ -1,21 +1,3 @@
-export const WorkoutIllus = {
-  "Bicep Curls": "https://s3assets.skimble.com/assets/2287282/image_full.jpg",
-  "Tricep Dips": "https://training.fit/wp-content/uploads/2020/03/arnold-dips.png",
-  Lunges: "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-lunge.jpg",
-  "Shoulder Press": "https://antofy.co.uk/wp-content/uploads/2024/09/image-4.png",
-  "Bent-over Rows": "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-bent-over-row.jpg",
-  "Standing Calf Raise":
-    "https://liftmanual.com/wp-content/uploads/2023/04/standing-calf-raise.jpg",
-  "Step-ups": "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-step-up.jpg",
-  "Sit-ups": "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-sit-up.jpg",
-  "Russian Twists": "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-russian-twist.jpg",
-  "Reverse Fly": "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-reverse-fly.jpg",
-  "Dumbbell Squats": "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-squat.jpg",
-  "Chest Press": "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-bench-press.jpg",
-  "Lateral Raises": "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-lateral-raise.jpg",
-  "Dumbbell Shrugs": "https://liftmanual.com/wp-content/uploads/2023/04/dumbbell-shrug.jpg",
-};
-
 export const workouts = [
   {
     title: "Upper & Lower Dumbbell",
