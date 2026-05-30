@@ -22,6 +22,7 @@ export default function App() {
   const {
     customWorkouts,
     addWorkout,
+    updateWorkout,
     deleteWorkout,
     saveError: customSaveError,
   } = useCustomWorkouts();
@@ -41,6 +42,7 @@ export default function App() {
             onLog={addLog}
             customWorkouts={customWorkouts}
             onAddWorkout={addWorkout}
+            onUpdateWorkout={updateWorkout}
             onDeleteWorkout={deleteWorkout}
           />
         );

@@ -21,14 +21,28 @@ function emptyExercise() {
   return { phase: "", reps: "" };
 }
 
-// Form for creating a custom routine. Collects a title, emoji, accent color, and
-// a list of exercises, then hands a fully-formed workout (with an auto Warm-Up
-// and Cool-Down, matching built-in routines) to onSave.
-export function WorkoutBuilder({ onSave, onCancel, count }) {
-  const [title, setTitle] = useState("");
-  const [emoji, setEmoji] = useState(EMOJIS[0]);
-  const [color, setColor] = useState(COLORS[0]);
-  const [exercises, setExercises] = useState([emptyExercise(), emptyExercise()]);
+// Pull the editable exercise rows (name + reps) out of a routine's steps,
+// dropping the auto warm-up/cool-down that get re-added on save.
+function exercisesFromWorkout(workout) {
+  const rows = workout.steps
+    .filter((s) => s.type === "exercise")
+    .map((s) => ({ phase: s.phase, reps: s.reps }));
+  return rows.length ? rows : [emptyExercise(), emptyExercise()];
+}
+
+// Form for creating or editing a custom routine. Collects a title, emoji, accent
+// color, and a list of exercises, then hands a fully-formed workout (with an auto
+// Warm-Up and Cool-Down, matching built-in routines) to onSave. When `initial`
+// is provided the form is pre-filled and acts as an editor; otherwise it creates
+// a new routine.
+export function WorkoutBuilder({ onSave, onCancel, count, initial }) {
+  const editing = !!initial;
+  const [title, setTitle] = useState(initial ? initial.title : "");
+  const [emoji, setEmoji] = useState(initial ? initial.emoji : EMOJIS[0]);
+  const [color, setColor] = useState(initial ? initial.color : COLORS[0]);
+  const [exercises, setExercises] = useState(
+    initial ? exercisesFromWorkout(initial) : [emptyExercise(), emptyExercise()]
+  );
 
   const named = exercises.filter((e) => e.phase.trim());
   const canSave = title.trim() && named.length > 0;
@@ -50,7 +64,9 @@ export function WorkoutBuilder({ onSave, onCancel, count }) {
       })),
       { phase: "Cool-Down", reps: "5–10 min", detail: "Stretch and recover", type: "cooldown" },
     ];
-    onSave({ title: title.trim(), emoji, color, tag: `Custom ${count + 1}`, steps });
+    // Preserve the tag when editing; generate one for a new routine.
+    const tag = editing ? initial.tag : `Custom ${count + 1}`;
+    onSave({ title: title.trim(), emoji, color, tag, steps });
   };
 
   return (
@@ -75,7 +91,7 @@ export function WorkoutBuilder({ onSave, onCancel, count }) {
               marginTop: 12,
             }}
           >
-            NEW WORKOUT
+            {editing ? "EDIT WORKOUT" : "NEW WORKOUT"}
           </h1>
         </div>
       </div>
@@ -206,7 +222,7 @@ export function WorkoutBuilder({ onSave, onCancel, count }) {
             fontFamily: font,
           }}
         >
-          SAVE WORKOUT
+          {editing ? "SAVE CHANGES" : "SAVE WORKOUT"}
         </button>
       </div>
     </div>
