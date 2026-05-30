@@ -1,8 +1,10 @@
 import { T, font, display } from "../theme.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 
-export function LogScreen({ onBack, log, onClear }) {
+export function LogScreen({ onBack, log, onClear, onClearToday }) {
   const color = T.yellow;
+  const today = new Date().toDateString();
+  const hasToday = log.some((e) => new Date(e.ts).toDateString() === today);
   const grouped = log.reduce((acc, e) => {
     const d = new Date(e.ts).toLocaleDateString("en-CA", {
       weekday: "short",
@@ -83,21 +85,40 @@ export function LogScreen({ onBack, log, onClear }) {
                 ))}
               </div>
             ))}
-            <button
-              onClick={onClear}
-              style={{
-                background: "none",
-                border: `1px solid ${T.border}`,
-                borderRadius: 10,
-                padding: "10px 20px",
-                color: T.muted,
-                cursor: "pointer",
-                fontSize: 12,
-                fontFamily: font,
-              }}
-            >
-              Clear Log
-            </button>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              {hasToday && (
+                <button
+                  onClick={onClearToday}
+                  style={{
+                    background: "none",
+                    border: `1px solid ${color}55`,
+                    borderRadius: 10,
+                    padding: "10px 20px",
+                    color,
+                    cursor: "pointer",
+                    fontSize: 12,
+                    fontFamily: font,
+                  }}
+                >
+                  Reset Today
+                </button>
+              )}
+              <button
+                onClick={onClear}
+                style={{
+                  background: "none",
+                  border: `1px solid ${T.border}`,
+                  borderRadius: 10,
+                  padding: "10px 20px",
+                  color: T.muted,
+                  cursor: "pointer",
+                  fontSize: 12,
+                  fontFamily: font,
+                }}
+              >
+                Clear Log
+              </button>
+            </div>
           </>
         )}
       </div>
