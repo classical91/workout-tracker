@@ -27,8 +27,8 @@ export function SimpleWorkoutsScreen({ onBack, checked, setChecked }) {
       }}
     >
       <ScreenHeader
-        title="Simple Workouts"
-        subtitle="BODYWEIGHT · NO EQUIPMENT"
+        title="Simple Exercises"
+        subtitle="BODYWEIGHT / AT HOME / NO EQUIPMENT"
         emoji="🏃"
         color={color}
         onBack={onBack}

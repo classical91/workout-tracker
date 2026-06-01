@@ -1,42 +1,104 @@
 export const simpleEx = [
   {
-    name: "Wall Push-Ups",
-    reps: "3 × 15",
-    detail: "Hands on wall at shoulder height. Great for all levels.",
+    name: "Head Curls (Side to Side)",
+    reps: "2 x 10/side",
+    detail:
+      "Gently tilt or turn side to side to work the neck muscles, improve mobility, and reduce stiffness.",
   },
   {
-    name: "Chair Squats",
-    reps: "3 × 12",
-    detail: "Stand in front of chair, lower until you almost touch it, stand back up.",
+    name: "Ankle Curls (Up and Down)",
+    reps: "2 x 15/side",
+    detail:
+      "Point and flex each foot to move the ankle joints and calves, helping lower-leg mobility.",
   },
   {
-    name: "Marching in Place",
-    reps: "3 min",
-    detail: "High knees, pump arms. Easy cardio anywhere.",
+    name: "Chin Tucks (Up and Down)",
+    reps: "2 x 10",
+    detail:
+      "Draw the chin back, then release with control to strengthen the neck and upper spine for better posture.",
   },
   {
-    name: "Seated Leg Raises",
-    reps: "3 × 15",
-    detail: "Sit on edge of chair, extend one leg, hold 2 sec, lower.",
+    name: "Push-Ups",
+    reps: "3 x 8-12",
+    detail:
+      "Use the floor or knees as needed to train the chest, shoulders, triceps, and core.",
   },
   {
-    name: "Glute Bridges",
-    reps: "3 × 15",
-    detail: "Lie on back, knees bent. Push hips up, squeeze glutes at top.",
+    name: "Shoulder Squeeze",
+    reps: "3 x 12",
+    detail:
+      "Pull shoulder blades back and down, hold briefly, then release to strengthen the upper back and improve posture.",
   },
   {
-    name: "Standing Side Crunches",
-    reps: "3 × 12/side",
-    detail: "Stand tall, bring elbow to same-side knee by crunching sideways.",
+    name: "Squat Pulses",
+    reps: "3 x 15",
+    detail:
+      "Hold a shallow squat and pulse with control to build the thighs, glutes, and calves.",
   },
   {
-    name: "Wall Sit",
-    reps: "3 × 30 sec",
-    detail: "Back against wall, thighs parallel to floor. Hold.",
+    name: "Split Squats",
+    reps: "3 x 8/side",
+    detail:
+      "Step one foot back and lower straight down to train quads, hamstrings, glutes, and balance.",
   },
   {
-    name: "Toe Touches",
-    reps: "3 × 10",
-    detail: "Stand, reach down toward toes. Slow and controlled.",
+    name: "Squats",
+    reps: "3 x 12",
+    detail:
+      "Sit the hips back and stand tall to strengthen the thighs, hips, glutes, and lower back.",
+  },
+  {
+    name: "Lower Back Strengthening",
+    reps: "3 x 10",
+    detail:
+      "Use slow back extensions, bird dogs, or supermans to build support through the lower and upper back.",
+  },
+  {
+    name: "Calf Raise",
+    reps: "3 x 15",
+    detail:
+      "Rise onto the balls of your feet, pause, then lower with control to strengthen the calves.",
+  },
+  {
+    name: "Torso Twist",
+    reps: "2 x 12/side",
+    detail:
+      "Rotate from the trunk with control to engage the core and obliques while improving rotational flexibility.",
+  },
+  {
+    name: "Side Leg Raise",
+    reps: "3 x 12/side",
+    detail:
+      "Lift the leg out to the side while standing or lying down to strengthen hips, glutes, and outer thighs.",
+  },
+  {
+    name: "Seated Leg Raise",
+    reps: "3 x 12/side",
+    detail:
+      "Sit tall, extend one leg, hold briefly, and lower to strengthen hip flexors and quadriceps.",
+  },
+  {
+    name: "Sit-Ups",
+    reps: "3 x 10",
+    detail:
+      "Curl the upper body up with control to focus on abdominal strength and core endurance.",
+  },
+  {
+    name: "Planking",
+    reps: "3 x 30 sec",
+    detail:
+      "Hold a straight line from shoulders to heels to train the core, shoulders, and back stability.",
+  },
+  {
+    name: "Desk Push-Up",
+    reps: "3 x 12",
+    detail:
+      "Place hands on a sturdy desk and lower the chest toward it to train chest, shoulders, and triceps.",
+  },
+  {
+    name: "Wrist Stretches",
+    reps: "2 x 30 sec",
+    detail:
+      "Gently stretch the wrists forward and backward to improve flexibility and reduce tension.",
   },
 ];
