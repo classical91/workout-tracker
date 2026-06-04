@@ -1,15 +1,6 @@
 import { useState } from "react";
 import { T } from "../theme.js";
 
-function handleKey(onToggle) {
-  return (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      onToggle();
-    }
-  };
-}
-
 export function IllusCard({
   label,
   muscles,
@@ -24,6 +15,7 @@ export function IllusCard({
 }) {
   const [open, setOpen] = useState(false);
   const Illus = IllusMap && IllusMap[illusKey];
+
   return (
     <div
       style={{
@@ -34,21 +26,26 @@ export function IllusCard({
         overflow: "hidden",
       }}
     >
-      <div
-        role="button"
-        tabIndex={0}
+      <button
+        type="button"
         aria-pressed={done}
         onClick={onToggle}
-        onKeyDown={handleKey(onToggle)}
         style={{
           display: "flex",
           gap: 14,
           alignItems: "flex-start",
           padding: "14px 16px",
           cursor: "pointer",
+          width: "100%",
+          background: "transparent",
+          border: "none",
+          color: T.text,
+          font: "inherit",
+          textAlign: "left",
         }}
       >
-        <div
+        <span
+          aria-hidden="true"
           style={{
             width: 24,
             height: 24,
@@ -63,9 +60,9 @@ export function IllusCard({
           }}
         >
           {done && <span style={{ fontSize: 13, color: "#000", fontWeight: 800 }}>✓</span>}
-        </div>
-        <div style={{ flex: 1 }}>
-          <div
+        </span>
+        <span style={{ flex: 1 }}>
+          <span
             style={{
               display: "flex",
               justifyContent: "space-between",
@@ -98,17 +95,41 @@ export function IllusCard({
                 {reps}
               </span>
             )}
-          </div>
+          </span>
           {muscles && (
-            <p style={{ fontSize: 10, color, marginBottom: 4, letterSpacing: 0.3 }}>{muscles}</p>
+            <span
+              style={{ display: "block", fontSize: 10, color, marginBottom: 4, letterSpacing: 0.3 }}
+            >
+              {muscles}
+            </span>
           )}
-          <p style={{ fontSize: 12, color: done ? T.dim : T.muted, lineHeight: 1.5 }}>{detail}</p>
+          <span
+            style={{
+              display: "block",
+              fontSize: 12,
+              color: done ? T.dim : T.muted,
+              lineHeight: 1.5,
+            }}
+          >
+            {detail}
+          </span>
+        </span>
+      </button>
+
+      {(link || Illus) && (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 12,
+            padding: "0 16px 14px 54px",
+          }}
+        >
           {link && (
             <a
               href={link}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
               style={{
                 display: "inline-block",
                 fontSize: 10,
@@ -116,7 +137,6 @@ export function IllusCard({
                 letterSpacing: 1,
                 color,
                 textDecoration: "none",
-                paddingTop: 6,
               }}
             >
               🔍 VIEW IMAGES
@@ -125,10 +145,7 @@ export function IllusCard({
           {Illus && (
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                setOpen((o) => !o);
-              }}
+              onClick={() => setOpen((o) => !o)}
               style={{
                 fontSize: 10,
                 fontWeight: 700,
@@ -137,14 +154,15 @@ export function IllusCard({
                 background: "transparent",
                 color,
                 cursor: "pointer",
-                paddingTop: 6,
+                padding: 0,
               }}
             >
               {open ? "▲ HIDE FORM" : "▼ SHOW FORM"}
             </button>
           )}
         </div>
-      </div>
+      )}
+
       {Illus && open && (
         <div style={{ padding: "0 16px 16px", display: "flex", justifyContent: "center" }}>
           <div

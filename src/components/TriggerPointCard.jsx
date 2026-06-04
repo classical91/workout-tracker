@@ -1,17 +1,9 @@
 import { T } from "../theme.js";
 import { triggerPointVideos } from "../data/triggerPoints.js";
 
-function handleKey(onToggle) {
-  return (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      onToggle();
-    }
-  };
-}
-
 export function TriggerPointCard({ item, section, isDone, onToggle }) {
   const videoUrl = triggerPointVideos[item.key];
+
   return (
     <div
       style={{
@@ -22,16 +14,24 @@ export function TriggerPointCard({ item, section, isDone, onToggle }) {
         overflow: "hidden",
       }}
     >
-      <div
-        role="button"
-        tabIndex={0}
+      <button
+        type="button"
         aria-pressed={isDone}
         onClick={onToggle}
-        onKeyDown={handleKey(onToggle)}
-        style={{ padding: "14px 16px", cursor: "pointer" }}
+        style={{
+          padding: "14px 16px",
+          cursor: "pointer",
+          width: "100%",
+          background: "transparent",
+          border: "none",
+          color: T.text,
+          font: "inherit",
+          textAlign: "left",
+        }}
       >
-        <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-          <div
+        <span style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
+          <span
+            aria-hidden="true"
             style={{
               width: 24,
               height: 24,
@@ -46,9 +46,9 @@ export function TriggerPointCard({ item, section, isDone, onToggle }) {
             }}
           >
             {isDone && <span style={{ fontSize: 13, color: "#000", fontWeight: 800 }}>✓</span>}
-          </div>
-          <div style={{ flex: 1 }}>
-            <div
+          </span>
+          <span style={{ flex: 1 }}>
+            <span
               style={{
                 display: "flex",
                 justifyContent: "space-between",
@@ -79,66 +79,35 @@ export function TriggerPointCard({ item, section, isDone, onToggle }) {
               >
                 {item.muscle}
               </span>
-            </div>
-            <div style={{ display: "grid", gap: 8 }}>
-              <div>
-                <p
-                  style={{
-                    fontSize: 10,
-                    color: section.color,
-                    fontWeight: 700,
-                    letterSpacing: 1,
-                    marginBottom: 3,
-                  }}
-                >
-                  PAIN PATTERN
-                </p>
-                <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.pain}</p>
-              </div>
-              <div>
-                <p
-                  style={{
-                    fontSize: 10,
-                    color: section.color,
-                    fontWeight: 700,
-                    letterSpacing: 1,
-                    marginBottom: 3,
-                  }}
-                >
-                  SYMPTOMS
-                </p>
-                <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.symptoms}</p>
-              </div>
-              <div>
-                <p
-                  style={{
-                    fontSize: 10,
-                    color: section.color,
-                    fontWeight: 700,
-                    letterSpacing: 1,
-                    marginBottom: 3,
-                  }}
-                >
-                  RELEASE
-                </p>
-                <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.release}</p>
-              </div>
-              <div>
-                <p
-                  style={{
-                    fontSize: 10,
-                    color: section.color,
-                    fontWeight: 700,
-                    letterSpacing: 1,
-                    marginBottom: 3,
-                  }}
-                >
-                  STRETCH
-                </p>
-                <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{item.stretch}</p>
-              </div>
-              <div
+            </span>
+            <span style={{ display: "grid", gap: 8 }}>
+              {[
+                ["PAIN PATTERN", item.pain],
+                ["SYMPTOMS", item.symptoms],
+                ["RELEASE", item.release],
+                ["STRETCH", item.stretch],
+              ].map(([heading, text]) => (
+                <span key={heading}>
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: 10,
+                      color: section.color,
+                      fontWeight: 700,
+                      letterSpacing: 1,
+                      marginBottom: 3,
+                    }}
+                  >
+                    {heading}
+                  </span>
+                  <span style={{ display: "block", fontSize: 12, color: T.muted, lineHeight: 1.5 }}>
+                    {text}
+                  </span>
+                </span>
+              ))}
+              <span
                 style={{
+                  display: "block",
                   background: `${section.color}10`,
                   borderLeft: `3px solid ${section.color}`,
                   borderRadius: 6,
@@ -148,29 +117,30 @@ export function TriggerPointCard({ item, section, isDone, onToggle }) {
                 }}
               >
                 💡 {item.notes}
-              </div>
-              {videoUrl && (
-                <a
-                  href={videoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    letterSpacing: 1,
-                    color: section.color,
-                    textDecoration: "none",
-                    padding: "4px 0",
-                  }}
-                >
-                  ▶ WATCH DEMO
-                </a>
-              )}
-            </div>
-          </div>
+              </span>
+            </span>
+          </span>
+        </span>
+      </button>
+      {videoUrl && (
+        <div style={{ padding: "0 16px 14px 54px" }}>
+          <a
+            href={videoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: 1,
+              color: section.color,
+              textDecoration: "none",
+              padding: "4px 0",
+            }}
+          >
+            ▶ WATCH DEMO
+          </a>
         </div>
-      </div>
+      )}
     </div>
   );
 }

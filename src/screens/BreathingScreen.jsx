@@ -12,6 +12,7 @@ export function BreathingScreen({ onBack }) {
   const [cycles, setCycles] = useState(0);
   const ref = useRef(null);
   const m = breathModes[mi];
+  const durations = m.durations;
 
   const stop = () => {
     setRunning(false);
@@ -19,7 +20,7 @@ export function BreathingScreen({ onBack }) {
   };
   const start = () => {
     setSi(0);
-    setCountdown(m.durations[0]);
+    setCountdown(durations[0]);
     setCycles(0);
     setRunning(true);
   };
@@ -30,19 +31,19 @@ export function BreathingScreen({ onBack }) {
       setCountdown((c) => {
         if (c <= 1) {
           setSi((s) => {
-            const next = (s + 1) % m.durations.length;
+            const next = (s + 1) % durations.length;
             if (next === 0) setCycles((cy) => cy + 1);
             return next;
           });
-          return m.durations[(si + 1) % m.durations.length];
+          return durations[(si + 1) % durations.length];
         }
         return c - 1;
       });
     }, 1000);
     return () => clearInterval(ref.current);
-  }, [running, si]);
+  }, [durations, running, si]);
 
-  const dur = m.durations[si] || 1;
+  const dur = durations[si] || 1;
   const pct = running ? ((dur - countdown) / dur) * 100 : 0;
 
   return (

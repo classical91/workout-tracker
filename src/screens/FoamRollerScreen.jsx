@@ -4,15 +4,6 @@ import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { ProgressBar } from "../components/ProgressBar.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
 
-function handleKey(toggle) {
-  return (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      toggle();
-    }
-  };
-}
-
 export function FoamRollerScreen({ onBack, checked, setChecked }) {
   const color = T.teal;
   const done = foamTech.filter((_, i) => checked[`foam-${i}`]).length;
@@ -49,18 +40,22 @@ export function FoamRollerScreen({ onBack, checked, setChecked }) {
                 overflow: "hidden",
               }}
             >
-              <div
-                role="button"
-                tabIndex={0}
+              <button
+                type="button"
                 aria-pressed={isDone}
                 onClick={toggle}
-                onKeyDown={handleKey(toggle)}
                 style={{
                   display: "flex",
                   gap: 14,
                   alignItems: "flex-start",
                   padding: "14px 16px",
                   cursor: "pointer",
+                  width: "100%",
+                  background: "transparent",
+                  border: "none",
+                  color: T.text,
+                  font: "inherit",
+                  textAlign: "left",
                 }}
               >
                 <div
@@ -119,7 +114,7 @@ export function FoamRollerScreen({ onBack, checked, setChecked }) {
                     </div>
                   )}
                 </div>
-              </div>
+              </button>
             </div>
           );
         })}

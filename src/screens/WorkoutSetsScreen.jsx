@@ -39,7 +39,7 @@ export function WorkoutSetsScreen({
       onLog({ name: w.title, emoji: w.emoji, color: w.color, duration: "~30 min", ts: Date.now() });
     }
     prevPct.current = pct;
-  }, [pct]);
+  }, [onLog, pct, w.color, w.emoji, w.title]);
 
   // Cancel a pending delete confirmation when the active routine changes.
   useEffect(() => {
@@ -149,18 +149,11 @@ export function WorkoutSetsScreen({
           style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 16 }}
         >
           {workouts.map((wk, i) => (
-            <div
+            <button
+              type="button"
               key={wk.id}
-              role="button"
-              tabIndex={0}
               aria-pressed={safeAw === i}
               onClick={() => setAw(i)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  setAw(i);
-                }
-              }}
               style={{
                 padding: "14px 10px",
                 background: safeAw === i ? `${wk.color}18` : T.surface,
@@ -168,6 +161,7 @@ export function WorkoutSetsScreen({
                 borderRadius: 14,
                 textAlign: "center",
                 cursor: "pointer",
+                font: "inherit",
               }}
             >
               <div style={{ fontSize: 24, marginBottom: 5 }}>{allDone[i] ? "✅" : wk.emoji}</div>
@@ -181,19 +175,12 @@ export function WorkoutSetsScreen({
               >
                 {wk.tag.toUpperCase()}
               </div>
-            </div>
+            </button>
           ))}
-          <div
-            role="button"
-            tabIndex={0}
+          <button
+            type="button"
             aria-label="Create new workout"
             onClick={() => setBuilding(true)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setBuilding(true);
-              }
-            }}
             style={{
               padding: "14px 10px",
               background: T.surface,
@@ -201,13 +188,14 @@ export function WorkoutSetsScreen({
               borderRadius: 14,
               textAlign: "center",
               cursor: "pointer",
+              font: "inherit",
             }}
           >
             <div style={{ fontSize: 24, marginBottom: 5 }}>➕</div>
             <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: 1.5, color: T.muted }}>
               NEW
             </div>
-          </div>
+          </button>
         </div>
         <div
           style={{

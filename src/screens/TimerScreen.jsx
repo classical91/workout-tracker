@@ -28,7 +28,7 @@ export function TimerScreen({
       if (onComplete) onComplete();
     }
     return () => clearInterval(ref.current);
-  }, [running, remaining]);
+  }, [onComplete, running, remaining]);
 
   const reset = () => {
     setRemaining(total);
