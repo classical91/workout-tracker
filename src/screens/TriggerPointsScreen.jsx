@@ -1,13 +1,9 @@
 import { T, font } from "../theme.js";
 import { triggerPointSections } from "../data/triggerPoints.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
-import { ProgressBar } from "../components/ProgressBar.jsx";
-import { CompletionBanner } from "../components/CompletionBanner.jsx";
 import { TriggerPointCard } from "../components/TriggerPointCard.jsx";
 
-export function TriggerPointsScreen({ onBack, checked, setChecked }) {
-  const allItems = triggerPointSections.flatMap((section) => section.items);
-  const done = allItems.filter((item) => checked[`tp-${item.key}`]).length;
+export function TriggerPointsScreen({ onBack }) {
   return (
     <div
       style={{
@@ -26,7 +22,6 @@ export function TriggerPointsScreen({ onBack, checked, setChecked }) {
         onBack={onBack}
       />
       <div style={{ maxWidth: 500, margin: "0 auto", padding: "0 20px" }}>
-        <ProgressBar done={done} total={allItems.length} color={T.red} />
         <div
           style={{
             background: `${T.red}12`,
@@ -40,7 +35,7 @@ export function TriggerPointsScreen({ onBack, checked, setChecked }) {
           }}
         >
           Trigger points are tight, tender spots in muscles that can refer pain somewhere else. Tap
-          each one as you work through it.
+          a card to expand it and view details.
         </div>
         {triggerPointSections.map((section) => (
           <div key={section.label} style={{ marginBottom: 18 }}>
@@ -56,23 +51,11 @@ export function TriggerPointsScreen({ onBack, checked, setChecked }) {
             >
               {section.label.toUpperCase()}
             </p>
-            {section.items.map((item) => {
-              const key = `tp-${item.key}`;
-              return (
-                <TriggerPointCard
-                  key={item.key}
-                  item={item}
-                  section={section}
-                  isDone={!!checked[key]}
-                  onToggle={() => setChecked((prev) => ({ ...prev, [key]: !prev[key] }))}
-                />
-              );
-            })}
+            {section.items.map((item) => (
+              <TriggerPointCard key={item.key} item={item} section={section} />
+            ))}
           </div>
         ))}
-        {done === allItems.length && (
-          <CompletionBanner color={T.red} emoji="🎯" text="TRIGGER POINTS COMPLETE!" />
-        )}
       </div>
     </div>
   );

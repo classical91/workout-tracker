@@ -56,7 +56,7 @@ export default function App() {
       case "foam-roller":
         return <FoamRollerScreen onBack={goHome} checked={checked} setChecked={setChecked} />;
       case "trigger-points":
-        return <TriggerPointsScreen onBack={goHome} checked={checked} setChecked={setChecked} />;
+        return <TriggerPointsScreen onBack={goHome} />;
       case "log":
         return (
           <LogScreen
