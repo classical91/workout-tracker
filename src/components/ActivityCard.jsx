@@ -1,10 +1,15 @@
 import { T } from "../theme.js";
 
 export function ActivityCard({ activity, onSelect }) {
+  const isExternal = !!activity.url;
+  const Tag = isExternal ? "a" : "button";
+  const interaction = isExternal
+    ? { href: activity.url, target: "_blank", rel: "noreferrer" }
+    : { type: "button", onClick: () => onSelect(activity.id) };
+
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(activity.id)}
+    <Tag
+      {...interaction}
       onMouseEnter={(e) => {
         e.currentTarget.style.borderColor = activity.color;
       }}
@@ -12,6 +17,7 @@ export function ActivityCard({ activity, onSelect }) {
         e.currentTarget.style.borderColor = T.border;
       }}
       style={{
+        display: "block",
         background: T.surface,
         border: `1px solid ${T.border}`,
         borderRadius: 16,
@@ -21,6 +27,7 @@ export function ActivityCard({ activity, onSelect }) {
         color: T.text,
         font: "inherit",
         textAlign: "left",
+        textDecoration: "none",
         width: "100%",
       }}
     >
@@ -48,6 +55,6 @@ export function ActivityCard({ activity, onSelect }) {
           </div>
         )}
       </div>
-    </button>
+    </Tag>
   );
 }

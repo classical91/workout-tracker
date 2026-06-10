@@ -72,6 +72,15 @@ export const activities = [
     desc: "Categorized release guide",
   },
   {
+    id: "youtube",
+    label: "Video Workouts",
+    emoji: "▶️",
+    duration: null,
+    color: "#E74C3C",
+    desc: "My YouTube playlist",
+    url: "https://youtube.com/playlist?list=PLTmgH9ZvO231FG8wdsrvhSb93CWT3_OwI",
+  },
+  {
     id: "benefits",
     label: "Why It Works",
     emoji: "💡",
