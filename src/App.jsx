@@ -14,6 +14,7 @@ import { TriggerPointsScreen } from "./screens/TriggerPointsScreen.jsx";
 import { LogScreen } from "./screens/LogScreen.jsx";
 import { StatsScreen } from "./screens/StatsScreen.jsx";
 import { TimerScreen } from "./screens/TimerScreen.jsx";
+import { BenefitsScreen } from "./screens/BenefitsScreen.jsx";
 
 export default function App() {
   const [screen, setScreen] = useState("home");
@@ -66,6 +67,8 @@ export default function App() {
             onSetNote={setNote}
           />
         );
+      case "benefits":
+        return <BenefitsScreen onBack={goHome} />;
       case "stats":
         return <StatsScreen onBack={goHome} log={log} />;
       case "bike":

@@ -72,6 +72,14 @@ export const activities = [
     desc: "Categorized release guide",
   },
   {
+    id: "benefits",
+    label: "Why It Works",
+    emoji: "💡",
+    duration: null,
+    color: "#4ECDC4",
+    desc: "Benefits of each activity",
+  },
+  {
     id: "stats",
     label: "Progress",
     emoji: "📊",
