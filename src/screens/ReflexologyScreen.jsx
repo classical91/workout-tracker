@@ -2,26 +2,56 @@ import { useState } from "react";
 import { T, font } from "../theme.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { ReflexologyChart } from "../components/ReflexologyChart.jsx";
-import {
-  reflexologyIntro,
-  reflexRegions,
-  handZones,
-  footZones,
-} from "../data/reflexology.js";
+import { reflexologyIntro, reflexRegions, reflexCharts } from "../data/reflexology.js";
 
 const ACCENT = T.teal;
 
+function Toggle({ options, value, onChange }) {
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: `repeat(${options.length}, 1fr)`, gap: 8 }}>
+      {options.map(([key, label]) => {
+        const active = value === key;
+        return (
+          <button
+            key={key}
+            type="button"
+            onClick={() => onChange(key)}
+            style={{
+              padding: "11px 0",
+              borderRadius: 12,
+              border: `1px solid ${active ? ACCENT : T.border}`,
+              background: active ? `${ACCENT}1A` : T.surface,
+              color: active ? ACCENT : T.muted,
+              fontWeight: 700,
+              fontSize: 13,
+              letterSpacing: 0.5,
+              cursor: "pointer",
+              fontFamily: font,
+            }}
+          >
+            {label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function ReflexologyScreen({ onBack }) {
-  const [tab, setTab] = useState("hand");
+  const [type, setType] = useState("hand");
+  const [side, setSide] = useState("right");
   const [selectedKey, setSelectedKey] = useState(null);
 
-  const zones = tab === "hand" ? handZones : footZones;
+  const zones = reflexCharts[type][side];
   const selected = zones.find((z) => z.key === selectedKey) || null;
 
-  const switchTab = (next) => {
-    setTab(next);
+  const change = (setter) => (value) => {
+    setter(value);
     setSelectedKey(null);
   };
+
+  const partLabel = `${side === "left" ? "Left" : "Right"} ${type === "hand" ? "Hand" : "Foot"}`;
+  const viewLabel = type === "hand" ? "palm up" : "sole up";
 
   return (
     <div
@@ -57,42 +87,23 @@ export function ReflexologyScreen({ onBack }) {
           {reflexologyIntro}
         </div>
 
-        {/* Hand / Foot toggle */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 8,
-            marginBottom: 16,
-          }}
-        >
-          {[
-            ["hand", "🖐️ Hands"],
-            ["foot", "🦶 Feet"],
-          ].map(([key, label]) => {
-            const active = tab === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => switchTab(key)}
-                style={{
-                  padding: "12px 0",
-                  borderRadius: 12,
-                  border: `1px solid ${active ? ACCENT : T.border}`,
-                  background: active ? `${ACCENT}1A` : T.surface,
-                  color: active ? ACCENT : T.muted,
-                  fontWeight: 700,
-                  fontSize: 13,
-                  letterSpacing: 0.5,
-                  cursor: "pointer",
-                  fontFamily: font,
-                }}
-              >
-                {label}
-              </button>
-            );
-          })}
+        <div style={{ display: "grid", gap: 8, marginBottom: 16 }}>
+          <Toggle
+            options={[
+              ["hand", "🖐️ Hands"],
+              ["foot", "🦶 Feet"],
+            ]}
+            value={type}
+            onChange={change(setType)}
+          />
+          <Toggle
+            options={[
+              ["right", "Right"],
+              ["left", "Left"],
+            ]}
+            value={side}
+            onChange={change(setSide)}
+          />
         </div>
 
         {/* Chart */}
@@ -101,12 +112,25 @@ export function ReflexologyScreen({ onBack }) {
             background: T.surface,
             border: `1px solid ${T.border}`,
             borderRadius: 16,
-            padding: "18px 12px",
+            padding: "14px 12px 18px",
             marginBottom: 12,
           }}
         >
+          <p
+            style={{
+              textAlign: "center",
+              fontSize: 10,
+              letterSpacing: 2,
+              color: T.muted,
+              fontWeight: 700,
+              marginBottom: 10,
+            }}
+          >
+            {partLabel.toUpperCase()} · {viewLabel.toUpperCase()}
+          </p>
           <ReflexologyChart
-            type={tab}
+            type={type}
+            side={side}
             zones={zones}
             selectedKey={selectedKey}
             onSelect={setSelectedKey}

@@ -55,24 +55,30 @@ function FootSilhouette({ skin, stroke }) {
   );
 }
 
-export function ReflexologyChart({ type, zones, selectedKey, onSelect }) {
+export function ReflexologyChart({ type, side, zones, selectedKey, onSelect }) {
   const isHand = type === "hand";
   const viewBox = isHand ? "0 0 200 250" : "0 0 200 320";
   const skin = "#1C1C20";
   const stroke = T.border;
+  // Canonical silhouettes are drawn right-handed/right-footed; flip for the left
+  // side so the thumb / big toe land on the correct edge. Zone coordinates are
+  // already mirrored in the data, so only the silhouette is transformed here.
+  const mirror = side === "left";
 
   return (
     <svg
       viewBox={viewBox}
       role="img"
-      aria-label={`${isHand ? "Hand" : "Foot"} reflexology chart`}
+      aria-label={`${side} ${isHand ? "hand" : "foot"} reflexology chart`}
       style={{ width: "100%", maxWidth: 320, height: "auto", display: "block", margin: "0 auto" }}
     >
-      {isHand ? (
-        <HandSilhouette skin={skin} stroke={stroke} />
-      ) : (
-        <FootSilhouette skin={skin} stroke={stroke} />
-      )}
+      <g transform={mirror ? "translate(200,0) scale(-1,1)" : undefined}>
+        {isHand ? (
+          <HandSilhouette skin={skin} stroke={stroke} />
+        ) : (
+          <FootSilhouette skin={skin} stroke={stroke} />
+        )}
+      </g>
 
       {zones.map((zone, i) => {
         const color = reflexRegions[zone.region].color;
