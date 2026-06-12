@@ -29,6 +29,7 @@ export function ActivityCard({ activity, onSelect }) {
         textAlign: "left",
         textDecoration: "none",
         width: "100%",
+        boxSizing: "border-box",
       }}
     >
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
