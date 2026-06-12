@@ -18,6 +18,7 @@ import { BenefitsScreen } from "./screens/BenefitsScreen.jsx";
 
 export default function App() {
   const [screen, setScreen] = useState("home");
+  const [timerActivity, setTimerActivity] = useState(null);
   const [checked, setChecked, checkedSaveError] = useLocalStorage(STORAGE_KEYS.checked, {});
   const { log, addLog, clearLog, clearToday, setNote, saveError: logSaveError } = useWorkoutLog();
   const {
@@ -31,6 +32,12 @@ export default function App() {
   const goHome = () => setScreen("home");
 
   const timerDone = (name, emoji, color, duration) => addLog({ name, emoji, color, duration });
+
+  // Launch a timer for a tapped quick activity; it logs itself on completion.
+  const startQuickTimer = (activity) => {
+    setTimerActivity(activity);
+    setScreen("quick-timer");
+  };
 
   const renderScreen = () => {
     switch (screen) {
@@ -71,32 +78,6 @@ export default function App() {
         return <BenefitsScreen onBack={goHome} />;
       case "stats":
         return <StatsScreen onBack={goHome} log={log} />;
-      case "bike":
-        return (
-          <TimerScreen
-            title="Bike"
-            subtitle="CARDIO · 20 MIN"
-            emoji="🚴"
-            color="#378ADD"
-            defaultMins={20}
-            onBack={goHome}
-            onComplete={() => timerDone("Bike", "🚴", "#378ADD", "20 min")}
-            note="Steady pace cardio. Aim for 60–70% max heart rate. Stay hydrated."
-          />
-        );
-      case "sauna":
-        return (
-          <TimerScreen
-            title="Sauna"
-            subtitle="RECOVERY · 20 MIN"
-            emoji="🧖"
-            color="#E74C3C"
-            defaultMins={20}
-            onBack={goHome}
-            onComplete={() => timerDone("Sauna", "🧖", "#E74C3C", "20 min")}
-            note="Hydrate well before and after. Exit if you feel dizzy or uncomfortable."
-          />
-        );
       case "ohming":
         return (
           <TimerScreen
@@ -110,9 +91,29 @@ export default function App() {
             note="Sit comfortably, close eyes. Inhale deeply, exhale with a low Ohhhmm sound. Let thoughts pass."
           />
         );
+      case "quick-timer":
+        if (!timerActivity) return <HomeScreen onNavigate={setScreen} onStartTimer={startQuickTimer} />;
+        return (
+          <TimerScreen
+            title={timerActivity.name}
+            subtitle={`${timerActivity.name.toUpperCase()} · ${timerActivity.duration.toUpperCase()}`}
+            emoji={timerActivity.emoji}
+            color={timerActivity.color}
+            defaultMins={parseInt(timerActivity.duration, 10) || 20}
+            onBack={goHome}
+            onComplete={() =>
+              timerDone(
+                timerActivity.name,
+                timerActivity.emoji,
+                timerActivity.color,
+                timerActivity.duration
+              )
+            }
+          />
+        );
       case "home":
       default:
-        return <HomeScreen onNavigate={setScreen} />;
+        return <HomeScreen onNavigate={setScreen} onStartTimer={startQuickTimer} />;
     }
   };
 

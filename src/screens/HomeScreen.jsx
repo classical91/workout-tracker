@@ -1,8 +1,9 @@
 import { T, font, display } from "../theme.js";
 import { activities } from "../data/activities.js";
 import { ActivityCard } from "../components/ActivityCard.jsx";
+import { QuickLog } from "../components/QuickLog.jsx";
 
-export function HomeScreen({ onNavigate }) {
+export function HomeScreen({ onNavigate, onStartTimer }) {
   return (
     <div
       style={{
@@ -43,6 +44,7 @@ export function HomeScreen({ onNavigate }) {
             <ActivityCard key={a.id} activity={a} onSelect={onNavigate} />
           ))}
         </div>
+        <QuickLog onStart={onStartTimer} />
         <a
           href="https://diet-plan-production-30bd.up.railway.app"
           target="_blank"
