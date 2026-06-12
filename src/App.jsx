@@ -11,6 +11,7 @@ import { SimpleWorkoutsScreen } from "./screens/SimpleWorkoutsScreen.jsx";
 import { BreathingScreen } from "./screens/BreathingScreen.jsx";
 import { FoamRollerScreen } from "./screens/FoamRollerScreen.jsx";
 import { TriggerPointsScreen } from "./screens/TriggerPointsScreen.jsx";
+import { ReflexologyScreen } from "./screens/ReflexologyScreen.jsx";
 import { LogScreen } from "./screens/LogScreen.jsx";
 import { TimerScreen } from "./screens/TimerScreen.jsx";
 import { BenefitsScreen } from "./screens/BenefitsScreen.jsx";
@@ -96,6 +97,8 @@ export default function App() {
         return <FoamRollerScreen onBack={goHome} checked={checked} setChecked={setChecked} />;
       case "trigger-points":
         return <TriggerPointsScreen onBack={goHome} />;
+      case "reflexology":
+        return <ReflexologyScreen onBack={goHome} />;
       case "log":
         return (
           <LogScreen
