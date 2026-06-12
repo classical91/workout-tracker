@@ -48,6 +48,14 @@ export const activities = [
     desc: "Categorized release guide",
   },
   {
+    id: "reflexology",
+    label: "Reflexology",
+    emoji: "🖐️",
+    duration: "5–10 min",
+    color: "#4ECDC4",
+    desc: "Hand & foot pressure maps",
+  },
+  {
     id: "youtube",
     label: "Video Workouts",
     emoji: "▶️",
