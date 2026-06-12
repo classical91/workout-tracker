@@ -32,22 +32,6 @@ export const activities = [
     desc: "Box, 4-7-8, belly",
   },
   {
-    id: "bike",
-    label: "Bike",
-    emoji: "🚴",
-    duration: "20 min",
-    color: "#378ADD",
-    desc: "Cardio timer",
-  },
-  {
-    id: "sauna",
-    label: "Sauna",
-    emoji: "🧖",
-    duration: "20 min",
-    color: "#E74C3C",
-    desc: "Recovery timer",
-  },
-  {
     id: "ohming",
     label: "Ohming",
     emoji: "🕉️",
