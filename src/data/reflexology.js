@@ -109,3 +109,109 @@ export const reflexCharts = {
   hand: { right: handRight, left: handLeft },
   foot: { right: footRight, left: footLeft },
 };
+
+// -------------------------------------------------------- RELIEF POINTS ----
+// Targeted acupressure points on the hand and wrist for specific concerns —
+// calming down, headaches and nausea. A gentler, problem-first companion to the
+// organ map above. Coordinates map to the palm-and-forearm silhouette (relief
+// viewBox 0 0 200 300).
+export const reliefIntro =
+  "These hand and wrist points come from acupressure. Use them to calm down, ease a headache or settle nausea: press the point as described, breathe slowly, and stop if it hurts.";
+
+export const concernColors = {
+  Calm: T.teal,
+  Anxiety: T.teal,
+  Stress: T.teal,
+  Sleep: T.purple,
+  Headache: T.red,
+  Neck: T.red,
+  Pain: T.orange,
+  Nausea: T.green,
+  Breathing: T.blue,
+  Energy: T.yellow,
+};
+
+export const reliefPoints = [
+  {
+    key: "li4",
+    name: "Hand Valley",
+    code: "LI4 · Hegu",
+    color: T.red,
+    x: 64,
+    y: 134,
+    concerns: ["Headache", "Stress", "Pain"],
+    location: "In the webbing of firm skin between the thumb and index finger.",
+    howto:
+      "Pinch firmly with the opposite thumb and index finger, then massage in small circles for 30 sec–2 min while breathing slowly.",
+    caution: "Avoid during pregnancy — this point may stimulate contractions.",
+  },
+  {
+    key: "ht7",
+    name: "Spirit Gate",
+    code: "HT7",
+    color: T.teal,
+    x: 126,
+    y: 212,
+    concerns: ["Calm", "Sleep", "Anxiety"],
+    location: "On the wrist crease (palm up), in the hollow on the little-finger side.",
+    howto: "Apply gentle pressure with the opposite thumb in small circles for about 2 min.",
+  },
+  {
+    key: "p6",
+    name: "Inner Gate",
+    code: "P6 · Neiguan",
+    color: T.green,
+    x: 104,
+    y: 252,
+    concerns: ["Nausea", "Calm"],
+    location:
+      "Inner forearm, about three finger-widths above the wrist crease, between the two tendons.",
+    howto: "Press firmly with the thumb for 1–2 min while breathing in for 4 and out for 6.",
+  },
+  {
+    key: "si3",
+    name: "Small Intestine 3",
+    code: "SI3",
+    color: T.red,
+    x: 150,
+    y: 150,
+    concerns: ["Headache", "Neck"],
+    location:
+      "On the outer edge of the hand, in the depression just below the little finger (make a loose fist).",
+    howto: "Press firmly and hold, or use small circles, for about 1 min on each hand.",
+  },
+  {
+    key: "lung-base",
+    name: "Base of Thumb",
+    code: "Lung point",
+    color: T.blue,
+    x: 86,
+    y: 210,
+    concerns: ["Breathing", "Calm"],
+    location: "In the hollow of the wrist crease, just below the base of the thumb.",
+    howto: "Gentle, steady pressure with small circles for 1–2 min.",
+  },
+  {
+    key: "te5",
+    name: "Outer Gate",
+    code: "TE5 · Waiguan",
+    color: T.orange,
+    x: 120,
+    y: 274,
+    concerns: ["Energy", "Pain"],
+    location:
+      "On the back of the forearm, three finger-widths above the wrist (directly opposite the Inner Gate).",
+    howto: "Squeeze with the thumb and forefinger for 2–3 min.",
+  },
+  {
+    key: "lung-meridian",
+    name: "Lung Line",
+    code: "Lung meridian",
+    color: T.blue,
+    x: 56,
+    y: 182,
+    concerns: ["Breathing", "Calm"],
+    location: "Runs along the thumb-side edge of the hand, from the tip of the thumb to the wrist.",
+    howto: "Stroke firmly down the line with the opposite thumb several times.",
+  },
+];
