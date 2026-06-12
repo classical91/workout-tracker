@@ -31,10 +31,10 @@ export function HomeScreen({ onNavigate, onStartTimer }) {
               marginBottom: 4,
             }}
           >
-            WELLNESS TRACKER
+            DAILY PRACTICE
           </p>
           <h1 style={{ fontFamily: display, fontSize: 44, letterSpacing: 1, lineHeight: 1 }}>
-            DAILY PRACTICE
+            WELLNESS TRACKER
           </h1>
         </div>
       </div>

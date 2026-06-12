@@ -1,8 +1,8 @@
-# Workout Tracker (React + Vite)
+# Wellness Tracker (React + Vite)
 
 ## Overview
 
-Workout Tracker is a single-page wellness app built with React. It provides guided workout/checklist screens, timers, breathing patterns, recovery guides (foam rolling + trigger points), and an activity log persisted in browser `localStorage`. The app is a frontend-only static site: the source is bundled with Vite and the resulting `dist/` is served by a static file server. There is no backend.
+Wellness Tracker is a single-page wellness app built with React. It provides guided workout/checklist screens, timers, breathing patterns, recovery guides (foam rolling + trigger points), and an activity log persisted in browser `localStorage`. The app is a frontend-only static site: the source is bundled with Vite and the resulting `dist/` is served by a static file server. There is no backend.
 
 ## Project Type
 
