@@ -12,7 +12,6 @@ import { BreathingScreen } from "./screens/BreathingScreen.jsx";
 import { FoamRollerScreen } from "./screens/FoamRollerScreen.jsx";
 import { TriggerPointsScreen } from "./screens/TriggerPointsScreen.jsx";
 import { LogScreen } from "./screens/LogScreen.jsx";
-import { StatsScreen } from "./screens/StatsScreen.jsx";
 import { TimerScreen } from "./screens/TimerScreen.jsx";
 import { BenefitsScreen } from "./screens/BenefitsScreen.jsx";
 
@@ -76,8 +75,6 @@ export default function App() {
         );
       case "benefits":
         return <BenefitsScreen onBack={goHome} />;
-      case "stats":
-        return <StatsScreen onBack={goHome} log={log} />;
       case "ohming":
         return (
           <TimerScreen
