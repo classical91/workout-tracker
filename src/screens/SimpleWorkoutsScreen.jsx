@@ -4,7 +4,7 @@ import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { ProgressBar } from "../components/ProgressBar.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
 
-export function SimpleWorkoutsScreen({ onBack, checked, setChecked }) {
+export function SimpleWorkoutsScreen({ onBack, onOpen, checked, setChecked }) {
   const color = T.blue;
   const done = simpleEx.filter((_, i) => checked[`sim-${i}`]).length;
   return (
@@ -33,62 +33,65 @@ export function SimpleWorkoutsScreen({ onBack, checked, setChecked }) {
             <div
               key={i}
               style={{
+                display: "flex",
+                gap: 14,
+                alignItems: "flex-start",
                 background: T.surface,
                 border: `1px solid ${T.border}`,
                 borderRadius: 14,
                 marginBottom: 8,
+                padding: "14px 16px",
               }}
             >
               <button
                 type="button"
                 aria-pressed={isDone}
+                aria-label={`Mark ${s.name} as done`}
                 onClick={toggle}
                 style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 7,
+                  border: `2px solid ${color}`,
+                  background: isDone ? color : "transparent",
+                  flexShrink: 0,
+                  marginTop: 2,
                   display: "flex",
-                  gap: 14,
-                  alignItems: "flex-start",
-                  padding: "14px 16px",
+                  alignItems: "center",
+                  justifyContent: "center",
                   cursor: "pointer",
-                  width: "100%",
-                  background: "transparent",
-                  border: "none",
+                  padding: 0,
+                }}
+              >
+                {isDone && <span style={{ fontSize: 13, color: "#000", fontWeight: 800 }}>✓</span>}
+              </button>
+              <a
+                href={`#/simple/${s.slug}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpen(s.slug);
+                }}
+                style={{
+                  flex: 1,
+                  textDecoration: "none",
                   color: T.text,
                   font: "inherit",
-                  textAlign: "left",
+                  cursor: "pointer",
                 }}
               >
                 <div
                   style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 7,
-                    border: `2px solid ${color}`,
-                    background: isDone ? color : "transparent",
-                    flexShrink: 0,
-                    marginTop: 2,
                     display: "flex",
+                    justifyContent: "space-between",
                     alignItems: "center",
-                    justifyContent: "center",
+                    gap: 8,
+                    marginBottom: 4,
                   }}
                 >
-                  {isDone && (
-                    <span style={{ fontSize: 13, color: "#000", fontWeight: 800 }}>✓</span>
-                  )}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 4,
-                    }}
-                  >
-                    <span
-                      style={{ fontWeight: 700, fontSize: 14, color: isDone ? T.muted : T.text }}
-                    >
-                      {s.name}
-                    </span>
+                  <span style={{ fontWeight: 700, fontSize: 14, color: isDone ? T.muted : T.text }}>
+                    {s.name}
+                  </span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
                     <span
                       style={{
                         fontSize: 10,
@@ -101,10 +104,11 @@ export function SimpleWorkoutsScreen({ onBack, checked, setChecked }) {
                     >
                       {s.reps}
                     </span>
+                    <span style={{ color, fontSize: 18, lineHeight: 1 }}>›</span>
                   </div>
-                  <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{s.detail}</p>
                 </div>
-              </button>
+                <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>{s.detail}</p>
+              </a>
             </div>
           );
         })}

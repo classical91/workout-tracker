@@ -1,4 +1,10 @@
-export const simpleEx = [
+const slugify = (s) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+
+const rawSimpleEx = [
   {
     name: "Head Curls (Side to Side)",
     reps: "2 x 10/side",
@@ -102,3 +108,11 @@ export const simpleEx = [
       "Gently stretch the wrists forward and backward to improve flexibility and reduce tension.",
   },
 ];
+
+// Attach a stable, URL-friendly slug so each exercise has its own linkable page.
+export const simpleEx = rawSimpleEx.map((e) => ({ ...e, slug: slugify(e.name) }));
+
+export const findSimpleEx = (slug) => {
+  const index = simpleEx.findIndex((e) => e.slug === slug);
+  return index === -1 ? null : { exercise: simpleEx[index], index };
+};
