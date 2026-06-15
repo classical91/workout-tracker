@@ -32,14 +32,20 @@ export function WorkoutSetsScreen({
   const pct = Math.round((doneSteps / w.steps.length) * 100);
   const allDone = workouts.map((wk) => wk.steps.every((_, si) => checked[`w-${wk.id}-${si}`]));
   const isCustom = safeAw >= builtInWorkouts.length;
-  const prevPct = useRef(pct);
+  // Track the previous progress per workout id. A single shared ref would re-log a
+  // completed routine when switching away to an incomplete one and back, because
+  // its pct would appear to jump from <100 to 100 again. A workout's first
+  // appearance seeds its prior value with the current pct so navigating straight to
+  // an already-complete routine doesn't log it.
+  const prevPct = useRef({});
 
   useEffect(() => {
-    if (pct === 100 && prevPct.current < 100) {
+    const prior = w.id in prevPct.current ? prevPct.current[w.id] : pct;
+    if (pct === 100 && prior < 100) {
       onLog({ name: w.title, emoji: w.emoji, color: w.color, duration: "~30 min", ts: Date.now() });
     }
-    prevPct.current = pct;
-  }, [onLog, pct, w.color, w.emoji, w.title]);
+    prevPct.current[w.id] = pct;
+  }, [onLog, pct, w.id, w.color, w.emoji, w.title]);
 
   // Cancel a pending delete confirmation when the active routine changes.
   useEffect(() => {
