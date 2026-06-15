@@ -17,18 +17,31 @@ export function TimerScreen({
   const [remaining, setRemaining] = useState(total);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
-  const ref = useRef(null);
 
+  // Hold the latest onComplete in a ref so the ticking effect never needs it as a
+  // dependency. Callers pass a fresh inline onComplete on every render, so depending
+  // on it directly would tear down and recreate the interval on each parent render.
+  const onCompleteRef = useRef(onComplete);
   useEffect(() => {
-    if (running && remaining > 0) {
-      ref.current = setInterval(() => setRemaining((r) => r - 1), 1000);
-    } else if (remaining === 0 && running) {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  // Tick once per second while running. The interval is created only when `running`
+  // turns on and cleared when it turns off — it is not rebuilt on every tick.
+  useEffect(() => {
+    if (!running) return undefined;
+    const id = setInterval(() => setRemaining((r) => (r > 0 ? r - 1 : 0)), 1000);
+    return () => clearInterval(id);
+  }, [running]);
+
+  // Fire completion exactly once, when the countdown reaches zero.
+  useEffect(() => {
+    if (running && remaining === 0) {
       setRunning(false);
       setDone(true);
-      if (onComplete) onComplete();
+      if (onCompleteRef.current) onCompleteRef.current();
     }
-    return () => clearInterval(ref.current);
-  }, [onComplete, running, remaining]);
+  }, [running, remaining]);
 
   const reset = () => {
     setRemaining(total);
