@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocalStorage } from "./hooks/useLocalStorage.js";
 import { useWorkoutLog } from "./hooks/useWorkoutLog.js";
 import { useCustomWorkouts } from "./hooks/useCustomWorkouts.js";
@@ -17,10 +17,46 @@ import { TimerScreen } from "./screens/TimerScreen.jsx";
 import { BenefitsScreen } from "./screens/BenefitsScreen.jsx";
 import { CalmScreen } from "./screens/CalmScreen.jsx";
 import { CalmingFoodsScreen } from "./screens/CalmingFoodsScreen.jsx";
+import { SimpleExerciseScreen } from "./screens/SimpleExerciseScreen.jsx";
+
+// Parse the URL hash into a screen + optional parameter so each screen — and
+// each individual simple exercise — has its own linkable address.
+function parseHash() {
+  const parts = window.location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+  if (parts.length === 0) return { screen: "home", param: null };
+  if (parts[0] === "simple" && parts[1]) return { screen: "simple-exercise", param: parts[1] };
+  return { screen: parts[0], param: null };
+}
+
+function toHash(screen, param) {
+  if (!screen || screen === "home") return "#/";
+  if (screen === "simple-exercise") return param ? `#/simple/${param}` : "#/simple";
+  return `#/${screen}`;
+}
 
 export default function App() {
-  const [screen, setScreen] = useState("home");
+  const [route, setRoute] = useState(parseHash);
   const [timerActivity, setTimerActivity] = useState(null);
+  const { screen, param } = route;
+
+  // The hash is the source of truth; navigating just updates it.
+  useEffect(() => {
+    const onHashChange = () => setRoute(parseHash());
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  const navigate = (next, nextParam) => {
+    const target = toHash(next, nextParam);
+    if (window.location.hash === target) {
+      // Same hash won't fire hashchange — sync state directly.
+      setRoute(parseHash());
+    } else {
+      window.location.hash = target;
+    }
+  };
+  const setScreen = (next) => navigate(next);
+
   const [checked, setChecked, checkedSaveError] = useLocalStorage(STORAGE_KEYS.checked, {});
   const { log, addLog, clearLog, clearToday, setNote, saveError: logSaveError } = useWorkoutLog();
   const {
@@ -60,7 +96,24 @@ export default function App() {
       case "stretch":
         return <StretchScreen onBack={goHome} checked={checked} setChecked={setChecked} />;
       case "simple":
-        return <SimpleWorkoutsScreen onBack={goHome} checked={checked} setChecked={setChecked} />;
+        return (
+          <SimpleWorkoutsScreen
+            onBack={goHome}
+            onOpen={(slug) => navigate("simple-exercise", slug)}
+            checked={checked}
+            setChecked={setChecked}
+          />
+        );
+      case "simple-exercise":
+        return (
+          <SimpleExerciseScreen
+            slug={param}
+            onBack={() => navigate("simple")}
+            onOpen={(slug) => navigate("simple-exercise", slug)}
+            checked={checked}
+            setChecked={setChecked}
+          />
+        );
       case "calm":
         return <CalmScreen onBack={goHome} onNavigate={setScreen} />;
       case "breathing":
