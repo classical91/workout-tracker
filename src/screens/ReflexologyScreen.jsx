@@ -10,6 +10,11 @@ import {
   reliefPoints,
   concernColors,
 } from "../data/reflexology.js";
+import {
+  reflexologyWikiIntro,
+  reflexologyWikiArticles,
+  reflexologyWikiCategories,
+} from "../data/reflexologyWiki.js";
 
 const ACCENT = T.teal;
 
@@ -25,6 +30,7 @@ function Toggle({ options, value, onChange }) {
             onClick={() => onChange(key)}
             style={{
               padding: "11px 0",
+              minHeight: 44,
               borderRadius: 12,
               border: `1px solid ${active ? ACCENT : T.border}`,
               background: active ? `${ACCENT}1A` : T.surface,
@@ -34,6 +40,7 @@ function Toggle({ options, value, onChange }) {
               letterSpacing: 0.5,
               cursor: "pointer",
               fontFamily: font,
+              textAlign: "center",
             }}
           >
             {label}
@@ -97,14 +104,22 @@ export function ReflexologyScreen({ onBack }) {
   const [type, setType] = useState("hand");
   const [side, setSide] = useState("right");
   const [selectedKey, setSelectedKey] = useState(null);
+  const [selectedArticleKey, setSelectedArticleKey] = useState(null);
 
+  const isWiki = mode === "wiki";
   const isRelief = mode === "relief";
-  const zones = isRelief ? reliefPoints : reflexCharts[type][side];
-  const selected = zones.find((z) => z.key === selectedKey) || null;
+  const zones = isWiki ? [] : isRelief ? reliefPoints : reflexCharts[type][side];
+  const selected = isWiki ? null : zones.find((z) => z.key === selectedKey) || null;
+  const selectedArticle = selectedArticleKey ? reflexologyWikiArticles[selectedArticleKey] : null;
 
   const change = (setter) => (value) => {
     setter(value);
     setSelectedKey(null);
+  };
+  const changeMode = (value) => {
+    setMode(value);
+    setSelectedKey(null);
+    if (value !== "wiki") setSelectedArticleKey(null);
   };
 
   const partLabel = `${side === "left" ? "Left" : "Right"} ${type === "hand" ? "Hand" : "Foot"}`;
@@ -134,9 +149,10 @@ export function ReflexologyScreen({ onBack }) {
             options={[
               ["map", "🗺️ Organ Map"],
               ["relief", "🎯 Relief Points"],
+              ["wiki", "📚 Wiki"],
             ]}
             value={mode}
-            onChange={change(setMode)}
+            onChange={changeMode}
           />
         </div>
 
@@ -152,10 +168,10 @@ export function ReflexologyScreen({ onBack }) {
             lineHeight: 1.6,
           }}
         >
-          {isRelief ? reliefIntro : reflexologyIntro}
+          {isWiki ? reflexologyWikiIntro : isRelief ? reliefIntro : reflexologyIntro}
         </div>
 
-        {!isRelief && (
+        {mode === "map" && (
           <div style={{ display: "grid", gap: 8, marginBottom: 16 }}>
             <Toggle
               options={[
@@ -176,49 +192,62 @@ export function ReflexologyScreen({ onBack }) {
           </div>
         )}
 
-        {/* Chart */}
-        <div
-          style={{
-            background: T.surface,
-            border: `1px solid ${T.border}`,
-            borderRadius: 16,
-            padding: "14px 12px 18px",
-            marginBottom: 12,
-          }}
-        >
-          <p
-            style={{
-              textAlign: "center",
-              fontSize: 10,
-              letterSpacing: 2,
-              color: T.muted,
-              fontWeight: 700,
-              marginBottom: 10,
-            }}
-          >
-            {isRelief ? "HAND & WRIST · PALM UP" : `${partLabel.toUpperCase()} · ${viewLabel.toUpperCase()}`}
-          </p>
-          <ReflexologyChart
-            type={isRelief ? "relief" : type}
-            side={isRelief ? undefined : side}
-            zones={zones}
-            selectedKey={selectedKey}
-            onSelect={setSelectedKey}
+        {isWiki ? (
+          <WikiDatabase
+            selectedArticle={selectedArticle}
+            selectedArticleKey={selectedArticleKey}
+            onSelectArticle={setSelectedArticleKey}
+            onBackToIndex={() => setSelectedArticleKey(null)}
           />
-        </div>
-
-        {/* Selected point detail */}
-        {isRelief ? (
-          <ReliefDetail selected={selected} zones={zones} />
         ) : (
-          <OrganDetail selected={selected} zones={zones} />
-        )}
+          <>
+            {/* Chart */}
+            <div
+              style={{
+                background: T.surface,
+                border: `1px solid ${T.border}`,
+                borderRadius: 16,
+                padding: "14px 12px 18px",
+                marginBottom: 12,
+              }}
+            >
+              <p
+                style={{
+                  textAlign: "center",
+                  fontSize: 10,
+                  letterSpacing: 2,
+                  color: T.muted,
+                  fontWeight: 700,
+                  marginBottom: 10,
+                }}
+              >
+                {isRelief
+                  ? "HAND & WRIST · PALM UP"
+                  : `${partLabel.toUpperCase()} · ${viewLabel.toUpperCase()}`}
+              </p>
+              <ReflexologyChart
+                type={isRelief ? "relief" : type}
+                side={isRelief ? undefined : side}
+                zones={zones}
+                selectedKey={selectedKey}
+                onSelect={setSelectedKey}
+              />
+            </div>
 
-        {/* List */}
-        {isRelief ? (
-          <ReliefList zones={zones} selectedKey={selectedKey} onSelect={setSelectedKey} />
-        ) : (
-          <OrganList zones={zones} selectedKey={selectedKey} onSelect={setSelectedKey} />
+            {/* Selected point detail */}
+            {isRelief ? (
+              <ReliefDetail selected={selected} zones={zones} />
+            ) : (
+              <OrganDetail selected={selected} zones={zones} />
+            )}
+
+            {/* List */}
+            {isRelief ? (
+              <ReliefList zones={zones} selectedKey={selectedKey} onSelect={setSelectedKey} />
+            ) : (
+              <OrganList zones={zones} selectedKey={selectedKey} onSelect={setSelectedKey} />
+            )}
+          </>
         )}
 
         <p style={{ fontSize: 11, color: T.dim, lineHeight: 1.6, marginTop: 4 }}>
@@ -228,6 +257,295 @@ export function ReflexologyScreen({ onBack }) {
         </p>
       </div>
     </div>
+  );
+}
+
+// ---------- Wiki database ----------
+function WikiDatabase({ selectedArticle, selectedArticleKey, onSelectArticle, onBackToIndex }) {
+  if (selectedArticle) {
+    return (
+      <WikiArticle
+        article={selectedArticle}
+        articleKey={selectedArticleKey}
+        onSelectArticle={onSelectArticle}
+        onBackToIndex={onBackToIndex}
+      />
+    );
+  }
+
+  return (
+    <div style={{ marginBottom: 22 }}>
+      <p
+        style={{
+          fontSize: 10,
+          letterSpacing: 2,
+          color: ACCENT,
+          fontWeight: 700,
+          marginBottom: 10,
+          marginTop: 8,
+        }}
+      >
+        REFLEXOLOGY DATABASE
+      </p>
+      <div style={{ display: "grid", gap: 10 }}>
+        {reflexologyWikiCategories.map((category) => (
+          <WikiCategory
+            key={category.key}
+            category={category}
+            selectedArticleKey={selectedArticleKey}
+            onSelectArticle={onSelectArticle}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function WikiCategory({ category, selectedArticleKey, onSelectArticle }) {
+  return (
+    <section
+      style={{
+        background: T.surface,
+        border: `1px solid ${T.border}`,
+        borderRadius: 14,
+        padding: "14px 14px 12px",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
+        <span
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: 12,
+            background: `${ACCENT}14`,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 18,
+            flexShrink: 0,
+          }}
+        >
+          {category.icon}
+        </span>
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span style={{ display: "block", fontWeight: 800, fontSize: 15, marginBottom: 3 }}>
+            {category.title}
+          </span>
+          <span style={{ display: "block", fontSize: 12, color: T.muted, lineHeight: 1.5 }}>
+            {category.description}
+          </span>
+        </span>
+      </div>
+
+      <div style={{ display: "grid", gap: 6 }}>
+        {category.articles.map((articleKey) => {
+          const article = reflexologyWikiArticles[articleKey];
+          const active = selectedArticleKey === articleKey;
+          return (
+            <button
+              key={articleKey}
+              type="button"
+              onClick={() => onSelectArticle(articleKey)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 10,
+                width: "100%",
+                border: `1px solid ${active ? ACCENT : T.border}`,
+                borderRadius: 10,
+                background: active ? `${ACCENT}12` : T.surface2,
+                color: T.text,
+                padding: "10px 11px",
+                textAlign: "left",
+                cursor: "pointer",
+                fontFamily: font,
+              }}
+            >
+              <span style={{ minWidth: 0 }}>
+                <span style={{ display: "block", fontSize: 13, fontWeight: 700 }}>
+                  {article.title}
+                </span>
+                <span
+                  style={{
+                    display: "block",
+                    fontSize: 10,
+                    color: T.muted,
+                    marginTop: 3,
+                    lineHeight: 1.35,
+                  }}
+                >
+                  {article.overview}
+                </span>
+              </span>
+              <span style={{ color: ACCENT, fontSize: 16, flexShrink: 0 }}>›</span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function WikiArticle({ article, articleKey, onSelectArticle, onBackToIndex }) {
+  const relatedArticles = Object.entries(reflexologyWikiArticles).filter(
+    ([key, item]) => key !== articleKey && article.related.includes(item.title)
+  );
+
+  return (
+    <article
+      style={{
+        background: T.surface,
+        border: `1px solid ${T.border}`,
+        borderRadius: 16,
+        padding: "16px",
+        marginBottom: 22,
+      }}
+    >
+      <button
+        type="button"
+        onClick={onBackToIndex}
+        style={{
+          background: "transparent",
+          border: 0,
+          color: ACCENT,
+          cursor: "pointer",
+          fontFamily: font,
+          fontSize: 12,
+          fontWeight: 800,
+          padding: 0,
+          marginBottom: 14,
+        }}
+      >
+        ← WIKI INDEX
+      </button>
+
+      <p
+        style={{
+          fontSize: 10,
+          letterSpacing: 2,
+          color: ACCENT,
+          fontWeight: 700,
+          marginBottom: 6,
+        }}
+      >
+        {article.category.toUpperCase()}
+      </p>
+      <h2 style={{ fontSize: 24, lineHeight: 1.1, marginBottom: 14 }}>{article.title}</h2>
+
+      <ArticleBlock title="Overview">{article.overview}</ArticleBlock>
+      <ArticleBlock title="Location">{article.location}</ArticleBlock>
+      <ArticleBlock title="Traditional Use">{article.traditionalUse}</ArticleBlock>
+      <ArticleBlock title="How To Apply Gentle Pressure">{article.howToApply}</ArticleBlock>
+      <ArticleBlock title="Safety Notes" caution>
+        {article.safety}
+      </ArticleBlock>
+
+      <div style={{ marginBottom: 14 }}>
+        <ArticleHeading>Related Points</ArticleHeading>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+          {article.related.map((item) => {
+            const related = relatedArticles.find(([_key, entry]) => entry.title === item);
+            return related ? (
+              <button
+                key={item}
+                type="button"
+                onClick={() => onSelectArticle(related[0])}
+                style={{
+                  border: `1px solid ${ACCENT}45`,
+                  background: `${ACCENT}10`,
+                  color: ACCENT,
+                  borderRadius: 99,
+                  padding: "6px 9px",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  fontFamily: font,
+                  cursor: "pointer",
+                }}
+              >
+                {item}
+              </button>
+            ) : (
+              <span
+                key={item}
+                style={{
+                  border: `1px solid ${T.border}`,
+                  background: T.surface2,
+                  color: T.muted,
+                  borderRadius: 99,
+                  padding: "6px 9px",
+                  fontSize: 11,
+                  fontWeight: 700,
+                }}
+              >
+                {item}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+
+      <div>
+        <ArticleHeading>Sources / References</ArticleHeading>
+        <div style={{ display: "grid", gap: 7 }}>
+          {article.sources.map((source) => (
+            <a
+              key={source.url}
+              href={source.url}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                color: T.muted,
+                background: T.surface2,
+                border: `1px solid ${T.border}`,
+                borderRadius: 10,
+                padding: "9px 10px",
+                fontSize: 11,
+                lineHeight: 1.4,
+                textDecoration: "none",
+                wordBreak: "break-word",
+              }}
+            >
+              {source.label}
+            </a>
+          ))}
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ArticleBlock({ title, children, caution = false }) {
+  return (
+    <section
+      style={{
+        background: caution ? `${T.red}10` : "transparent",
+        borderLeft: `3px solid ${caution ? T.red : ACCENT}`,
+        borderRadius: 6,
+        padding: "2px 0 2px 10px",
+        marginBottom: 14,
+      }}
+    >
+      <ArticleHeading color={caution ? T.red : ACCENT}>{title}</ArticleHeading>
+      <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.6 }}>{children}</p>
+    </section>
+  );
+}
+
+function ArticleHeading({ children, color = ACCENT }) {
+  return (
+    <span
+      style={{
+        display: "block",
+        fontSize: 10,
+        color,
+        fontWeight: 800,
+        letterSpacing: 1,
+        marginBottom: 5,
+      }}
+    >
+      {children.toUpperCase()}
+    </span>
   );
 }
 
@@ -266,7 +584,8 @@ function OrganDetail({ selected, zones }) {
         </>
       ) : (
         <div style={{ fontSize: 12, color: T.muted, lineHeight: 1.5 }}>
-          Tap a numbered point on the chart, or pick one from the list below, to see what it maps to.
+          Tap a numbered point on the chart, or pick one from the list below, to see what it maps
+          to.
         </div>
       )}
     </div>
@@ -424,11 +743,11 @@ function ReliefList({ zones, selectedKey, onSelect }) {
           >
             <NumberBadge n={zones.indexOf(zone) + 1} color={zone.color} />
             <span style={{ flex: 1, minWidth: 0 }}>
-              <span
-                style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 5 }}
-              >
+              <span style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 5 }}>
                 <span style={{ fontWeight: 700, fontSize: 14 }}>{zone.name}</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: zone.color }}>{zone.code}</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: zone.color }}>
+                  {zone.code}
+                </span>
               </span>
               <ConcernTags concerns={zone.concerns} />
             </span>
