@@ -40,6 +40,14 @@ export const activities = [
     desc: "Breathing, ohming, cold shower & more",
   },
   {
+    id: "sauna",
+    label: "Sauna",
+    emoji: "🧖",
+    duration: "LOG SESSION",
+    color: "#E74C3C",
+    desc: "Heat, rounds & recovery notes",
+  },
+  {
     id: "foam-roller",
     label: "Foam Roller",
     emoji: "🧴",
@@ -90,10 +98,10 @@ export const activities = [
   },
   {
     id: "log",
-    label: "Exercise Log",
+    label: "Activity Log",
     emoji: "📋",
     duration: null,
     color: "#FFD93D",
-    desc: "View past activities",
+    desc: "One history for every practice",
   },
 ];

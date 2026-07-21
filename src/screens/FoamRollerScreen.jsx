@@ -1,12 +1,35 @@
+import { useEffect, useRef, useState } from "react";
 import { T, font } from "../theme.js";
 import { foamTech } from "../data/foamRoller.js";
-import { ScreenHeader } from "../components/ScreenHeader.jsx";
-import { ProgressBar } from "../components/ProgressBar.jsx";
+import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
+import { ActivityCompletionForm } from "../components/ActivityCompletionForm.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
+import { ProgressBar } from "../components/ProgressBar.jsx";
+import { ScreenHeader } from "../components/ScreenHeader.jsx";
 
-export function FoamRollerScreen({ onBack, checked, setChecked }) {
+export function FoamRollerScreen({ onBack, checked, setChecked, onAddActivity, onUpdateActivity }) {
   const color = T.teal;
-  const done = foamTech.filter((_, i) => checked[`foam-${i}`]).length;
+  const done = foamTech.filter((_, index) => checked[`foam-${index}`]).length;
+  const previousDone = useRef(done);
+  const [completedActivity, setCompletedActivity] = useState(null);
+
+  useEffect(() => {
+    if (done === foamTech.length && previousDone.current < foamTech.length) {
+      setCompletedActivity(
+        onAddActivity({
+          type: ACTIVITY_TYPES.FOAM_ROLLING,
+          category: ACTIVITY_CATEGORIES.RECOVERY,
+          name: "Foam Rolling",
+          emoji: "🧴",
+          color,
+          duration: "10 min",
+          details: { bodyAreas: foamTech.map((technique) => technique.area) },
+        })
+      );
+    }
+    previousDone.current = done;
+  }, [color, done, onAddActivity]);
+
   return (
     <div
       style={{
@@ -26,12 +49,11 @@ export function FoamRollerScreen({ onBack, checked, setChecked }) {
       />
       <div style={{ maxWidth: 500, margin: "0 auto", padding: "0 20px" }}>
         <ProgressBar done={done} total={foamTech.length} color={color} />
-        {foamTech.map((t, i) => {
-          const isDone = !!checked[`foam-${i}`];
-          const toggle = () => setChecked((p) => ({ ...p, [`foam-${i}`]: !p[`foam-${i}`] }));
+        {foamTech.map((technique, index) => {
+          const isDone = Boolean(checked[`foam-${index}`]);
           return (
             <div
-              key={i}
+              key={technique.area}
               style={{
                 background: T.surface,
                 border: `1px solid ${T.border}`,
@@ -43,7 +65,12 @@ export function FoamRollerScreen({ onBack, checked, setChecked }) {
               <button
                 type="button"
                 aria-pressed={isDone}
-                onClick={toggle}
+                onClick={() =>
+                  setChecked((previous) => ({
+                    ...previous,
+                    [`foam-${index}`]: !previous[`foam-${index}`],
+                  }))
+                }
                 style={{
                   display: "flex",
                   gap: 14,
@@ -58,7 +85,8 @@ export function FoamRollerScreen({ onBack, checked, setChecked }) {
                   textAlign: "left",
                 }}
               >
-                <div
+                <span
+                  aria-hidden="true"
                   style={{
                     width: 24,
                     height: 24,
@@ -70,56 +98,68 @@ export function FoamRollerScreen({ onBack, checked, setChecked }) {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
+                    color: "#000",
+                    fontWeight: 800,
                   }}
                 >
-                  {isDone && (
-                    <span style={{ fontSize: 13, color: "#000", fontWeight: 800 }}>✓</span>
-                  )}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div
+                  {isDone ? "✓" : ""}
+                </span>
+                <span style={{ flex: 1 }}>
+                  <span
                     style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 4,
+                      display: "block",
+                      fontWeight: 700,
+                      fontSize: 14,
+                      color: isDone ? T.muted : T.text,
+                      textDecoration: isDone ? "line-through" : "none",
                     }}
                   >
+                    {technique.emoji} {technique.area}
+                  </span>
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: 12,
+                      color: T.muted,
+                      lineHeight: 1.5,
+                      marginTop: 4,
+                    }}
+                  >
+                    {technique.detail}
+                  </span>
+                  {!isDone && (
                     <span
                       style={{
-                        fontWeight: 700,
-                        fontSize: 14,
-                        color: isDone ? T.muted : T.text,
-                        textDecoration: isDone ? "line-through" : "none",
-                      }}
-                    >
-                      {t.emoji} {t.area}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: 12, color: T.muted, lineHeight: 1.5, marginBottom: 6 }}>
-                    {t.detail}
-                  </p>
-                  {!isDone && (
-                    <div
-                      style={{
+                        display: "block",
                         background: `${color}10`,
                         borderLeft: `3px solid ${color}`,
                         borderRadius: 6,
                         padding: "8px 10px",
                         fontSize: 11,
                         color,
+                        marginTop: 7,
                       }}
                     >
-                      💡 {t.tip}
-                    </div>
+                      💡 {technique.tip}
+                    </span>
                   )}
-                </div>
+                </span>
               </button>
             </div>
           );
         })}
         {done === foamTech.length && (
           <CompletionBanner color={color} emoji="✨" text="RECOVERY COMPLETE!" />
+        )}
+        {completedActivity && (
+          <ActivityCompletionForm
+            activity={completedActivity}
+            onSave={(updates) => {
+              onUpdateActivity(completedActivity.id, updates);
+              setCompletedActivity(null);
+            }}
+            onSkip={() => setCompletedActivity(null)}
+          />
         )}
       </div>
     </div>

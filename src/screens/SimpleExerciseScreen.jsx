@@ -1,10 +1,22 @@
+import { useState } from "react";
 import { T, font, display } from "../theme.js";
 import { simpleEx, findSimpleEx } from "../data/simpleExercises.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
+import { ActivityCompletionForm } from "../components/ActivityCompletionForm.jsx";
+import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
 
-export function SimpleExerciseScreen({ slug, onBack, onOpen, checked, setChecked }) {
+export function SimpleExerciseScreen({
+  slug,
+  onBack,
+  onOpen,
+  checked,
+  setChecked,
+  onAddActivity,
+  onUpdateActivity,
+}) {
   const color = T.blue;
   const match = findSimpleEx(slug);
+  const [completedActivity, setCompletedActivity] = useState(null);
 
   // Unknown slug — send the visitor back to the full list.
   if (!match) {
@@ -37,7 +49,22 @@ export function SimpleExerciseScreen({ slug, onBack, onOpen, checked, setChecked
   const { exercise, index } = match;
   const key = `sim-${index}`;
   const isDone = !!checked[key];
-  const toggle = () => setChecked((p) => ({ ...p, [key]: !p[key] }));
+  const toggle = () => {
+    if (!isDone) {
+      setCompletedActivity(
+        onAddActivity({
+          type: ACTIVITY_TYPES.EXERCISE,
+          category: ACTIVITY_CATEGORIES.STRENGTH,
+          name: exercise.name,
+          emoji: "🏃",
+          color,
+          duration: "",
+          details: { exercises: [{ name: exercise.name, planned: exercise.reps }] },
+        })
+      );
+    }
+    setChecked((previous) => ({ ...previous, [key]: !previous[key] }));
+  };
 
   const prev = index > 0 ? simpleEx[index - 1] : null;
   const next = index < simpleEx.length - 1 ? simpleEx[index + 1] : null;
@@ -109,6 +136,17 @@ export function SimpleExerciseScreen({ slug, onBack, onOpen, checked, setChecked
             {isDone ? "✓ DONE" : "MARK AS DONE"}
           </button>
         </div>
+
+        {completedActivity && (
+          <ActivityCompletionForm
+            activity={completedActivity}
+            onSave={(updates) => {
+              onUpdateActivity(completedActivity.id, updates);
+              setCompletedActivity(null);
+            }}
+            onSkip={() => setCompletedActivity(null)}
+          />
+        )}
 
         <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginTop: 16 }}>
           {prev ? (

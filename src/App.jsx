@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocalStorage } from "./hooks/useLocalStorage.js";
-import { useWorkoutLog } from "./hooks/useWorkoutLog.js";
+import { useActivityLog } from "./hooks/useActivityLog.js";
 import { useCustomWorkouts } from "./hooks/useCustomWorkouts.js";
 import { STORAGE_KEYS } from "./constants/storageKeys.js";
+import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "./constants/activityTypes.js";
 import { StorageWarning } from "./components/StorageWarning.jsx";
 import { HomeScreen } from "./screens/HomeScreen.jsx";
 import { WorkoutSetsScreen } from "./screens/WorkoutSetsScreen.jsx";
@@ -20,9 +21,8 @@ import { CalmingFoodsScreen } from "./screens/CalmingFoodsScreen.jsx";
 import { SimpleExerciseScreen } from "./screens/SimpleExerciseScreen.jsx";
 import { WeeklyPlanScreen } from "./screens/WeeklyPlanScreen.jsx";
 import { ExcusesScreen } from "./screens/ExcusesScreen.jsx";
+import { SaunaScreen } from "./screens/SaunaScreen.jsx";
 
-// Parse the URL hash into a screen + optional parameter so each screen — and
-// each individual simple exercise — has its own linkable address.
 function parseHash() {
   const parts = window.location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
   if (parts.length === 0) return { screen: "home", param: null };
@@ -41,7 +41,6 @@ export default function App() {
   const [timerActivity, setTimerActivity] = useState(null);
   const { screen, param } = route;
 
-  // The hash is the source of truth; navigating just updates it.
   useEffect(() => {
     const onHashChange = () => setRoute(parseHash());
     window.addEventListener("hashchange", onHashChange);
@@ -50,17 +49,21 @@ export default function App() {
 
   const navigate = (next, nextParam) => {
     const target = toHash(next, nextParam);
-    if (window.location.hash === target) {
-      // Same hash won't fire hashchange — sync state directly.
-      setRoute(parseHash());
-    } else {
-      window.location.hash = target;
-    }
+    if (window.location.hash === target) setRoute(parseHash());
+    else window.location.hash = target;
   };
   const setScreen = (next) => navigate(next);
 
   const [checked, setChecked, checkedSaveError] = useLocalStorage(STORAGE_KEYS.checked, {});
-  const { log, addLog, clearLog, clearToday, setNote, saveError: logSaveError } = useWorkoutLog();
+  const {
+    log,
+    addActivity,
+    updateActivity,
+    deleteActivity,
+    clearLog,
+    clearToday,
+    saveError: logSaveError,
+  } = useActivityLog();
   const {
     customWorkouts,
     addWorkout,
@@ -71,11 +74,18 @@ export default function App() {
 
   const goHome = () => setScreen("home");
   const goCalm = () => setScreen("calm");
+  const timerDone = (activity) =>
+    addActivity({
+      ...activity,
+      completed: true,
+      details: { completedTimer: true, ...(activity.details || {}) },
+    });
 
-  const timerDone = (name, emoji, color, duration) => addLog({ name, emoji, color, duration });
-
-  // Launch a timer for a tapped quick activity; it logs itself on completion.
   const startQuickTimer = (activity) => {
+    if (activity.type === ACTIVITY_TYPES.SAUNA) {
+      setScreen("sauna");
+      return;
+    }
     setTimerActivity(activity);
     setScreen("quick-timer");
   };
@@ -88,7 +98,7 @@ export default function App() {
             onBack={goHome}
             checked={checked}
             setChecked={setChecked}
-            onLog={addLog}
+            onAddActivity={addActivity}
             customWorkouts={customWorkouts}
             onAddWorkout={addWorkout}
             onUpdateWorkout={updateWorkout}
@@ -100,7 +110,15 @@ export default function App() {
       case "excuses":
         return <ExcusesScreen onBack={goHome} onNavigate={setScreen} />;
       case "stretch":
-        return <StretchScreen onBack={goHome} checked={checked} setChecked={setChecked} />;
+        return (
+          <StretchScreen
+            onBack={goHome}
+            checked={checked}
+            setChecked={setChecked}
+            onAddActivity={addActivity}
+            onUpdateActivity={updateActivity}
+          />
+        );
       case "simple":
         return (
           <SimpleWorkoutsScreen
@@ -118,12 +136,22 @@ export default function App() {
             onOpen={(slug) => navigate("simple-exercise", slug)}
             checked={checked}
             setChecked={setChecked}
+            onAddActivity={addActivity}
+            onUpdateActivity={updateActivity}
           />
         );
       case "calm":
         return <CalmScreen onBack={goHome} onNavigate={setScreen} />;
       case "breathing":
-        return <BreathingScreen onBack={goCalm} />;
+        return (
+          <BreathingScreen
+            onBack={goCalm}
+            onAddActivity={addActivity}
+            onUpdateActivity={updateActivity}
+          />
+        );
+      case "sauna":
+        return <SaunaScreen onBack={goHome} onAddActivity={addActivity} />;
       case "calming-foods":
         return <CalmingFoodsScreen onBack={goCalm} />;
       case "cold-shower":
@@ -135,8 +163,18 @@ export default function App() {
             color="#378ADD"
             defaultMins={2}
             onBack={goCalm}
-            onComplete={() => timerDone("Cold Shower", "🚿", "#378ADD", "2 min")}
-            note="Start warm, then turn cold for the timer. Breathe slowly through the shock — long exhales. Step out, don't tough it out, if you feel unwell. Avoid if you have heart problems."
+            onUpdateActivity={updateActivity}
+            onComplete={() =>
+              timerDone({
+                type: ACTIVITY_TYPES.COLD_SHOWER,
+                category: ACTIVITY_CATEGORIES.COLD,
+                name: "Cold Shower",
+                emoji: "🚿",
+                color: "#378ADD",
+                duration: "2 min",
+              })
+            }
+            note="Start warm, then turn cold for the timer. Breathe slowly through the shock — long exhales. Step out if you feel unwell."
           />
         );
       case "body-scan":
@@ -148,16 +186,47 @@ export default function App() {
             color="#2ECC71"
             defaultMins={10}
             onBack={goCalm}
-            onComplete={() => timerDone("Body Scan", "🛌", "#2ECC71", "10 min")}
-            note="Lie down, close your eyes. Bring attention to your toes and slowly move upward — feet, legs, hips, belly, chest, hands, arms, shoulders, neck, face. At each stop, notice the tension and let it soften on the exhale."
+            onUpdateActivity={updateActivity}
+            onComplete={() =>
+              timerDone({
+                type: ACTIVITY_TYPES.BODY_SCAN,
+                category: ACTIVITY_CATEGORIES.MINDFULNESS,
+                name: "Body Scan",
+                emoji: "🛌",
+                color: "#2ECC71",
+                duration: "10 min",
+                details: { technique: "Body Scan" },
+              })
+            }
+            note="Lie down and move attention slowly from your toes to your face. Notice tension and soften it on the exhale."
           />
         );
       case "foam-roller":
-        return <FoamRollerScreen onBack={goHome} checked={checked} setChecked={setChecked} />;
+        return (
+          <FoamRollerScreen
+            onBack={goHome}
+            checked={checked}
+            setChecked={setChecked}
+            onAddActivity={addActivity}
+            onUpdateActivity={updateActivity}
+          />
+        );
       case "trigger-points":
-        return <TriggerPointsScreen onBack={goHome} />;
+        return (
+          <TriggerPointsScreen
+            onBack={goHome}
+            onAddActivity={addActivity}
+            onUpdateActivity={updateActivity}
+          />
+        );
       case "reflexology":
-        return <ReflexologyScreen onBack={goHome} />;
+        return (
+          <ReflexologyScreen
+            onBack={goHome}
+            onAddActivity={addActivity}
+            onUpdateActivity={updateActivity}
+          />
+        );
       case "log":
         return (
           <LogScreen
@@ -165,7 +234,8 @@ export default function App() {
             log={log}
             onClear={clearLog}
             onClearToday={clearToday}
-            onSetNote={setNote}
+            onUpdate={updateActivity}
+            onDelete={deleteActivity}
           />
         );
       case "benefits":
@@ -179,12 +249,24 @@ export default function App() {
             color="#C77DFF"
             defaultMins={5}
             onBack={goCalm}
-            onComplete={() => timerDone("Ohming", "🕉️", "#C77DFF", "5 min")}
-            note="Sit comfortably, close eyes. Inhale deeply, exhale with a low Ohhhmm sound. Let thoughts pass."
+            onUpdateActivity={updateActivity}
+            onComplete={() =>
+              timerDone({
+                type: ACTIVITY_TYPES.OHMING,
+                category: ACTIVITY_CATEGORIES.BREATHING,
+                name: "Ohming",
+                emoji: "🕉️",
+                color: "#C77DFF",
+                duration: "5 min",
+                details: { technique: "Ohming" },
+              })
+            }
+            note="Sit comfortably. Inhale deeply, then exhale with a low Ohhhmm sound."
           />
         );
       case "quick-timer":
-        if (!timerActivity) return <HomeScreen onNavigate={setScreen} onStartTimer={startQuickTimer} />;
+        if (!timerActivity)
+          return <HomeScreen onNavigate={setScreen} onStartTimer={startQuickTimer} />;
         return (
           <TimerScreen
             title={timerActivity.name}
@@ -193,14 +275,8 @@ export default function App() {
             color={timerActivity.color}
             defaultMins={parseInt(timerActivity.duration, 10) || 20}
             onBack={goHome}
-            onComplete={() =>
-              timerDone(
-                timerActivity.name,
-                timerActivity.emoji,
-                timerActivity.color,
-                timerActivity.duration
-              )
-            }
+            onUpdateActivity={updateActivity}
+            onComplete={() => timerDone(timerActivity)}
           />
         );
       case "home":

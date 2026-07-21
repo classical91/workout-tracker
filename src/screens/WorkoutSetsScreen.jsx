@@ -10,7 +10,7 @@ export function WorkoutSetsScreen({
   onBack,
   checked,
   setChecked,
-  onLog,
+  onAddActivity,
   customWorkouts,
   onAddWorkout,
   onUpdateWorkout,
@@ -42,10 +42,24 @@ export function WorkoutSetsScreen({
   useEffect(() => {
     const prior = w.id in prevPct.current ? prevPct.current[w.id] : pct;
     if (pct === 100 && prior < 100) {
-      onLog({ name: w.title, emoji: w.emoji, color: w.color, duration: "~30 min", ts: Date.now() });
+      onAddActivity({
+        type: "workout",
+        category: "strength",
+        name: w.title,
+        emoji: w.emoji,
+        color: w.color,
+        duration: "~30 min",
+        completed: true,
+        details: {
+          workoutId: w.id,
+          exercises: w.steps
+            .filter((step) => step.type === "exercise")
+            .map((step) => ({ name: step.phase, planned: step.reps })),
+        },
+      });
     }
     prevPct.current[w.id] = pct;
-  }, [onLog, pct, w.id, w.color, w.emoji, w.title]);
+  }, [onAddActivity, pct, w.id, w.color, w.emoji, w.steps, w.title]);
 
   // Cancel a pending delete confirmation when the active routine changes.
   useEffect(() => {

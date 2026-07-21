@@ -1,8 +1,9 @@
 import { T } from "../theme.js";
 import { quickActivities } from "../data/quickActivities.js";
+import { ACTIVITY_TYPES } from "../constants/activityTypes.js";
 
 // A compact list of one-tap activities. Tapping a row starts a timer for that
-// activity; finishing the timer records a session to the exercise log.
+// activity; finishing the timer records a session to the universal activity log.
 export function QuickLog({ onStart }) {
   return (
     <div style={{ marginTop: 20 }}>
@@ -59,7 +60,9 @@ export function QuickLog({ onStart }) {
             >
               {a.duration}
             </span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: a.color }}>▶</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: a.color }}>
+              {a.type === ACTIVITY_TYPES.SAUNA ? "LOG" : "▶"}
+            </span>
           </button>
         ))}
       </div>

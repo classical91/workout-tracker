@@ -2,6 +2,8 @@ import { useState } from "react";
 import { T, font } from "../theme.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { ReflexologyChart } from "../components/ReflexologyChart.jsx";
+import { ManualActivityLog } from "../components/ManualActivityLog.jsx";
+import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
 import {
   reflexologyIntro,
   reflexRegions,
@@ -99,7 +101,7 @@ function ConcernTags({ concerns }) {
   );
 }
 
-export function ReflexologyScreen({ onBack }) {
+export function ReflexologyScreen({ onBack, onAddActivity, onUpdateActivity }) {
   const [mode, setMode] = useState("map");
   const [type, setType] = useState("hand");
   const [side, setSide] = useState("right");
@@ -170,6 +172,24 @@ export function ReflexologyScreen({ onBack }) {
         >
           {isWiki ? reflexologyWikiIntro : isRelief ? reliefIntro : reflexologyIntro}
         </div>
+
+        {!isWiki && (
+          <div style={{ marginBottom: 16 }}>
+            <ManualActivityLog
+              activity={{
+                type: ACTIVITY_TYPES.REFLEXOLOGY,
+                category: ACTIVITY_CATEGORIES.RECOVERY,
+                name: "Reflexology Session",
+                emoji: "🖐️",
+                color: ACCENT,
+                duration: "5–10 min",
+                details: { bodyAreas: [partLabel] },
+              }}
+              onAddActivity={onAddActivity}
+              onUpdateActivity={onUpdateActivity}
+            />
+          </div>
+        )}
 
         {mode === "map" && (
           <div style={{ display: "grid", gap: 8, marginBottom: 16 }}>

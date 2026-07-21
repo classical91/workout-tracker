@@ -1,13 +1,37 @@
+import { useEffect, useRef, useState } from "react";
 import { T, font } from "../theme.js";
 import { stretchSections, StretchIllus } from "../data/stretches.js";
-import { ScreenHeader } from "../components/ScreenHeader.jsx";
-import { ProgressBar } from "../components/ProgressBar.jsx";
+import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
+import { ActivityCompletionForm } from "../components/ActivityCompletionForm.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
 import { IllusCard } from "../components/IllusCard.jsx";
+import { ProgressBar } from "../components/ProgressBar.jsx";
+import { ScreenHeader } from "../components/ScreenHeader.jsx";
 
-export function StretchScreen({ onBack, checked, setChecked }) {
-  const allItems = stretchSections.flatMap((s) => s.items);
+const allItems = stretchSections.flatMap((section) => section.items);
+
+export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUpdateActivity }) {
   const done = allItems.filter((item) => checked[`str-${item.key}`]).length;
+  const previousDone = useRef(done);
+  const [completedActivity, setCompletedActivity] = useState(null);
+
+  useEffect(() => {
+    if (done === allItems.length && previousDone.current < allItems.length) {
+      setCompletedActivity(
+        onAddActivity({
+          type: ACTIVITY_TYPES.STRETCH,
+          category: ACTIVITY_CATEGORIES.MOBILITY,
+          name: "Full Body Stretch",
+          emoji: "🧘",
+          color: T.green,
+          duration: "10 min",
+          details: { holds: allItems.map((item) => ({ name: item.name, planned: item.hold })) },
+        })
+      );
+    }
+    previousDone.current = done;
+  }, [done, onAddActivity]);
+
   return (
     <div
       style={{
@@ -49,21 +73,32 @@ export function StretchScreen({ onBack, checked, setChecked }) {
                 detail={item.detail}
                 reps={item.hold}
                 color={section.color}
-                done={!!checked[`str-${item.key}`]}
+                done={Boolean(checked[`str-${item.key}`])}
                 onToggle={() =>
-                  setChecked((p) => ({ ...p, [`str-${item.key}`]: !p[`str-${item.key}`] }))
+                  setChecked((previous) => ({
+                    ...previous,
+                    [`str-${item.key}`]: !previous[`str-${item.key}`],
+                  }))
                 }
                 illusKey={item.name}
                 IllusMap={StretchIllus}
-                link={`https://www.google.com/search?udm=2&q=${encodeURIComponent(
-                  `${item.name} stretch`,
-                )}`}
+                link={`https://www.google.com/search?udm=2&q=${encodeURIComponent(`${item.name} stretch`)}`}
               />
             ))}
           </div>
         ))}
         {done === allItems.length && (
           <CompletionBanner color={T.green} emoji="🌿" text="FULLY STRETCHED!" />
+        )}
+        {completedActivity && (
+          <ActivityCompletionForm
+            activity={completedActivity}
+            onSave={(updates) => {
+              onUpdateActivity(completedActivity.id, updates);
+              setCompletedActivity(null);
+            }}
+            onSkip={() => setCompletedActivity(null)}
+          />
         )}
       </div>
     </div>

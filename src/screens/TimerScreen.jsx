@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { T, font, display } from "../theme.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { TimerCircle } from "../components/TimerCircle.jsx";
+import { ActivityCompletionForm } from "../components/ActivityCompletionForm.jsx";
 
 export function TimerScreen({
   title,
@@ -11,12 +12,15 @@ export function TimerScreen({
   defaultMins,
   onBack,
   onComplete,
+  onUpdateActivity,
   note,
 }) {
   const total = defaultMins * 60;
   const [remaining, setRemaining] = useState(total);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
+  const [completedActivity, setCompletedActivity] = useState(null);
+  const [detailsDismissed, setDetailsDismissed] = useState(false);
 
   // Hold the latest onComplete in a ref so the ticking effect never needs it as a
   // dependency. Callers pass a fresh inline onComplete on every render, so depending
@@ -39,7 +43,7 @@ export function TimerScreen({
     if (running && remaining === 0) {
       setRunning(false);
       setDone(true);
-      if (onCompleteRef.current) onCompleteRef.current();
+      if (onCompleteRef.current) setCompletedActivity(onCompleteRef.current());
     }
   }, [running, remaining]);
 
@@ -47,6 +51,8 @@ export function TimerScreen({
     setRemaining(total);
     setRunning(false);
     setDone(false);
+    setCompletedActivity(null);
+    setDetailsDismissed(false);
   };
 
   const mins = Math.floor(remaining / 60)
@@ -87,6 +93,7 @@ export function TimerScreen({
         <div style={{ display: "flex", gap: 12 }}>
           {!done && (
             <button
+              type="button"
               onClick={() => setRunning((r) => !r)}
               style={{
                 background: running ? `${color}22` : color,
@@ -104,6 +111,7 @@ export function TimerScreen({
             </button>
           )}
           <button
+            type="button"
             onClick={reset}
             style={{
               background: T.surface,
@@ -134,6 +142,16 @@ export function TimerScreen({
           >
             {note}
           </div>
+        )}
+        {done && completedActivity && !detailsDismissed && onUpdateActivity && (
+          <ActivityCompletionForm
+            activity={completedActivity}
+            onSave={(updates) => {
+              onUpdateActivity(completedActivity.id, updates);
+              setDetailsDismissed(true);
+            }}
+            onSkip={() => setDetailsDismissed(true)}
+          />
         )}
       </div>
     </div>

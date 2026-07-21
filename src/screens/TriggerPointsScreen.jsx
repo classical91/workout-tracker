@@ -2,8 +2,10 @@ import { T, font } from "../theme.js";
 import { triggerPointSections } from "../data/triggerPoints.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { TriggerPointCard } from "../components/TriggerPointCard.jsx";
+import { ManualActivityLog } from "../components/ManualActivityLog.jsx";
+import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
 
-export function TriggerPointsScreen({ onBack }) {
+export function TriggerPointsScreen({ onBack, onAddActivity, onUpdateActivity }) {
   return (
     <div
       style={{
@@ -56,6 +58,19 @@ export function TriggerPointsScreen({ onBack }) {
             ))}
           </div>
         ))}
+        <ManualActivityLog
+          activity={{
+            type: ACTIVITY_TYPES.TRIGGER_POINTS,
+            category: ACTIVITY_CATEGORIES.RECOVERY,
+            name: "Trigger-Point Session",
+            emoji: "🎯",
+            color: T.red,
+            duration: "10–15 min",
+            details: {},
+          }}
+          onAddActivity={onAddActivity}
+          onUpdateActivity={onUpdateActivity}
+        />
       </div>
     </div>
   );
