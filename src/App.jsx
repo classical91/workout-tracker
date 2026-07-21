@@ -18,6 +18,8 @@ import { BenefitsScreen } from "./screens/BenefitsScreen.jsx";
 import { CalmScreen } from "./screens/CalmScreen.jsx";
 import { CalmingFoodsScreen } from "./screens/CalmingFoodsScreen.jsx";
 import { SimpleExerciseScreen } from "./screens/SimpleExerciseScreen.jsx";
+import { WeeklyPlanScreen } from "./screens/WeeklyPlanScreen.jsx";
+import { ExcusesScreen } from "./screens/ExcusesScreen.jsx";
 
 // Parse the URL hash into a screen + optional parameter so each screen — and
 // each individual simple exercise — has its own linkable address.
@@ -93,6 +95,10 @@ export default function App() {
             onDeleteWorkout={deleteWorkout}
           />
         );
+      case "weekly-plan":
+        return <WeeklyPlanScreen onBack={goHome} onNavigate={setScreen} />;
+      case "excuses":
+        return <ExcusesScreen onBack={goHome} onNavigate={setScreen} />;
       case "stretch":
         return <StretchScreen onBack={goHome} checked={checked} setChecked={setChecked} />;
       case "simple":
