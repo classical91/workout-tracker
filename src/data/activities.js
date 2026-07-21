@@ -1,5 +1,13 @@
 export const activities = [
   {
+    id: "weekly-plan",
+    label: "Weekly Plan",
+    emoji: "📅",
+    duration: "MON–SUN",
+    color: "#C77DFF",
+    desc: "Your set schedule for the week",
+  },
+  {
     id: "workout-sets",
     label: "Workout Sets",
     emoji: "💪",
@@ -63,6 +71,14 @@ export const activities = [
     color: "#E74C3C",
     desc: "My YouTube playlist",
     url: "https://youtube.com/playlist?list=PLTmgH9ZvO231FG8wdsrvhSb93CWT3_OwI",
+  },
+  {
+    id: "excuses",
+    label: "No Excuses",
+    emoji: "🙅",
+    duration: null,
+    color: "#E74C3C",
+    desc: "Busters for every skip-day excuse",
   },
   {
     id: "benefits",
