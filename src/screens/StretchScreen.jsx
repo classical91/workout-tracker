@@ -27,7 +27,12 @@ function buildStretchActivity(summary) {
     details: {
       bodyAreas: summary.doneItems.map((item) => item.name),
       completedSections: summary.completedSections,
-      holds: summary.doneItems.map((item) => ({ name: item.name, planned: item.hold })),
+      holds: summary.doneItems.map((item) => ({
+        name: item.name,
+        planned: item.hold,
+        region: item.region,
+        color: item.color,
+      })),
     },
   };
 }

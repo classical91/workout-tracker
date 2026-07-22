@@ -30,9 +30,10 @@ function DetailSummary({ entry }) {
   if (details.holds?.length) {
     return details.holds.map((hold, index) => (
       <div key={`${hold.name}-${index}`} style={{ marginTop: 8 }}>
-        <div style={{ fontSize: 12, fontWeight: 700 }}>{hold.name}</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: hold.color || T.text }}>{hold.name}</div>
         <div style={{ fontSize: 11, color: T.muted }}>
           {hold.seconds ? `${hold.seconds}s` : hold.planned}
+          {hold.region ? ` · ${hold.region}` : ""}
           {hold.rounds ? ` · ${hold.rounds} rounds` : ""}
         </div>
       </div>
