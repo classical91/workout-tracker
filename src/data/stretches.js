@@ -149,13 +149,20 @@ const allStretchItems = stretchSections.flatMap((section) => section.items);
 
 const pluralAreas = (count) => `${count} area${count === 1 ? "" : "s"}`;
 
+// A short partial session lists the body parts by name ("Neck, Shoulder");
+// a long one falls back to a count so the title stays readable.
+const NAME_LIST_LIMIT = 3;
+
 // Describe whatever stretches are currently checked so a session can be logged
-// regardless of whether the full routine was finished. Returns the body parts
-// stretched, which whole regions were completed, and a name that reflects them:
-// "Full Body Stretch", "Upper Body Stretch", or "Partial Stretch (3 areas)".
+// regardless of whether the full routine was finished. Each done item carries
+// its region label and color so the log can group and color-code the parts.
+// The name reflects what was done: "Full Body Stretch", "Upper Body Stretch",
+// or "Partial Stretch (Neck, Shoulder)".
 export function summarizeStretchSession(checked = {}) {
   const sections = stretchSections.map((section) => {
-    const items = section.items.filter((item) => Boolean(checked[stretchCheckKey(item)]));
+    const items = section.items
+      .filter((item) => Boolean(checked[stretchCheckKey(item)]))
+      .map((item) => ({ ...item, region: section.label, color: section.color }));
     return {
       label: section.label,
       total: section.items.length,
@@ -177,7 +184,9 @@ export function summarizeStretchSession(checked = {}) {
     const extra = doneItems.length - completedSections.reduce((sum, s) => sum + s.done, 0);
     name = `${regions} Stretch${extra > 0 ? ` + ${pluralAreas(extra)}` : ""}`;
   } else {
-    name = `Partial Stretch (${pluralAreas(doneItems.length)})`;
+    const names = doneItems.map((item) => item.name);
+    const detail = names.length <= NAME_LIST_LIMIT ? names.join(", ") : pluralAreas(names.length);
+    name = `Partial Stretch (${detail})`;
   }
 
   return {

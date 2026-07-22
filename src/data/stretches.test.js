@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { stretchCheckKey, stretchSections, summarizeStretchSession } from "./stretches.js";
 
-const [upperBody, core] = stretchSections;
+const [upperBody, core, lowerBody] = stretchSections;
 const allItems = stretchSections.flatMap((section) => section.items);
 
 const checkItems = (items) =>
@@ -33,19 +33,38 @@ describe("summarizeStretchSession", () => {
     expect(summary.doneCount).toBe(upperBody.items.length + 1);
   });
 
-  it("labels a session with no completed region as partial", () => {
+  it("names a short partial session after the body parts stretched", () => {
     const summary = summarizeStretchSession(checkItems(upperBody.items.slice(0, 2)));
     expect(summary.fullBody).toBe(false);
     expect(summary.completedSections).toEqual([]);
-    expect(summary.name).toBe("Partial Stretch (2 areas)");
+    expect(summary.name).toBe(
+      `Partial Stretch (${upperBody.items[0].name}, ${upperBody.items[1].name})`
+    );
   });
 
-  it("records each stretched part with its planned hold", () => {
-    const summary = summarizeStretchSession(checkItems([upperBody.items[0]]));
-    expect(summary.name).toBe("Partial Stretch (1 area)");
+  it("falls back to a count when a partial session lists more than three parts", () => {
+    // One part from each region so no region is complete: 3 upper + 1 core = 4.
+    const summary = summarizeStretchSession(
+      checkItems([...upperBody.items.slice(0, 3), core.items[0]])
+    );
+    expect(summary.completedSections).toEqual([]);
+    expect(summary.name).toBe("Partial Stretch (4 areas)");
+  });
+
+  it("records each stretched part with its planned hold, region, and color", () => {
+    const summary = summarizeStretchSession(checkItems([upperBody.items[0], lowerBody.items[0]]));
+    expect(summary.name).toBe(
+      `Partial Stretch (${upperBody.items[0].name}, ${lowerBody.items[0].name})`
+    );
     expect(summary.doneItems[0]).toMatchObject({
       name: upperBody.items[0].name,
       hold: upperBody.items[0].hold,
+      region: upperBody.label,
+      color: upperBody.color,
+    });
+    expect(summary.doneItems[1]).toMatchObject({
+      region: lowerBody.label,
+      color: lowerBody.color,
     });
   });
 });
