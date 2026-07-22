@@ -1,5 +1,9 @@
 export const StretchIllus = {};
 
+export const STRETCH_CHECK_PREFIX = "str-";
+
+export const stretchCheckKey = (item) => `${STRETCH_CHECK_PREFIX}${item.key}`;
+
 export const stretchSections = [
   {
     label: "Upper Body",
@@ -140,3 +144,48 @@ export const stretchSections = [
     ],
   },
 ];
+
+const allStretchItems = stretchSections.flatMap((section) => section.items);
+
+const pluralAreas = (count) => `${count} area${count === 1 ? "" : "s"}`;
+
+// Describe whatever stretches are currently checked so a session can be logged
+// regardless of whether the full routine was finished. Returns the body parts
+// stretched, which whole regions were completed, and a name that reflects them:
+// "Full Body Stretch", "Upper Body Stretch", or "Partial Stretch (3 areas)".
+export function summarizeStretchSession(checked = {}) {
+  const sections = stretchSections.map((section) => {
+    const items = section.items.filter((item) => Boolean(checked[stretchCheckKey(item)]));
+    return {
+      label: section.label,
+      total: section.items.length,
+      done: items.length,
+      items,
+      complete: section.items.length > 0 && items.length === section.items.length,
+    };
+  });
+
+  const doneItems = sections.flatMap((section) => section.items);
+  const completedSections = sections.filter((section) => section.complete);
+  const fullBody = doneItems.length === allStretchItems.length && allStretchItems.length > 0;
+
+  let name;
+  if (fullBody) {
+    name = "Full Body Stretch";
+  } else if (completedSections.length > 0) {
+    const regions = completedSections.map((section) => section.label).join(" + ");
+    const extra = doneItems.length - completedSections.reduce((sum, s) => sum + s.done, 0);
+    name = `${regions} Stretch${extra > 0 ? ` + ${pluralAreas(extra)}` : ""}`;
+  } else {
+    name = `Partial Stretch (${pluralAreas(doneItems.length)})`;
+  }
+
+  return {
+    name,
+    doneItems,
+    completedSections: completedSections.map((section) => section.label),
+    fullBody,
+    doneCount: doneItems.length,
+    totalCount: allStretchItems.length,
+  };
+}

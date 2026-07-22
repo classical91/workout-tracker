@@ -1,6 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { T, font } from "../theme.js";
-import { stretchSections, StretchIllus } from "../data/stretches.js";
+import {
+  StretchIllus,
+  stretchCheckKey,
+  stretchSections,
+  summarizeStretchSession,
+} from "../data/stretches.js";
 import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
 import { ActivityCompletionForm } from "../components/ActivityCompletionForm.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
@@ -10,27 +15,57 @@ import { ScreenHeader } from "../components/ScreenHeader.jsx";
 
 const allItems = stretchSections.flatMap((section) => section.items);
 
+function buildStretchActivity(summary) {
+  return {
+    type: ACTIVITY_TYPES.STRETCH,
+    category: ACTIVITY_CATEGORIES.MOBILITY,
+    name: summary.name,
+    emoji: "🧘",
+    color: T.green,
+    duration: summary.fullBody ? "10 min" : "",
+    completed: summary.fullBody,
+    details: {
+      bodyAreas: summary.doneItems.map((item) => item.name),
+      completedSections: summary.completedSections,
+      holds: summary.doneItems.map((item) => ({ name: item.name, planned: item.hold })),
+    },
+  };
+}
+
 export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUpdateActivity }) {
-  const done = allItems.filter((item) => checked[`str-${item.key}`]).length;
+  const done = allItems.filter((item) => checked[stretchCheckKey(item)]).length;
   const previousDone = useRef(done);
   const [completedActivity, setCompletedActivity] = useState(null);
 
+  const clearStretchChecks = useCallback(() => {
+    setChecked((previous) => {
+      const next = { ...previous };
+      for (const item of allItems) delete next[stretchCheckKey(item)];
+      return next;
+    });
+    previousDone.current = 0;
+  }, [setChecked]);
+
+  const logSession = useCallback(() => {
+    const summary = summarizeStretchSession(checked);
+    if (summary.doneCount === 0) return;
+    previousDone.current = summary.doneCount;
+    setCompletedActivity(onAddActivity(buildStretchActivity(summary)));
+  }, [checked, onAddActivity]);
+
+  const dismissForm = useCallback(() => {
+    clearStretchChecks();
+    setCompletedActivity(null);
+  }, [clearStretchChecks]);
+
+  // Auto-log the moment the full routine is finished. A form is never open at
+  // that point (finishing clears the checks), so this can't double-fire.
   useEffect(() => {
-    if (done === allItems.length && previousDone.current < allItems.length) {
-      setCompletedActivity(
-        onAddActivity({
-          type: ACTIVITY_TYPES.STRETCH,
-          category: ACTIVITY_CATEGORIES.MOBILITY,
-          name: "Full Body Stretch",
-          emoji: "🧘",
-          color: T.green,
-          duration: "10 min",
-          details: { holds: allItems.map((item) => ({ name: item.name, planned: item.hold })) },
-        })
-      );
+    if (!completedActivity && done === allItems.length && previousDone.current < allItems.length) {
+      setCompletedActivity(onAddActivity(buildStretchActivity(summarizeStretchSession(checked))));
     }
     previousDone.current = done;
-  }, [done, onAddActivity]);
+  }, [done, checked, completedActivity, onAddActivity]);
 
   return (
     <div
@@ -73,11 +108,11 @@ export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUp
                 detail={item.detail}
                 reps={item.hold}
                 color={section.color}
-                done={Boolean(checked[`str-${item.key}`])}
+                done={Boolean(checked[stretchCheckKey(item)])}
                 onToggle={() =>
                   setChecked((previous) => ({
                     ...previous,
-                    [`str-${item.key}`]: !previous[`str-${item.key}`],
+                    [stretchCheckKey(item)]: !previous[stretchCheckKey(item)],
                   }))
                 }
                 illusKey={item.name}
@@ -90,14 +125,35 @@ export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUp
         {done === allItems.length && (
           <CompletionBanner color={T.green} emoji="🌿" text="FULLY STRETCHED!" />
         )}
+        {done > 0 && done < allItems.length && !completedActivity && (
+          <button
+            type="button"
+            onClick={logSession}
+            style={{
+              width: "100%",
+              marginTop: 4,
+              background: T.green,
+              border: "none",
+              borderRadius: 12,
+              padding: 14,
+              color: "#000",
+              fontFamily: font,
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: "pointer",
+            }}
+          >
+            Log this session ({done} of {allItems.length})
+          </button>
+        )}
         {completedActivity && (
           <ActivityCompletionForm
             activity={completedActivity}
             onSave={(updates) => {
               onUpdateActivity(completedActivity.id, updates);
-              setCompletedActivity(null);
+              dismissForm();
             }}
-            onSkip={() => setCompletedActivity(null)}
+            onSkip={dismissForm}
           />
         )}
       </div>
