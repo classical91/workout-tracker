@@ -41,36 +41,48 @@ export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUp
   const done = allItems.filter((item) => checked[stretchCheckKey(item)]).length;
   const previousDone = useRef(done);
   const [completedActivity, setCompletedActivity] = useState(null);
+  // Keys logged in the session whose details form is currently open, so we can
+  // clear exactly those on dismiss — never a stretch checked afterward.
+  const loggedKeys = useRef([]);
 
-  const clearStretchChecks = useCallback(() => {
-    setChecked((previous) => {
-      const next = { ...previous };
-      for (const item of allItems) delete next[stretchCheckKey(item)];
-      return next;
-    });
-    previousDone.current = 0;
-  }, [setChecked]);
+  const logSummary = useCallback(
+    (summary) => {
+      loggedKeys.current = summary.doneItems.map(stretchCheckKey);
+      previousDone.current = summary.doneCount;
+      setCompletedActivity(onAddActivity(buildStretchActivity(summary)));
+    },
+    [onAddActivity]
+  );
 
   const logSession = useCallback(() => {
     const summary = summarizeStretchSession(checked);
     if (summary.doneCount === 0) return;
-    previousDone.current = summary.doneCount;
-    setCompletedActivity(onAddActivity(buildStretchActivity(summary)));
-  }, [checked, onAddActivity]);
+    logSummary(summary);
+  }, [checked, logSummary]);
 
+  // Clear only the stretches that belonged to the just-logged session. Anything
+  // checked while the form was open stays checked, ready to be logged next.
   const dismissForm = useCallback(() => {
-    clearStretchChecks();
+    const keys = loggedKeys.current;
+    loggedKeys.current = [];
+    if (keys.length > 0) {
+      setChecked((previous) => {
+        const next = { ...previous };
+        for (const key of keys) delete next[key];
+        return next;
+      });
+    }
     setCompletedActivity(null);
-  }, [clearStretchChecks]);
+  }, [setChecked]);
 
-  // Auto-log the moment the full routine is finished. A form is never open at
-  // that point (finishing clears the checks), so this can't double-fire.
+  // Auto-log the moment the full routine is finished, unless a form is already
+  // open (which would double-fire on checks made while it's up).
   useEffect(() => {
     if (!completedActivity && done === allItems.length && previousDone.current < allItems.length) {
-      setCompletedActivity(onAddActivity(buildStretchActivity(summarizeStretchSession(checked))));
+      logSummary(summarizeStretchSession(checked));
     }
     previousDone.current = done;
-  }, [done, checked, completedActivity, onAddActivity]);
+  }, [done, checked, completedActivity, logSummary]);
 
   return (
     <div

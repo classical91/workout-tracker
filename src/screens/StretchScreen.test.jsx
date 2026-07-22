@@ -67,4 +67,25 @@ describe("StretchScreen logging", () => {
     render(<Harness />);
     expect(screen.queryByRole("button", { name: /Log this session/i })).toBeNull();
   });
+
+  it("keeps a stretch checked after the form when it was added post-log", async () => {
+    // Log Neck, then check Shoulder while the details form is still open, then
+    // dismiss. Shoulder must survive (only the logged Neck is cleared).
+    const onAddActivity = vi.fn((entry) => entry);
+    render(<Harness initialChecked={checkItems([upperBody.items[0]])} onAddActivity={onAddActivity} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Log this session/i }));
+    await waitFor(() => expect(onAddActivity).toHaveBeenCalledTimes(1));
+    expect(onAddActivity.mock.calls[0][0].name).toBe(`Partial Stretch (${upperBody.items[0].name})`);
+
+    // With Neck checked, the first unchecked toggle in DOM order is Shoulder.
+    // Check it while the "Skip" form is showing, then dismiss.
+    fireEvent.click(screen.getAllByRole("button", { pressed: false })[0]);
+    fireEvent.click(screen.getByRole("button", { name: /^Skip$/ }));
+
+    // Shoulder is still checked, so the manual button is back and Neck was the
+    // only thing logged.
+    expect(screen.getByRole("button", { name: /Log this session/i })).toBeInTheDocument();
+    expect(onAddActivity).toHaveBeenCalledTimes(1);
+  });
 });
