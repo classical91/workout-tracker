@@ -3,6 +3,7 @@ import { ACTIVITY_FILTERS } from "../constants/activityTypes.js";
 import { ActivityLogCard } from "../components/ActivityLogCard.jsx";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { SyncPanel } from "../components/SyncPanel.jsx";
+import { classifyDay } from "../utils/relativeDay.js";
 import { T, font } from "../theme.js";
 
 export function LogScreen({ onBack, log, sync, onClear, onClearToday, onUpdate, onDelete }) {
@@ -88,9 +89,20 @@ export function LogScreen({ onBack, log, sync, onClear, onClearToday, onUpdate, 
             No {filter} activities yet.
           </div>
         ) : (
-          Object.entries(grouped).map(([day, entries]) => (
+          Object.entries(grouped).map(([day, entries]) => {
+            const stamp = classifyDay(entries[0].ts);
+            return (
             <section key={day} style={{ marginBottom: 24 }}>
-              <h2 style={{ fontSize: 10, letterSpacing: 2, color: T.muted, marginBottom: 10 }}>
+              <h2
+                style={{
+                  fontSize: 10,
+                  letterSpacing: 2,
+                  color: stamp.color,
+                  fontWeight: stamp.emphasized ? 700 : 400,
+                  marginBottom: 10,
+                }}
+              >
+                {stamp.label ? `${stamp.label.toUpperCase()} · ` : ""}
                 {day.toUpperCase()}
               </h2>
               {entries.map((entry) => (
@@ -102,7 +114,8 @@ export function LogScreen({ onBack, log, sync, onClear, onClearToday, onUpdate, 
                 />
               ))}
             </section>
-          ))
+            );
+          })
         )}
 
         {log.length > 0 && (

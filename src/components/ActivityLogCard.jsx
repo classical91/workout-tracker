@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { labelActivityValue, ACTIVITY_TYPES } from "../constants/activityTypes.js";
 import { ActivityDetailEditor } from "./ActivityDetailEditor.jsx";
+import { classifyDay } from "../utils/relativeDay.js";
 import { T, font } from "../theme.js";
 
 function DetailSummary({ entry }) {
@@ -84,10 +85,13 @@ export function ActivityLogCard({ entry, onUpdate, onDelete }) {
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
+  // Include seconds so the timestamp reflects exactly when the entry was logged.
   const dateTime = new Date(entry.ts).toLocaleTimeString("en-CA", {
     hour: "numeric",
     minute: "2-digit",
+    second: "2-digit",
   });
+  const day = classifyDay(entry.ts);
 
   return (
     <article
@@ -125,8 +129,17 @@ export function ActivityLogCard({ entry, onUpdate, onDelete }) {
             {labelActivityValue(entry.category)}
             {entry.duration ? ` · ${entry.duration}` : ""}
           </span>
-          <span style={{ display: "block", color: T.muted, fontSize: 10, marginTop: 3 }}>
-            {dateTime} · {labelActivityValue(entry.type)}
+          <span style={{ display: "block", fontSize: 10, marginTop: 3 }}>
+            <span
+              style={{
+                color: day.color,
+                fontWeight: day.emphasized ? 700 : 400,
+              }}
+            >
+              {day.label ? `${day.label} · ` : ""}
+              {dateTime}
+            </span>
+            <span style={{ color: T.muted }}> · {labelActivityValue(entry.type)}</span>
           </span>
         </span>
         <span
