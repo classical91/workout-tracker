@@ -406,7 +406,7 @@ export function WorkoutSetsScreen({
           const ac = ts.ac || w.color;
           return (
             <IllusCard
-              key={si}
+              key={`${w.id}-${si}`}
               label={step.phase}
               detail={step.detail}
               reps={step.reps}
@@ -414,8 +414,9 @@ export function WorkoutSetsScreen({
               color={ac}
               onToggle={() => setChecked((p) => ({ ...p, [key]: !p[key] }))}
               illusKey={step.phase}
+              image={step.image}
               link={
-                step.type === "exercise"
+                step.type === "exercise" && !step.image
                   ? `https://www.google.com/search?udm=2&q=${encodeURIComponent(
                       `${step.phase} ${isCustom ? "exercise" : "dumbbell exercise"}`
                     )}`

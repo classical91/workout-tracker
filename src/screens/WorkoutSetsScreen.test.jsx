@@ -31,6 +31,29 @@ const checkAll = (workout) =>
   Object.fromEntries(workout.steps.map((_, index) => [workoutStepKey(workout.id, index), true]));
 
 describe("WorkoutSetsScreen logging", () => {
+  it("shows the supplied form image for exercises in each built-in workout", () => {
+    render(<Harness />);
+
+    fireEvent.click(screen.getByRole("button", { name: /show Bicep Curls form/i }));
+    expect(screen.getByRole("img", { name: /Bicep Curls exercise form/i })).toHaveAttribute(
+      "src",
+      workouts[0].steps[1].image
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Workout 2/i }));
+    fireEvent.click(screen.getByRole("button", { name: /show Standing Calf Raise form/i }));
+    expect(
+      screen.getByRole("img", { name: /Standing Calf Raise exercise form/i })
+    ).toHaveAttribute("src", workouts[1].steps[1].image);
+
+    fireEvent.click(screen.getByRole("button", { name: /Workout 3/i }));
+    fireEvent.click(screen.getByRole("button", { name: /show Dumbbell Squats form/i }));
+    expect(screen.getByRole("img", { name: /Dumbbell Squats exercise form/i })).toHaveAttribute(
+      "src",
+      workouts[2].steps[1].image
+    );
+  });
+
   it("logs once when progress crosses from below 100% to 100%", async () => {
     const onAddActivity = vi.fn((entry) => entry);
     const initialChecked = Object.fromEntries(

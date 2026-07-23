@@ -11,10 +11,11 @@ export function IllusCard({
   onToggle,
   illusKey,
   IllusMap,
+  image,
   link,
 }) {
   const [open, setOpen] = useState(false);
-  const Illus = IllusMap && IllusMap[illusKey];
+  const Illus = image || (IllusMap && IllusMap[illusKey]);
 
   return (
     <div
@@ -146,6 +147,8 @@ export function IllusCard({
             <button
               type="button"
               onClick={() => setOpen((o) => !o)}
+              aria-expanded={open}
+              aria-label={`${open ? "Hide" : "Show"} ${label} form`}
               style={{
                 fontSize: 10,
                 fontWeight: 700,
@@ -164,22 +167,37 @@ export function IllusCard({
       )}
 
       {Illus && open && (
-        <div style={{ padding: "0 16px 16px", display: "flex", justifyContent: "center" }}>
+        <div
+          style={{
+            padding: "0 16px 16px",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
           <div
             style={{
-              width: 180,
-              height: 200,
-              background: `${color}08`,
+              width: "100%",
+              maxWidth: 430,
+              aspectRatio: "3 / 2",
+              background: "#F7F7F5",
               borderRadius: 16,
               border: `1px solid ${color}20`,
-              padding: 8,
+              padding: 6,
+              overflow: "hidden",
             }}
           >
             {typeof Illus === "string" ? (
               <img
                 src={Illus}
-                alt={illusKey}
-                style={{ width: "100%", display: "block", objectFit: "cover", borderRadius: 12 }}
+                alt={`${label} exercise form`}
+                loading="lazy"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: "block",
+                  objectFit: "contain",
+                  borderRadius: 12,
+                }}
                 onError={(e) => {
                   e.target.style.display = "none";
                 }}
