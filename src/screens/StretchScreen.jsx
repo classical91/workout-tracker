@@ -45,6 +45,15 @@ export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUp
   // clear exactly those on dismiss — never a stretch checked afterward.
   const loggedKeys = useRef([]);
 
+  // Latest values captured for the leave-time auto-log, which runs from an
+  // unmount cleanup that must not re-fire when props change.
+  const checkedRef = useRef(checked);
+  checkedRef.current = checked;
+  const addActivityRef = useRef(onAddActivity);
+  addActivityRef.current = onAddActivity;
+  const setCheckedRef = useRef(setChecked);
+  setCheckedRef.current = setChecked;
+
   const logSummary = useCallback(
     (summary) => {
       loggedKeys.current = summary.doneItems.map(stretchCheckKey);
@@ -83,6 +92,34 @@ export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUp
     }
     previousDone.current = done;
   }, [done, checked, completedActivity, logSummary]);
+
+  // When leaving the screen, record any checked-but-unlogged stretches as a
+  // session so a partial routine is never lost by forgetting to tap "Log this
+  // session". Keys already logged via a still-open completion form are excluded
+  // to avoid duplicates, and every logged key is cleared so returning later
+  // starts fresh instead of re-logging the same stretches.
+  useEffect(() => {
+    return () => {
+      const current = checkedRef.current || {};
+      const alreadyLogged = new Set(loggedKeys.current);
+      const pendingKeys = Object.keys(current).filter(
+        (key) => current[key] && !alreadyLogged.has(key)
+      );
+      if (pendingKeys.length > 0) {
+        const pendingChecked = Object.fromEntries(pendingKeys.map((key) => [key, true]));
+        const summary = summarizeStretchSession(pendingChecked);
+        if (summary.doneCount > 0) addActivityRef.current(buildStretchActivity(summary));
+      }
+      const clearedKeys = [...alreadyLogged, ...pendingKeys];
+      if (clearedKeys.length > 0) {
+        setCheckedRef.current((previous) => {
+          const next = { ...previous };
+          for (const key of clearedKeys) delete next[key];
+          return next;
+        });
+      }
+    };
+  }, []);
 
   return (
     <div

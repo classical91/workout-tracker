@@ -68,6 +68,37 @@ describe("StretchScreen logging", () => {
     expect(screen.queryByRole("button", { name: /Log this session/i })).toBeNull();
   });
 
+  it("auto-logs checked-but-unlogged stretches when leaving the screen", () => {
+    const onAddActivity = vi.fn((entry) => entry);
+    const { unmount } = render(
+      <Harness initialChecked={checkItems([upperBody.items[0]])} onAddActivity={onAddActivity} />
+    );
+
+    // Nothing logged while on the screen — the user never tapped the button.
+    expect(onAddActivity).not.toHaveBeenCalled();
+
+    unmount();
+
+    expect(onAddActivity).toHaveBeenCalledTimes(1);
+    expect(onAddActivity.mock.calls[0][0]).toMatchObject({ type: "stretch", completed: false });
+    expect(onAddActivity.mock.calls[0][0].details.bodyAreas).toEqual([upperBody.items[0].name]);
+  });
+
+  it("does not re-log on leave when the session was just logged manually", () => {
+    const onAddActivity = vi.fn((entry) => entry);
+    const { unmount } = render(
+      <Harness initialChecked={checkItems(upperBody.items)} onAddActivity={onAddActivity} />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /Log this session/i }));
+    expect(onAddActivity).toHaveBeenCalledTimes(1);
+
+    // Leaving with the completion form still open must not double-log the same
+    // stretches (they're already recorded).
+    unmount();
+    expect(onAddActivity).toHaveBeenCalledTimes(1);
+  });
+
   it("keeps a stretch checked after the form when it was added post-log", async () => {
     // Log Neck, then check Shoulder while the details form is still open, then
     // dismiss. Shoulder must survive (only the logged Neck is cleared).
