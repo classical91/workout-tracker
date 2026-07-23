@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { StretchScreen } from "./StretchScreen.jsx";
 import { stretchCheckKey, stretchSections } from "../data/stretches.js";
+import { STORAGE_KEYS } from "../constants/storageKeys.js";
 
 const [upperBody] = stretchSections;
 const allItems = stretchSections.flatMap((section) => section.items);
@@ -97,6 +98,44 @@ describe("StretchScreen logging", () => {
     // stretches (they're already recorded).
     unmount();
     expect(onAddActivity).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps a logged stretch checked and does not re-log it on the same day", () => {
+    // A stretch checked and already logged earlier today, restored from storage.
+    const today = new Date().toDateString();
+    const loggedKey = stretchCheckKey(upperBody.items[0]);
+    localStorage.setItem(
+      STORAGE_KEYS.stretchSession,
+      JSON.stringify({ day: today, logged: { [loggedKey]: true } })
+    );
+    const onAddActivity = vi.fn((entry) => entry);
+    const { unmount } = render(
+      <Harness initialChecked={checkItems([upperBody.items[0]])} onAddActivity={onAddActivity} />
+    );
+
+    // Already logged today → still checked, but no button and no re-log.
+    expect(screen.getByRole("button", { pressed: true })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /Log this session/i })).toBeNull();
+    unmount();
+    expect(onAddActivity).not.toHaveBeenCalled();
+  });
+
+  it("clears stretch checkmarks on a new local day without logging them", () => {
+    // Checks belong to a previous day; opening the screen today resets them.
+    localStorage.setItem(
+      STORAGE_KEYS.stretchSession,
+      JSON.stringify({ day: "Mon Jan 01 2001", logged: {} })
+    );
+    const onAddActivity = vi.fn((entry) => entry);
+    const { unmount } = render(
+      <Harness initialChecked={checkItems(upperBody.items)} onAddActivity={onAddActivity} />
+    );
+
+    // Stale-day checks are wiped: nothing is pressed, no button, nothing logged.
+    expect(screen.queryByRole("button", { pressed: true })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Log this session/i })).toBeNull();
+    unmount();
+    expect(onAddActivity).not.toHaveBeenCalled();
   });
 
   it("keeps a stretch checked after the form when it was added post-log", async () => {
