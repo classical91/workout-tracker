@@ -2,13 +2,13 @@
 
 ## Overview
 
-Wellness Tracker is a single-page wellness app built with React. It provides guided workout/checklist screens, timers, breathing patterns, recovery guides (foam rolling + trigger points), and an activity log persisted in browser `localStorage`. The app is a frontend-only static site: the source is bundled with Vite and the resulting `dist/` is served by a static file server. There is no backend.
+Wellness Tracker is a single-page wellness app built with React. It provides guided workout/checklist screens, timers, breathing patterns, recovery guides (foam rolling + trigger points), and an activity log persisted in browser `localStorage`. The React app is bundled with Vite into a static `dist/`, which is served by a tiny zero-dependency Node server (`server/index.js`). That server also exposes an optional "sync by code" API so the activity log can be shared across a user's devices; without a sync code the app is fully local and works offline.
 
 ## Project Type
 
 - **Type:** Frontend SPA / static site
 - **Build system:** Vite
-- **Runtime model in active scripts:** static file serving from `dist/` using `serve`
+- **Runtime model in active scripts:** static `dist/` plus a small sync API, served by `node server/index.js`
 - **Repository shape:** single-package repo (not a monorepo)
 
 ## Current Features (from code)
@@ -39,7 +39,9 @@ Wellness Tracker is a single-page wellness app built with React. It provides gui
   - `wellness_checked`
   - `wellness_log`
   - `wellness_custom_workouts`
+  - `wellness_sync_code`
 - A non-blocking warning banner if `localStorage` writes fail (storage full, disabled, or private browsing), so progress is never lost silently.
+- **Cross-device sync (optional):** the activity log is local by default, but you can connect a device to a shared **sync code** (Activity Log → “Sync across devices”). Enter the same code on your phone and desktop and the log stays in sync through a lightweight server API (`/api/sync/:code`). There are no accounts — the code is the shared key, so pick something only you would guess. Merges are conflict-safe (newest edit per entry wins) and deletions propagate via tombstones, so nothing is silently overwritten or resurrected. See `src/hooks/useCloudSync.js`, `src/utils/mergeActivityLog.js`, and `server/index.js`.
 - External “Go to Diet Plan” link on the home screen.
 
 ## Tech Stack
@@ -75,17 +77,18 @@ Build output is generated in `dist/`.
 
 ## Production Start
 
-This repo currently supports static production serving from prebuilt assets:
+The production server serves the prebuilt `dist/` and the sync API:
 
 ```bash
 npm run start
 ```
 
-By default this runs:
+This runs `node server/index.js`, which serves `dist/` on `${PORT:-3000}` and
+handles `/api/sync/:code`. Run `npm run build` first if `dist/` is stale.
 
-- `serve dist -l ${PORT:-3000}`
-
-This serves the prebuilt `dist/` output. Run `npm run build` first if `dist/` is stale.
+In local development, run the Vite dev server (`npm run dev`) and, in a second
+terminal, `npm run serve` for the sync API. Vite proxies `/api` to the server on
+port 3000 (see `vite.config.js`), so cross-device sync works end to end locally.
 
 ## Environment Variables
 
@@ -93,7 +96,10 @@ No required app-specific environment variables are read by frontend code.
 
 For hosting/runtime, these may be relevant:
 
-- `PORT` (optional) — port used by static server command.
+- `PORT` (optional) — port the server listens on (default `3000`).
+- `DATA_DIR` (optional) — directory where synced logs are stored as one JSON file
+  per code (default `./data`, set to `/app/data` in the Docker image). Point this
+  at a persistent volume in production so synced logs survive redeploys.
 
 Use placeholders in deployment systems as needed, for example:
 
@@ -103,13 +109,17 @@ Use placeholders in deployment systems as needed, for example:
 
 - `railway.json` points Railway to build using the repository `Dockerfile`.
 - `Dockerfile` is a multi-stage build: it runs `npm ci && npm run build` inside the
-  container, then copies the freshly generated `dist/` into a minimal runtime image
-  served by `serve`. It does **not** depend on a prebuilt `dist/` from the repo.
-- `nixpacks.toml` defines a start command with `npx serve dist -l $PORT` (note:
-  unlike the Dockerfile, this path does **not** build, so it relies on a committed
-  `dist/`). Railway uses the Dockerfile, so this only matters if you switch builders.
-- The canonical path is: **Vite build → static `dist/` → `serve`**. There is no
-  backend server; keep deploy configs aligned with this single static-site model.
+  container, then copies the freshly generated `dist/`, the `server/` code, and the
+  shared merge util into a minimal runtime image started with `node server/index.js`.
+  It does **not** depend on a prebuilt `dist/` from the repo.
+- `nixpacks.toml` defines a start command of `node server/index.js`. Railway uses
+  the Dockerfile, so this only matters if you switch builders.
+- The canonical path is: **Vite build → static `dist/` + sync API → `node server/index.js`**.
+- **Persistent sync storage:** synced logs are written under `DATA_DIR`. On a
+  platform with an ephemeral filesystem (e.g. Railway without a volume) they survive
+  while the container is alive but reset on redeploy. To keep synced logs across
+  deploys, attach a persistent volume and mount it at `DATA_DIR` (`/app/data` in the
+  image). Local-only use (no sync code) needs no volume.
 
 ## Folder Structure
 

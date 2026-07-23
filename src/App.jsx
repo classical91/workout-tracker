@@ -63,6 +63,7 @@ export default function App() {
     clearLog,
     clearToday,
     saveError: logSaveError,
+    sync,
   } = useActivityLog();
   const {
     customWorkouts,
@@ -232,6 +233,7 @@ export default function App() {
           <LogScreen
             onBack={goHome}
             log={log}
+            sync={sync}
             onClear={clearLog}
             onClearToday={clearToday}
             onUpdate={updateActivity}
