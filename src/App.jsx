@@ -100,6 +100,7 @@ export default function App() {
             checked={checked}
             setChecked={setChecked}
             onAddActivity={addActivity}
+            onUpdateActivity={updateActivity}
             customWorkouts={customWorkouts}
             onAddWorkout={addWorkout}
             onUpdateWorkout={updateWorkout}

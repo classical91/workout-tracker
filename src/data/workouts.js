@@ -153,3 +153,35 @@ export const tsStyle = {
   exercise: { bg: "#16161A", ac: null },
   cooldown: { bg: "#0F0F1F", ac: "#4ECDC4" },
 };
+
+// The checkmark key for a single step of a workout. Kept here so the screen and
+// the logging/summary logic can't drift on the key format.
+export const workoutStepKey = (workoutId, stepIndex) => `w-${workoutId}-${stepIndex}`;
+
+// Describe whichever steps of a workout are currently checked so a session can
+// be logged regardless of whether the whole routine was finished. Mirrors the
+// stretch summary: `complete` is true only when every step is done, and the
+// name reflects that ("Upper & Lower Dumbbell" vs. "… (Partial)"). Only the
+// exercise steps are surfaced as loggable exercises — warm-up/cool-down are
+// counted toward progress but aren't exercises to detail.
+export function summarizeWorkoutSession(workout, checked = {}) {
+  const steps = workout.steps.map((step, index) => ({
+    ...step,
+    index,
+    done: Boolean(checked[workoutStepKey(workout.id, index)]),
+  }));
+  const doneSteps = steps.filter((step) => step.done);
+  const exercises = steps.filter((step) => step.type === "exercise");
+  const doneExercises = exercises.filter((step) => step.done);
+  const complete = steps.length > 0 && doneSteps.length === steps.length;
+
+  return {
+    name: complete ? workout.title : `${workout.title} (Partial)`,
+    complete,
+    doneSteps,
+    doneCount: doneSteps.length,
+    totalCount: steps.length,
+    doneExercises,
+    totalExercises: exercises.length,
+  };
+}
