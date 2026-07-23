@@ -9,9 +9,18 @@ export function normalizeActivityEntry(entry = {}, index = 0) {
   const type = safeEntry.type || ACTIVITY_TYPES.GENERAL;
   const definition = getActivityDefinition(type);
 
+  const updatedAt = Number.isFinite(Number(safeEntry.updatedAt)) ? Number(safeEntry.updatedAt) : ts;
+
   return {
     id: safeEntry.id || `legacy-${ts}-${index}`,
     ts,
+    // When this entry was last changed. Used to resolve conflicts when the same
+    // log is synced across devices (newest edit wins).
+    updatedAt,
+    // Tombstone flag: a deleted entry is kept (not removed) so the deletion can
+    // propagate across devices instead of the entry reappearing from a stale
+    // copy. The UI filters these out; only the sync layer sees them.
+    deleted: safeEntry.deleted === true,
     type,
     category: safeEntry.category || definition.category || ACTIVITY_CATEGORIES.GENERAL,
     name: safeEntry.name || definition.label || "Activity",
@@ -35,6 +44,12 @@ export function createActivityId(ts = Date.now()) {
 
 export function createActivity(entry = {}) {
   const ts = Number.isFinite(Number(entry.ts)) ? Number(entry.ts) : Date.now();
-  const normalized = normalizeActivityEntry({ ...entry, ts, id: entry.id || createActivityId(ts) });
+  const updatedAt = Number.isFinite(Number(entry.updatedAt)) ? Number(entry.updatedAt) : Date.now();
+  const normalized = normalizeActivityEntry({
+    ...entry,
+    ts,
+    updatedAt,
+    id: entry.id || createActivityId(ts),
+  });
   return { ...normalized, note: normalized.note.trim() };
 }

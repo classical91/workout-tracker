@@ -2,9 +2,10 @@ import { useMemo, useState } from "react";
 import { ACTIVITY_FILTERS } from "../constants/activityTypes.js";
 import { ActivityLogCard } from "../components/ActivityLogCard.jsx";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
+import { SyncPanel } from "../components/SyncPanel.jsx";
 import { T, font } from "../theme.js";
 
-export function LogScreen({ onBack, log, onClear, onClearToday, onUpdate, onDelete }) {
+export function LogScreen({ onBack, log, sync, onClear, onClearToday, onUpdate, onDelete }) {
   const [filter, setFilter] = useState("all");
   const today = new Date().toDateString();
   const hasToday = log.some((entry) => new Date(entry.ts).toDateString() === today);
@@ -41,6 +42,7 @@ export function LogScreen({ onBack, log, onClear, onClearToday, onUpdate, onDele
         onBack={onBack}
       />
       <main style={{ maxWidth: 500, margin: "0 auto", padding: "0 20px" }}>
+        {sync && <SyncPanel sync={sync} />}
         <div
           aria-label="Filter activities"
           style={{
