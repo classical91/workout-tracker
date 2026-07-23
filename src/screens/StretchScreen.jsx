@@ -177,10 +177,9 @@ export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUp
           aria-label="Filter by body region"
           style={{
             display: "flex",
+            flexWrap: "wrap",
             gap: 7,
-            overflowX: "auto",
             paddingBottom: 14,
-            scrollbarWidth: "none",
           }}
         >
           {REGION_FILTERS.map((section) => {

@@ -48,10 +48,9 @@ export function LogScreen({ onBack, log, sync, onClear, onClearToday, onUpdate, 
           aria-label="Filter activities"
           style={{
             display: "flex",
+            flexWrap: "wrap",
             gap: 7,
-            overflowX: "auto",
             paddingBottom: 14,
-            scrollbarWidth: "none",
           }}
         >
           {ACTIVITY_FILTERS.map((item) => (
