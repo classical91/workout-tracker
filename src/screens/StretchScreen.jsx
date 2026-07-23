@@ -20,6 +20,10 @@ const allItems = stretchSections.flatMap((section) => section.items);
 // The user's current local calendar day, used to reset checkmarks at midnight.
 const localDay = () => new Date().toDateString();
 
+// "All" plus one filter per body-region section, so the list can be narrowed
+// without changing which stretches are counted, checked, or logged.
+const REGION_FILTERS = [{ label: "All", color: T.green }, ...stretchSections];
+
 function buildStretchActivity(summary) {
   return {
     type: ACTIVITY_TYPES.STRETCH,
@@ -46,6 +50,14 @@ export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUp
   const done = allItems.filter((item) => checked[stretchCheckKey(item)]).length;
   const previousDone = useRef(done);
   const [completedActivity, setCompletedActivity] = useState(null);
+  // Which body-region section to show ("All" or one of stretchSections' labels).
+  // Purely a display filter — checking, counting, and logging always consider
+  // every stretch regardless of what's currently visible.
+  const [regionFilter, setRegionFilter] = useState("All");
+  const visibleSections =
+    regionFilter === "All"
+      ? stretchSections
+      : stretchSections.filter((section) => section.label === regionFilter);
 
   // Which local day the current checkmarks belong to, and which stretches have
   // already been logged that day. Checkmarks persist until the day rolls over;
@@ -161,7 +173,44 @@ export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUp
       />
       <div style={{ maxWidth: 500, margin: "0 auto", padding: "0 20px" }}>
         <ProgressBar done={done} total={allItems.length} color={T.green} />
-        {stretchSections.map((section) => (
+        <div
+          aria-label="Filter by body region"
+          style={{
+            display: "flex",
+            gap: 7,
+            overflowX: "auto",
+            paddingBottom: 14,
+            scrollbarWidth: "none",
+          }}
+        >
+          {REGION_FILTERS.map((section) => {
+            const active = regionFilter === section.label;
+            return (
+              <button
+                type="button"
+                key={section.label}
+                aria-current={active ? "true" : undefined}
+                onClick={() => setRegionFilter(section.label)}
+                style={{
+                  flex: "0 0 auto",
+                  border: `1px solid ${active ? section.color : T.border}`,
+                  background: active ? `${section.color}18` : T.surface,
+                  color: active ? section.color : T.muted,
+                  borderRadius: 99,
+                  padding: "7px 11px",
+                  fontFamily: font,
+                  fontSize: 10,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "background 150ms ease, border-color 150ms ease",
+                }}
+              >
+                {section.label}
+              </button>
+            );
+          })}
+        </div>
+        {visibleSections.map((section) => (
           <div key={section.label}>
             <p
               style={{
