@@ -21,16 +21,6 @@ export const quickActivities = [
     duration: "20 min",
   },
   {
-    id: "walk",
-    type: ACTIVITY_TYPES.EXERCISE,
-    category: ACTIVITY_CATEGORIES.CARDIO,
-    name: "Walking",
-    emoji: "🚶",
-    color: "#2ECC71",
-    duration: "20 min",
-    details: { exerciseName: "Walking" },
-  },
-  {
     id: "swim",
     type: ACTIVITY_TYPES.EXERCISE,
     category: ACTIVITY_CATEGORIES.CARDIO,
