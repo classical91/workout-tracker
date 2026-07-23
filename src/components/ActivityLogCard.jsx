@@ -4,6 +4,50 @@ import { ActivityDetailEditor } from "./ActivityDetailEditor.jsx";
 import { classifyDay } from "../utils/relativeDay.js";
 import { T, font } from "../theme.js";
 
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// Maps each body part name and region label mentioned in a stretch entry to
+// its region's color, straight from the entry's own `details.holds` (each
+// hold already carries the color it was logged with). Building this from the
+// entry itself — rather than the current stretches.js data — keeps historical
+// log entries colored correctly even if the stretch list or its colors change
+// later.
+function buildStretchColorMap(entry) {
+  const holds = entry.details?.holds;
+  if (!Array.isArray(holds) || holds.length === 0) return null;
+  const map = {};
+  for (const hold of holds) {
+    if (hold?.name && hold?.color && !map[hold.name]) map[hold.name] = hold.color;
+    if (hold?.region && hold?.color && !map[hold.region]) map[hold.region] = hold.color;
+  }
+  return map;
+}
+
+// Renders an activity's name, color-coding any body part or region it
+// mentions (e.g. "Partial Stretch (Neck)" → "Neck" in the Upper Body color).
+// Only stretch entries carry the per-part color data this relies on, so any
+// other activity type (including one that happens to share a word, like a
+// "Core Workout") renders as plain text.
+function ActivityName({ entry }) {
+  const colorMap = entry.type === ACTIVITY_TYPES.STRETCH ? buildStretchColorMap(entry) : null;
+  if (!colorMap) return entry.name;
+
+  const terms = Object.keys(colorMap).sort((a, b) => b.length - a.length);
+  const pattern = new RegExp(`\\b(${terms.map(escapeRegExp).join("|")})\\b`, "g");
+
+  return entry.name
+    .split(pattern)
+    .map((part, index) =>
+      colorMap[part] ? (
+        <span key={index} style={{ color: colorMap[part] }}>
+          {part}
+        </span>
+      ) : (
+        <span key={index}>{part}</span>
+      )
+    );
+}
+
 function DetailSummary({ entry }) {
   const details = entry.details || {};
   const exercises = details.exercises || details.plannedExercises || [];
@@ -124,7 +168,9 @@ export function ActivityLogCard({ entry, onUpdate, onDelete }) {
       >
         <span style={{ fontSize: 27, lineHeight: 1 }}>{entry.emoji}</span>
         <span style={{ flex: 1 }}>
-          <span style={{ display: "block", fontSize: 14, fontWeight: 700 }}>{entry.name}</span>
+          <span style={{ display: "block", fontSize: 14, fontWeight: 700 }}>
+            <ActivityName entry={entry} />
+          </span>
           <span style={{ display: "block", color: entry.color, fontSize: 10, marginTop: 4 }}>
             {labelActivityValue(entry.category)}
             {entry.duration ? ` · ${entry.duration}` : ""}
