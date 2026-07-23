@@ -158,4 +158,25 @@ describe("StretchScreen logging", () => {
     expect(screen.getByRole("button", { name: /Log this session/i })).toBeInTheDocument();
     expect(onAddActivity).toHaveBeenCalledTimes(1);
   });
+
+  it("filters visible stretches by body region without affecting checked state", () => {
+    const [, core, lowerBody] = stretchSections;
+    render(<Harness initialChecked={checkItems(upperBody.items)} />);
+
+    expect(screen.getByText(upperBody.items[0].name)).toBeInTheDocument();
+    expect(screen.getByText(core.items[0].name)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Lower Body" }));
+
+    // Only Lower Body stretches are shown now...
+    expect(screen.queryByText(upperBody.items[0].name)).not.toBeInTheDocument();
+    expect(screen.queryByText(core.items[0].name)).not.toBeInTheDocument();
+    expect(screen.getByText(lowerBody.items[0].name)).toBeInTheDocument();
+
+    // ...but Upper Body's checked progress is unaffected by the filter.
+    expect(screen.getByText(`${upperBody.items.length}/${allItems.length}`)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "All" }));
+    expect(screen.getByText(upperBody.items[0].name)).toBeInTheDocument();
+  });
 });
