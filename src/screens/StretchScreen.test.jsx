@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { StretchScreen } from "./StretchScreen.jsx";
 import { stretchCheckKey, stretchSections } from "../data/stretches.js";
@@ -136,6 +136,46 @@ describe("StretchScreen logging", () => {
     expect(screen.queryByRole("button", { name: /Log this session/i })).toBeNull();
     unmount();
     expect(onAddActivity).not.toHaveBeenCalled();
+  });
+
+  it("clears stretch checkmarks when midnight passes with the screen open", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    // 11:59pm, one minute before the day rolls over.
+    vi.setSystemTime(new Date(2024, 0, 1, 23, 59, 0));
+    const onAddActivity = vi.fn((entry) => entry);
+    render(
+      <Harness initialChecked={checkItems(upperBody.items)} onAddActivity={onAddActivity} />
+    );
+    expect(screen.getAllByRole("button", { pressed: true }).length).toBe(upperBody.items.length);
+
+    // Cross midnight without remounting: the scheduled reset wipes the checks.
+    await act(async () => {
+      vi.setSystemTime(new Date(2024, 0, 2, 0, 0, 2));
+      await vi.advanceTimersByTimeAsync(2 * 60 * 1000);
+    });
+    expect(screen.queryByRole("button", { pressed: true })).toBeNull();
+    expect(screen.queryByRole("button", { name: /Log this session/i })).toBeNull();
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEYS.stretchSession))).toEqual({
+      day: new Date(2024, 0, 2).toDateString(),
+      logged: {},
+    });
+    vi.useRealTimers();
+  });
+
+  it("clears stretch checkmarks when the app is reopened after midnight", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date(2024, 0, 1, 23, 59, 0));
+    render(<Harness initialChecked={checkItems(upperBody.items)} />);
+    expect(screen.getAllByRole("button", { pressed: true }).length).toBe(upperBody.items.length);
+
+    // The device slept through midnight, so the timer never fired on time —
+    // refocusing the app is what notices the new day.
+    vi.setSystemTime(new Date(2024, 0, 3, 9, 0, 0));
+    await act(async () => {
+      window.dispatchEvent(new Event("focus"));
+    });
+    expect(screen.queryByRole("button", { pressed: true })).toBeNull();
+    vi.useRealTimers();
   });
 
   it("keeps a stretch checked after the form when it was added post-log", async () => {
