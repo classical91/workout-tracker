@@ -12,7 +12,7 @@ function Harness({
   initialChecked = {},
   onAddActivity = vi.fn(),
   onUpdateActivity = vi.fn(),
-  onSetDailyFocus = vi.fn(),
+  onAddDailyFocus = vi.fn(),
 }) {
   const [checked, setChecked] = useState(initialChecked);
   return (
@@ -22,7 +22,7 @@ function Harness({
       setChecked={setChecked}
       onAddActivity={(entry) => onAddActivity({ id: `activity-${onAddActivity.mock.calls.length}`, ...entry })}
       onUpdateActivity={onUpdateActivity}
-      onSetDailyFocus={onSetDailyFocus}
+      onAddDailyFocus={onAddDailyFocus}
     />
   );
 }
@@ -32,28 +32,35 @@ const checkItems = (items) =>
 
 describe("StretchScreen logging", () => {
   it("asks whether a newly checked stretch should be today's focus", () => {
-    const onSetDailyFocus = vi.fn();
-    render(<Harness onSetDailyFocus={onSetDailyFocus} />);
+    const onAddDailyFocus = vi.fn();
+    render(<Harness onAddDailyFocus={onAddDailyFocus} />);
 
     fireEvent.click(screen.getAllByRole("button", { pressed: false })[0]);
 
     expect(
-      screen.getByRole("dialog", { name: `Focus on ${upperBody.items[0].name} throughout today?` })
+      screen.getByRole("dialog", {
+        name: `Add ${upperBody.items[0].name} to today's focuses?`,
+      })
     ).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Yes, focus on this" }));
+    fireEvent.click(screen.getByRole("button", { name: "Yes, add focus" }));
 
-    expect(onSetDailyFocus).toHaveBeenCalledWith(upperBody.items[0].name);
+    expect(onAddDailyFocus).toHaveBeenCalledWith({
+      id: `stretch:${upperBody.items[0].key}`,
+      name: upperBody.items[0].name,
+      source: "stretch",
+      imageQuery: `${upperBody.items[0].name} stretch`,
+    });
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
   it("keeps the stretch checked when today's focus prompt is declined", () => {
-    const onSetDailyFocus = vi.fn();
-    render(<Harness onSetDailyFocus={onSetDailyFocus} />);
+    const onAddDailyFocus = vi.fn();
+    render(<Harness onAddDailyFocus={onAddDailyFocus} />);
 
     fireEvent.click(screen.getAllByRole("button", { pressed: false })[0]);
     fireEvent.click(screen.getByRole("button", { name: "Not today" }));
 
-    expect(onSetDailyFocus).not.toHaveBeenCalled();
+    expect(onAddDailyFocus).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { pressed: true })).toBeInTheDocument();
   });
 

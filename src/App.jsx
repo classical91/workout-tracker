@@ -6,6 +6,7 @@ import { useDailyReset } from "./hooks/useDailyReset.js";
 import { STORAGE_KEYS } from "./constants/storageKeys.js";
 import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "./constants/activityTypes.js";
 import { localDay } from "./utils/localDay.js";
+import { addDailyFocusToState, dailyFocusesFromState } from "./utils/dailyFocus.js";
 import { StorageWarning } from "./components/StorageWarning.jsx";
 import { HomeScreen } from "./screens/HomeScreen.jsx";
 import { WorkoutSetsScreen } from "./screens/WorkoutSetsScreen.jsx";
@@ -57,17 +58,18 @@ export default function App() {
   const setScreen = (next) => navigate(next);
 
   const [checked, setChecked, checkedSaveError] = useLocalStorage(STORAGE_KEYS.checked, {});
-  const [dailyStretchFocus, setDailyStretchFocus, dailyStretchFocusSaveError] = useLocalStorage(
+  const [dailyFocusState, setDailyFocusState, dailyFocusSaveError] = useLocalStorage(
     STORAGE_KEYS.dailyStretchFocus,
-    { day: "", name: "" }
+    { day: "", focuses: [] }
   );
-  useDailyReset(dailyStretchFocus.day, (today) => {
-    setDailyStretchFocus({ day: today, name: "" });
+  useDailyReset(dailyFocusState.day, (today) => {
+    setDailyFocusState({ day: today, focuses: [] });
   });
-  const activeStretchFocus =
-    dailyStretchFocus.day === localDay() ? dailyStretchFocus.name : "";
-  const chooseDailyStretchFocus = (name) => {
-    setDailyStretchFocus({ day: localDay(), name });
+  const activeDailyFocuses =
+    dailyFocusState.day === localDay() ? dailyFocusesFromState(dailyFocusState) : [];
+  const addDailyFocus = (focus) => {
+    const today = localDay();
+    setDailyFocusState((previous) => addDailyFocusToState(previous, focus, today));
   };
   const {
     log,
@@ -133,7 +135,7 @@ export default function App() {
             setChecked={setChecked}
             onAddActivity={addActivity}
             onUpdateActivity={updateActivity}
-            onSetDailyFocus={chooseDailyStretchFocus}
+            onAddDailyFocus={addDailyFocus}
           />
         );
       case "simple":
@@ -143,6 +145,7 @@ export default function App() {
             onOpen={(slug) => navigate("simple-exercise", slug)}
             checked={checked}
             setChecked={setChecked}
+            onAddDailyFocus={addDailyFocus}
           />
         );
       case "simple-exercise":
@@ -155,6 +158,7 @@ export default function App() {
             setChecked={setChecked}
             onAddActivity={addActivity}
             onUpdateActivity={updateActivity}
+            onAddDailyFocus={addDailyFocus}
           />
         );
       case "calm":
@@ -288,7 +292,7 @@ export default function App() {
             <HomeScreen
               onNavigate={setScreen}
               onStartTimer={startQuickTimer}
-              dailyStretchFocus={activeStretchFocus}
+              dailyFocuses={activeDailyFocuses}
             />
           );
         return (
@@ -309,7 +313,7 @@ export default function App() {
           <HomeScreen
             onNavigate={setScreen}
             onStartTimer={startQuickTimer}
-            dailyStretchFocus={activeStretchFocus}
+            dailyFocuses={activeDailyFocuses}
           />
         );
     }
@@ -319,7 +323,7 @@ export default function App() {
     <>
       {renderScreen()}
       {(checkedSaveError ||
-        dailyStretchFocusSaveError ||
+        dailyFocusSaveError ||
         logSaveError ||
         customSaveError) && <StorageWarning />}
     </>

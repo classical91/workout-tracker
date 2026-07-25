@@ -1,11 +1,21 @@
+import { useState } from "react";
 import { T, font } from "../theme.js";
 import { simpleEx } from "../data/simpleExercises.js";
+import { simpleExerciseDailyFocus } from "../utils/dailyFocus.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { ProgressBar } from "../components/ProgressBar.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
+import { DailyFocusPrompt } from "../components/DailyFocusPrompt.jsx";
 
-export function SimpleWorkoutsScreen({ onBack, onOpen, checked, setChecked }) {
+export function SimpleWorkoutsScreen({
+  onBack,
+  onOpen,
+  checked,
+  setChecked,
+  onAddDailyFocus,
+}) {
   const color = T.blue;
+  const [pendingFocus, setPendingFocus] = useState(null);
   const done = simpleEx.filter((_, i) => checked[`sim-${i}`]).length;
   return (
     <div
@@ -28,7 +38,13 @@ export function SimpleWorkoutsScreen({ onBack, onOpen, checked, setChecked }) {
         <ProgressBar done={done} total={simpleEx.length} color={color} />
         {simpleEx.map((s, i) => {
           const isDone = !!checked[`sim-${i}`];
-          const toggle = () => setChecked((p) => ({ ...p, [`sim-${i}`]: !p[`sim-${i}`] }));
+          const toggle = () => {
+            setChecked((previous) => ({
+              ...previous,
+              [`sim-${i}`]: !previous[`sim-${i}`],
+            }));
+            if (!isDone) setPendingFocus(simpleExerciseDailyFocus(s));
+          };
           return (
             <div
               key={i}
@@ -116,6 +132,15 @@ export function SimpleWorkoutsScreen({ onBack, onOpen, checked, setChecked }) {
           <CompletionBanner color={color} emoji="🏅" text="NICE WORK!" />
         )}
       </div>
+      <DailyFocusPrompt
+        focus={pendingFocus}
+        color={color}
+        onConfirm={() => {
+          onAddDailyFocus?.(pendingFocus);
+          setPendingFocus(null);
+        }}
+        onDismiss={() => setPendingFocus(null)}
+      />
     </div>
   );
 }

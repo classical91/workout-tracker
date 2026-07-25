@@ -3,7 +3,10 @@ import { activities } from "../data/activities.js";
 import { ActivityCard } from "../components/ActivityCard.jsx";
 import { QuickLog } from "../components/QuickLog.jsx";
 
-export function HomeScreen({ onNavigate, onStartTimer, dailyStretchFocus = "" }) {
+export function HomeScreen({ onNavigate, onStartTimer, dailyFocuses = [] }) {
+  const focusAccent =
+    dailyFocuses.length === 1 && dailyFocuses[0].source === "simple" ? T.blue : T.green;
+
   return (
     <div
       style={{
@@ -39,15 +42,15 @@ export function HomeScreen({ onNavigate, onStartTimer, dailyStretchFocus = "" })
         </div>
       </div>
       <div style={{ maxWidth: 500, margin: "0 auto", padding: "0 20px" }}>
-        {dailyStretchFocus && (
-          <p
-            aria-label={`Today's focus: ${dailyStretchFocus}`}
+        {dailyFocuses.length > 0 && (
+          <div
+            aria-label={dailyFocuses.length === 1 ? "Today's focus" : "Today's focuses"}
             style={{
               margin: "0 0 14px",
               padding: "10px 12px",
-              border: `1px solid ${T.green}66`,
+              border: `1px solid ${focusAccent}66`,
               borderRadius: 12,
-              background: `${T.green}0D`,
+              background: `${focusAccent}0D`,
               color: T.muted,
               fontSize: 11,
               fontWeight: 600,
@@ -55,9 +58,45 @@ export function HomeScreen({ onNavigate, onStartTimer, dailyStretchFocus = "" })
               textAlign: "center",
             }}
           >
-            TODAY&apos;S FOCUS
-            <span style={{ color: T.green, marginLeft: 7 }}>{dailyStretchFocus}</span>
-          </p>
+            <div style={{ marginBottom: 2 }}>
+              {dailyFocuses.length === 1 ? "TODAY'S FOCUS" : "TODAY'S FOCUSES"}
+            </div>
+            {dailyFocuses.map((focus, index) => {
+              const color = focus.source === "simple" ? T.blue : T.green;
+              const imagesUrl = `https://www.google.com/search?udm=2&q=${encodeURIComponent(
+                focus.imageQuery
+              )}`;
+              return (
+                <div
+                  key={focus.id}
+                  style={{
+                    paddingTop: 8,
+                    marginTop: index === 0 ? 0 : 8,
+                    borderTop: index === 0 ? "none" : `1px solid ${T.border}`,
+                  }}
+                >
+                  <div style={{ color, fontSize: 12 }}>{focus.name}</div>
+                  <a
+                    href={imagesUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`View images for ${focus.name}`}
+                    style={{
+                      display: "inline-block",
+                      marginTop: 6,
+                      color,
+                      fontSize: 10,
+                      fontWeight: 700,
+                      letterSpacing: 1,
+                      textDecoration: "none",
+                    }}
+                  >
+                    🔍 VIEW IMAGES
+                  </a>
+                </div>
+              );
+            })}
+          </div>
         )}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           {activities.map((a) => (

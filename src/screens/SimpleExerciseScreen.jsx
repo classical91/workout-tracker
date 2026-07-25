@@ -4,6 +4,8 @@ import { simpleEx, findSimpleEx } from "../data/simpleExercises.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { ActivityCompletionForm } from "../components/ActivityCompletionForm.jsx";
 import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
+import { DailyFocusPrompt } from "../components/DailyFocusPrompt.jsx";
+import { simpleExerciseDailyFocus } from "../utils/dailyFocus.js";
 
 export function SimpleExerciseScreen({
   slug,
@@ -13,10 +15,12 @@ export function SimpleExerciseScreen({
   setChecked,
   onAddActivity,
   onUpdateActivity,
+  onAddDailyFocus,
 }) {
   const color = T.blue;
   const match = findSimpleEx(slug);
   const [completedActivity, setCompletedActivity] = useState(null);
+  const [pendingFocus, setPendingFocus] = useState(null);
 
   // Unknown slug — send the visitor back to the full list.
   if (!match) {
@@ -51,6 +55,7 @@ export function SimpleExerciseScreen({
   const isDone = !!checked[key];
   const toggle = () => {
     if (!isDone) {
+      setPendingFocus(simpleExerciseDailyFocus(exercise));
       setCompletedActivity(
         onAddActivity({
           type: ACTIVITY_TYPES.EXERCISE,
@@ -192,6 +197,15 @@ export function SimpleExerciseScreen({
           EXERCISE {index + 1} OF {simpleEx.length}
         </p>
       </div>
+      <DailyFocusPrompt
+        focus={pendingFocus}
+        color={color}
+        onConfirm={() => {
+          onAddDailyFocus?.(pendingFocus);
+          setPendingFocus(null);
+        }}
+        onDismiss={() => setPendingFocus(null)}
+      />
     </div>
   );
 }

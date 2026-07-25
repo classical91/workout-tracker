@@ -16,6 +16,8 @@ import { CompletionBanner } from "../components/CompletionBanner.jsx";
 import { IllusCard } from "../components/IllusCard.jsx";
 import { ProgressBar } from "../components/ProgressBar.jsx";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
+import { DailyFocusPrompt } from "../components/DailyFocusPrompt.jsx";
+import { stretchDailyFocus } from "../utils/dailyFocus.js";
 
 const allItems = stretchSections.flatMap((section) => section.items);
 
@@ -51,7 +53,7 @@ export function StretchScreen({
   setChecked,
   onAddActivity,
   onUpdateActivity,
-  onSetDailyFocus,
+  onAddDailyFocus,
 }) {
   const done = allItems.filter((item) => checked[stretchCheckKey(item)]).length;
   const previousDone = useRef(done);
@@ -152,14 +154,14 @@ export function StretchScreen({
       [key]: !previous[key],
     }));
     if (willCheck) {
-      setPendingFocus({ name: item.name, color });
-    } else if (pendingFocus?.name === item.name) {
+      setPendingFocus({ focus: stretchDailyFocus(item), color });
+    } else if (pendingFocus?.focus.id === `stretch:${item.key}`) {
       setPendingFocus(null);
     }
   };
 
   const selectDailyFocus = () => {
-    onSetDailyFocus?.(pendingFocus.name);
+    onAddDailyFocus?.(pendingFocus.focus);
     setPendingFocus(null);
   };
 
@@ -303,90 +305,12 @@ export function StretchScreen({
           />
         )}
       </div>
-      {pendingFocus && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="stretch-focus-title"
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 30,
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "center",
-            padding: 16,
-            background: "rgba(0, 0, 0, 0.62)",
-          }}
-        >
-          <div
-            style={{
-              width: "100%",
-              maxWidth: 468,
-              padding: 18,
-              borderRadius: 16,
-              border: `1px solid ${pendingFocus.color}66`,
-              background: T.surface2,
-              boxShadow: "0 18px 60px rgba(0, 0, 0, 0.45)",
-            }}
-          >
-            <p
-              style={{
-                margin: "0 0 5px",
-                color: pendingFocus.color,
-                fontSize: 10,
-                fontWeight: 700,
-                letterSpacing: "0.16em",
-              }}
-            >
-              TODAY&apos;S FOCUS
-            </p>
-            <h2
-              id="stretch-focus-title"
-              style={{ margin: "0 0 6px", fontSize: 19, lineHeight: 1.25 }}
-            >
-              Focus on {pendingFocus.name} throughout today?
-            </h2>
-            <p style={{ margin: "0 0 16px", color: T.muted, fontSize: 12, lineHeight: 1.5 }}>
-              A small reminder will appear on your home page.
-            </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
-              <button
-                type="button"
-                onClick={() => setPendingFocus(null)}
-                style={{
-                  border: `1px solid ${T.border}`,
-                  borderRadius: 11,
-                  padding: 12,
-                  background: T.surface,
-                  color: T.muted,
-                  fontFamily: font,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                Not today
-              </button>
-              <button
-                type="button"
-                onClick={selectDailyFocus}
-                style={{
-                  border: "none",
-                  borderRadius: 11,
-                  padding: 12,
-                  background: pendingFocus.color,
-                  color: "#000",
-                  fontFamily: font,
-                  fontWeight: 700,
-                  cursor: "pointer",
-                }}
-              >
-                Yes, focus on this
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DailyFocusPrompt
+        focus={pendingFocus?.focus}
+        color={pendingFocus?.color || T.green}
+        onConfirm={selectDailyFocus}
+        onDismiss={() => setPendingFocus(null)}
+      />
     </div>
   );
 }
