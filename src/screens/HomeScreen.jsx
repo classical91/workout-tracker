@@ -44,6 +44,10 @@ export function HomeScreen({ onNavigate, onStartTimer, dailyStretchFocus = "" })
             aria-label={`Today's focus: ${dailyStretchFocus}`}
             style={{
               margin: "0 0 14px",
+              padding: "10px 12px",
+              border: `1px solid ${T.green}66`,
+              borderRadius: 12,
+              background: `${T.green}0D`,
               color: T.muted,
               fontSize: 11,
               fontWeight: 600,
