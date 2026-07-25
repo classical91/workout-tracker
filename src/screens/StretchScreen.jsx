@@ -8,7 +8,9 @@ import {
 } from "../data/stretches.js";
 import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
 import { useLocalStorage } from "../hooks/useLocalStorage.js";
+import { useDailyReset } from "../hooks/useDailyReset.js";
 import { STORAGE_KEYS } from "../constants/storageKeys.js";
+import { localDay } from "../utils/localDay.js";
 import { ActivityCompletionForm } from "../components/ActivityCompletionForm.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
 import { IllusCard } from "../components/IllusCard.jsx";
@@ -16,9 +18,6 @@ import { ProgressBar } from "../components/ProgressBar.jsx";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 
 const allItems = stretchSections.flatMap((section) => section.items);
-
-// The user's current local calendar day, used to reset checkmarks at midnight.
-const localDay = () => new Date().toDateString();
 
 // "All" plus one filter per body-region section, so the list can be narrowed
 // without changing which stretches are counted, checked, or logged.
@@ -84,27 +83,29 @@ export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUp
   // Source of truth for "already logged today", mirrored into state for render.
   const loggedRef = useRef(session.logged || {});
 
-  // Roll the checkmarks over at local midnight: on the first render of a new
-  // day, clear the stretch checkmarks and forget what was logged. On first-ever
-  // use (no stored day) we adopt today without clearing, so existing checks and
-  // other screens' checkmarks are left alone.
-  useEffect(() => {
-    const today = localDay();
-    if (session.day && session.day !== today) {
-      loggedRef.current = {};
-      setChecked((previous) => {
-        const next = { ...previous };
-        for (const item of allItems) delete next[stretchCheckKey(item)];
-        return next;
-      });
-      setSession({ day: today, logged: {} });
-    } else {
+  // Roll the checkmarks over at local midnight: whenever the day changes, clear
+  // the stretch checkmarks — completed or partial — and forget what was logged,
+  // so every new day starts empty. On first-ever use (no stored day) we adopt
+  // today without clearing, so existing checks and other screens' checkmarks are
+  // left alone. useDailyReset also catches midnight while the screen is open and
+  // a return to the app after the device slept through midnight.
+  useDailyReset(session.day, (today, previousDay) => {
+    if (!previousDay) {
       loggedRef.current = session.logged || {};
-      if (session.day !== today) setSession({ day: today, logged: session.logged || {} });
+      setSessionRef.current({ day: today, logged: loggedRef.current });
+      return;
     }
-    // Runs once on mount; refs/state read inside are intentionally not deps.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    loggedRef.current = {};
+    setCheckedRef.current((previous) => {
+      const next = { ...previous };
+      for (const item of allItems) delete next[stretchCheckKey(item)];
+      return next;
+    });
+    setSessionRef.current({ day: today, logged: {} });
+    // Nothing is left checked, so a details form for yesterday's session would
+    // no longer match what's on screen.
+    setCompletedActivity(null);
+  });
 
   // Log every currently-checked stretch that hasn't been logged yet today as a
   // single session, mark those as logged, and leave the checkmarks in place.
