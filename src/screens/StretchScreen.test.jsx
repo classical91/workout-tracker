@@ -8,7 +8,12 @@ import { STORAGE_KEYS } from "../constants/storageKeys.js";
 const [upperBody] = stretchSections;
 const allItems = stretchSections.flatMap((section) => section.items);
 
-function Harness({ initialChecked = {}, onAddActivity = vi.fn(), onUpdateActivity = vi.fn() }) {
+function Harness({
+  initialChecked = {},
+  onAddActivity = vi.fn(),
+  onUpdateActivity = vi.fn(),
+  onSetDailyFocus = vi.fn(),
+}) {
   const [checked, setChecked] = useState(initialChecked);
   return (
     <StretchScreen
@@ -17,6 +22,7 @@ function Harness({ initialChecked = {}, onAddActivity = vi.fn(), onUpdateActivit
       setChecked={setChecked}
       onAddActivity={(entry) => onAddActivity({ id: `activity-${onAddActivity.mock.calls.length}`, ...entry })}
       onUpdateActivity={onUpdateActivity}
+      onSetDailyFocus={onSetDailyFocus}
     />
   );
 }
@@ -25,6 +31,32 @@ const checkItems = (items) =>
   Object.fromEntries(items.map((item) => [stretchCheckKey(item), true]));
 
 describe("StretchScreen logging", () => {
+  it("asks whether a newly checked stretch should be today's focus", () => {
+    const onSetDailyFocus = vi.fn();
+    render(<Harness onSetDailyFocus={onSetDailyFocus} />);
+
+    fireEvent.click(screen.getAllByRole("button", { pressed: false })[0]);
+
+    expect(
+      screen.getByRole("dialog", { name: `Focus on ${upperBody.items[0].name} throughout today?` })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Yes, focus on this" }));
+
+    expect(onSetDailyFocus).toHaveBeenCalledWith(upperBody.items[0].name);
+    expect(screen.queryByRole("dialog")).toBeNull();
+  });
+
+  it("keeps the stretch checked when today's focus prompt is declined", () => {
+    const onSetDailyFocus = vi.fn();
+    render(<Harness onSetDailyFocus={onSetDailyFocus} />);
+
+    fireEvent.click(screen.getAllByRole("button", { pressed: false })[0]);
+    fireEvent.click(screen.getByRole("button", { name: "Not today" }));
+
+    expect(onSetDailyFocus).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { pressed: true })).toBeInTheDocument();
+  });
+
   it("auto-logs a full body stretch when the last item is checked", async () => {
     const onAddActivity = vi.fn((entry) => entry);
     const initialChecked = checkItems(allItems.slice(0, -1));

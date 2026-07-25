@@ -9,6 +9,9 @@ export const STORAGE_KEYS = {
   // have already been logged that day, so checks persist until midnight without
   // re-logging the same session.
   stretchSession: "wellness_stretch_session",
+  // One stretch the user chose to keep in mind for the current local day.
+  // Stored with its day so yesterday's focus never appears on the home screen.
+  dailyStretchFocus: "wellness_daily_stretch_focus",
   // Same idea for workout sets: which local day the workout checkmarks belong to
   // and which workout steps have already been logged that day, so a partial
   // routine can be logged without re-logging the same steps.

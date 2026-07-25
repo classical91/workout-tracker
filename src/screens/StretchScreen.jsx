@@ -45,10 +45,18 @@ function buildStretchActivity(summary) {
   };
 }
 
-export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUpdateActivity }) {
+export function StretchScreen({
+  onBack,
+  checked,
+  setChecked,
+  onAddActivity,
+  onUpdateActivity,
+  onSetDailyFocus,
+}) {
   const done = allItems.filter((item) => checked[stretchCheckKey(item)]).length;
   const previousDone = useRef(done);
   const [completedActivity, setCompletedActivity] = useState(null);
+  const [pendingFocus, setPendingFocus] = useState(null);
   // Which body-region section to show ("All" or one of stretchSections' labels).
   // Purely a display filter — checking, counting, and logging always consider
   // every stretch regardless of what's currently visible.
@@ -135,6 +143,25 @@ export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUp
 
   // Closing the details form keeps the checkmarks — they stay until the new day.
   const dismissForm = useCallback(() => setCompletedActivity(null), []);
+
+  const toggleStretch = (item, color) => {
+    const key = stretchCheckKey(item);
+    const willCheck = !checked[key];
+    setChecked((previous) => ({
+      ...previous,
+      [key]: !previous[key],
+    }));
+    if (willCheck) {
+      setPendingFocus({ name: item.name, color });
+    } else if (pendingFocus?.name === item.name) {
+      setPendingFocus(null);
+    }
+  };
+
+  const selectDailyFocus = () => {
+    onSetDailyFocus?.(pendingFocus.name);
+    setPendingFocus(null);
+  };
 
   // Auto-log the moment the full routine is finished, unless a form is already
   // open (which would double-fire on checks made while it's up).
@@ -233,12 +260,7 @@ export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUp
                 reps={item.hold}
                 color={section.color}
                 done={Boolean(checked[stretchCheckKey(item)])}
-                onToggle={() =>
-                  setChecked((previous) => ({
-                    ...previous,
-                    [stretchCheckKey(item)]: !previous[stretchCheckKey(item)],
-                  }))
-                }
+                onToggle={() => toggleStretch(item, section.color)}
                 illusKey={item.name}
                 IllusMap={StretchIllus}
                 link={`https://www.google.com/search?udm=2&q=${encodeURIComponent(`${item.name} stretch`)}`}
@@ -281,6 +303,90 @@ export function StretchScreen({ onBack, checked, setChecked, onAddActivity, onUp
           />
         )}
       </div>
+      {pendingFocus && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="stretch-focus-title"
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 30,
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "center",
+            padding: 16,
+            background: "rgba(0, 0, 0, 0.62)",
+          }}
+        >
+          <div
+            style={{
+              width: "100%",
+              maxWidth: 468,
+              padding: 18,
+              borderRadius: 16,
+              border: `1px solid ${pendingFocus.color}66`,
+              background: T.surface2,
+              boxShadow: "0 18px 60px rgba(0, 0, 0, 0.45)",
+            }}
+          >
+            <p
+              style={{
+                margin: "0 0 5px",
+                color: pendingFocus.color,
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: "0.16em",
+              }}
+            >
+              TODAY&apos;S FOCUS
+            </p>
+            <h2
+              id="stretch-focus-title"
+              style={{ margin: "0 0 6px", fontSize: 19, lineHeight: 1.25 }}
+            >
+              Focus on {pendingFocus.name} throughout today?
+            </h2>
+            <p style={{ margin: "0 0 16px", color: T.muted, fontSize: 12, lineHeight: 1.5 }}>
+              A small reminder will appear on your home page.
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 9 }}>
+              <button
+                type="button"
+                onClick={() => setPendingFocus(null)}
+                style={{
+                  border: `1px solid ${T.border}`,
+                  borderRadius: 11,
+                  padding: 12,
+                  background: T.surface,
+                  color: T.muted,
+                  fontFamily: font,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Not today
+              </button>
+              <button
+                type="button"
+                onClick={selectDailyFocus}
+                style={{
+                  border: "none",
+                  borderRadius: 11,
+                  padding: 12,
+                  background: pendingFocus.color,
+                  color: "#000",
+                  fontFamily: font,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                }}
+              >
+                Yes, focus on this
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

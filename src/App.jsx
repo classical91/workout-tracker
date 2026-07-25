@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useLocalStorage } from "./hooks/useLocalStorage.js";
 import { useActivityLog } from "./hooks/useActivityLog.js";
 import { useCustomWorkouts } from "./hooks/useCustomWorkouts.js";
+import { useDailyReset } from "./hooks/useDailyReset.js";
 import { STORAGE_KEYS } from "./constants/storageKeys.js";
 import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "./constants/activityTypes.js";
+import { localDay } from "./utils/localDay.js";
 import { StorageWarning } from "./components/StorageWarning.jsx";
 import { HomeScreen } from "./screens/HomeScreen.jsx";
 import { WorkoutSetsScreen } from "./screens/WorkoutSetsScreen.jsx";
@@ -55,6 +57,18 @@ export default function App() {
   const setScreen = (next) => navigate(next);
 
   const [checked, setChecked, checkedSaveError] = useLocalStorage(STORAGE_KEYS.checked, {});
+  const [dailyStretchFocus, setDailyStretchFocus, dailyStretchFocusSaveError] = useLocalStorage(
+    STORAGE_KEYS.dailyStretchFocus,
+    { day: "", name: "" }
+  );
+  useDailyReset(dailyStretchFocus.day, (today) => {
+    setDailyStretchFocus({ day: today, name: "" });
+  });
+  const activeStretchFocus =
+    dailyStretchFocus.day === localDay() ? dailyStretchFocus.name : "";
+  const chooseDailyStretchFocus = (name) => {
+    setDailyStretchFocus({ day: localDay(), name });
+  };
   const {
     log,
     addActivity,
@@ -119,6 +133,7 @@ export default function App() {
             setChecked={setChecked}
             onAddActivity={addActivity}
             onUpdateActivity={updateActivity}
+            onSetDailyFocus={chooseDailyStretchFocus}
           />
         );
       case "simple":
@@ -269,7 +284,13 @@ export default function App() {
         );
       case "quick-timer":
         if (!timerActivity)
-          return <HomeScreen onNavigate={setScreen} onStartTimer={startQuickTimer} />;
+          return (
+            <HomeScreen
+              onNavigate={setScreen}
+              onStartTimer={startQuickTimer}
+              dailyStretchFocus={activeStretchFocus}
+            />
+          );
         return (
           <TimerScreen
             title={timerActivity.name}
@@ -284,14 +305,23 @@ export default function App() {
         );
       case "home":
       default:
-        return <HomeScreen onNavigate={setScreen} onStartTimer={startQuickTimer} />;
+        return (
+          <HomeScreen
+            onNavigate={setScreen}
+            onStartTimer={startQuickTimer}
+            dailyStretchFocus={activeStretchFocus}
+          />
+        );
     }
   };
 
   return (
     <>
       {renderScreen()}
-      {(checkedSaveError || logSaveError || customSaveError) && <StorageWarning />}
+      {(checkedSaveError ||
+        dailyStretchFocusSaveError ||
+        logSaveError ||
+        customSaveError) && <StorageWarning />}
     </>
   );
 }

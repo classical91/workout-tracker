@@ -3,7 +3,7 @@ import { activities } from "../data/activities.js";
 import { ActivityCard } from "../components/ActivityCard.jsx";
 import { QuickLog } from "../components/QuickLog.jsx";
 
-export function HomeScreen({ onNavigate, onStartTimer }) {
+export function HomeScreen({ onNavigate, onStartTimer, dailyStretchFocus = "" }) {
   return (
     <div
       style={{
@@ -39,6 +39,22 @@ export function HomeScreen({ onNavigate, onStartTimer }) {
         </div>
       </div>
       <div style={{ maxWidth: 500, margin: "0 auto", padding: "0 20px" }}>
+        {dailyStretchFocus && (
+          <p
+            aria-label={`Today's focus: ${dailyStretchFocus}`}
+            style={{
+              margin: "0 0 14px",
+              color: T.muted,
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              textAlign: "center",
+            }}
+          >
+            TODAY&apos;S FOCUS
+            <span style={{ color: T.green, marginLeft: 7 }}>{dailyStretchFocus}</span>
+          </p>
+        )}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
           {activities.map((a) => (
             <ActivityCard key={a.id} activity={a} onSelect={onNavigate} />
