@@ -13,6 +13,7 @@ function Harness({
   onAddActivity = vi.fn(),
   onUpdateActivity = vi.fn(),
   onAddDailyFocus = vi.fn(),
+  onRemoveDailyFocus = vi.fn(),
 }) {
   const [checked, setChecked] = useState(initialChecked);
   return (
@@ -23,6 +24,7 @@ function Harness({
       onAddActivity={(entry) => onAddActivity({ id: `activity-${onAddActivity.mock.calls.length}`, ...entry })}
       onUpdateActivity={onUpdateActivity}
       onAddDailyFocus={onAddDailyFocus}
+      onRemoveDailyFocus={onRemoveDailyFocus}
     />
   );
 }
@@ -62,6 +64,20 @@ describe("StretchScreen logging", () => {
 
     expect(onAddDailyFocus).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { pressed: true })).toBeInTheDocument();
+  });
+
+  it("removes a stretch from today's focuses when it is unchecked", () => {
+    const onRemoveDailyFocus = vi.fn();
+    render(
+      <Harness
+        initialChecked={checkItems([upperBody.items[0]])}
+        onRemoveDailyFocus={onRemoveDailyFocus}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { pressed: true }));
+
+    expect(onRemoveDailyFocus).toHaveBeenCalledWith(`stretch:${upperBody.items[0].key}`);
   });
 
   it("auto-logs a full body stretch when the last item is checked", async () => {

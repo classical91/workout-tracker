@@ -61,3 +61,11 @@ export function addDailyFocusToState(state, focus, today) {
   }
   return { day: today, focuses: [...current, focus] };
 }
+
+export function removeDailyFocusFromState(state, focusId, today) {
+  const current = state?.day === today ? dailyFocusesFromState(state) : [];
+  return {
+    day: today,
+    focuses: current.filter((focus) => focus.id !== focusId),
+  };
+}

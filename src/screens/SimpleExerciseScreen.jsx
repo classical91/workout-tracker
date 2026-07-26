@@ -16,6 +16,7 @@ export function SimpleExerciseScreen({
   onAddActivity,
   onUpdateActivity,
   onAddDailyFocus,
+  onRemoveDailyFocus,
 }) {
   const color = T.blue;
   const match = findSimpleEx(slug);
@@ -67,6 +68,8 @@ export function SimpleExerciseScreen({
           details: { exercises: [{ name: exercise.name, planned: exercise.reps }] },
         })
       );
+    } else {
+      onRemoveDailyFocus?.(`simple:${exercise.slug}`);
     }
     setChecked((previous) => ({ ...previous, [key]: !previous[key] }));
   };

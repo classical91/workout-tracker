@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { simpleEx } from "../data/simpleExercises.js";
 import { SimpleExerciseScreen } from "./SimpleExerciseScreen.jsx";
 
-function Harness({ onAddDailyFocus = vi.fn() }) {
+function Harness({ onAddDailyFocus = vi.fn(), onRemoveDailyFocus = vi.fn() }) {
   const [checked, setChecked] = useState({});
   const onAddActivity = vi.fn((activity) => ({ id: "activity-1", ...activity }));
   return (
@@ -17,6 +17,7 @@ function Harness({ onAddDailyFocus = vi.fn() }) {
       onAddActivity={onAddActivity}
       onUpdateActivity={vi.fn()}
       onAddDailyFocus={onAddDailyFocus}
+      onRemoveDailyFocus={onRemoveDailyFocus}
     />
   );
 }
@@ -36,5 +37,16 @@ describe("SimpleExerciseScreen focus selection", () => {
       imageQuery: `${simpleEx[0].name} exercise`,
     });
     expect(screen.getByRole("button", { pressed: true })).toHaveTextContent("DONE");
+  });
+
+  it("removes today's focus when DONE is unchecked", () => {
+    const onRemoveDailyFocus = vi.fn();
+    render(<Harness onRemoveDailyFocus={onRemoveDailyFocus} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "MARK AS DONE" }));
+    fireEvent.click(screen.getByRole("button", { name: "Not today" }));
+    fireEvent.click(screen.getByRole("button", { pressed: true }));
+
+    expect(onRemoveDailyFocus).toHaveBeenCalledWith(`simple:${simpleEx[0].slug}`);
   });
 });

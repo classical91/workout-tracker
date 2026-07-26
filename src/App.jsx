@@ -6,7 +6,11 @@ import { useDailyReset } from "./hooks/useDailyReset.js";
 import { STORAGE_KEYS } from "./constants/storageKeys.js";
 import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "./constants/activityTypes.js";
 import { localDay } from "./utils/localDay.js";
-import { addDailyFocusToState, dailyFocusesFromState } from "./utils/dailyFocus.js";
+import {
+  addDailyFocusToState,
+  dailyFocusesFromState,
+  removeDailyFocusFromState,
+} from "./utils/dailyFocus.js";
 import { StorageWarning } from "./components/StorageWarning.jsx";
 import { HomeScreen } from "./screens/HomeScreen.jsx";
 import { WorkoutSetsScreen } from "./screens/WorkoutSetsScreen.jsx";
@@ -70,6 +74,10 @@ export default function App() {
   const addDailyFocus = (focus) => {
     const today = localDay();
     setDailyFocusState((previous) => addDailyFocusToState(previous, focus, today));
+  };
+  const removeDailyFocus = (focusId) => {
+    const today = localDay();
+    setDailyFocusState((previous) => removeDailyFocusFromState(previous, focusId, today));
   };
   const {
     log,
@@ -136,6 +144,7 @@ export default function App() {
             onAddActivity={addActivity}
             onUpdateActivity={updateActivity}
             onAddDailyFocus={addDailyFocus}
+            onRemoveDailyFocus={removeDailyFocus}
           />
         );
       case "simple":
@@ -146,6 +155,7 @@ export default function App() {
             checked={checked}
             setChecked={setChecked}
             onAddDailyFocus={addDailyFocus}
+            onRemoveDailyFocus={removeDailyFocus}
           />
         );
       case "simple-exercise":
@@ -159,6 +169,7 @@ export default function App() {
             onAddActivity={addActivity}
             onUpdateActivity={updateActivity}
             onAddDailyFocus={addDailyFocus}
+            onRemoveDailyFocus={removeDailyFocus}
           />
         );
       case "calm":

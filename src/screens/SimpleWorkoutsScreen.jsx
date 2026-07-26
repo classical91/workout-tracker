@@ -13,6 +13,7 @@ export function SimpleWorkoutsScreen({
   checked,
   setChecked,
   onAddDailyFocus,
+  onRemoveDailyFocus,
 }) {
   const color = T.blue;
   const [pendingFocus, setPendingFocus] = useState(null);
@@ -43,7 +44,11 @@ export function SimpleWorkoutsScreen({
               ...previous,
               [`sim-${i}`]: !previous[`sim-${i}`],
             }));
-            if (!isDone) setPendingFocus(simpleExerciseDailyFocus(s));
+            if (!isDone) {
+              setPendingFocus(simpleExerciseDailyFocus(s));
+            } else {
+              onRemoveDailyFocus?.(`simple:${s.slug}`);
+            }
           };
           return (
             <div

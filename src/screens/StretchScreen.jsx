@@ -54,6 +54,7 @@ export function StretchScreen({
   onAddActivity,
   onUpdateActivity,
   onAddDailyFocus,
+  onRemoveDailyFocus,
 }) {
   const done = allItems.filter((item) => checked[stretchCheckKey(item)]).length;
   const previousDone = useRef(done);
@@ -155,8 +156,9 @@ export function StretchScreen({
     }));
     if (willCheck) {
       setPendingFocus({ focus: stretchDailyFocus(item), color });
-    } else if (pendingFocus?.focus.id === `stretch:${item.key}`) {
-      setPendingFocus(null);
+    } else {
+      if (pendingFocus?.focus.id === `stretch:${item.key}`) setPendingFocus(null);
+      onRemoveDailyFocus?.(`stretch:${item.key}`);
     }
   };
 

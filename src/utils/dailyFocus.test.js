@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   addDailyFocusToState,
   dailyFocusesFromState,
+  removeDailyFocusFromState,
   simpleExerciseDailyFocus,
   stretchDailyFocus,
 } from "./dailyFocus.js";
@@ -39,5 +40,21 @@ describe("daily focus helpers", () => {
         "today"
       )
     ).toEqual({ day: "today", focuses: [pushUps] });
+  });
+
+  it("removes only the unchecked focus", () => {
+    const today = "today";
+    const neck = stretchDailyFocus({ key: "neck", name: "Neck" });
+    const pushUps = simpleExerciseDailyFocus({ slug: "push-ups", name: "Push-Ups" });
+
+    expect(
+      removeDailyFocusFromState({ day: today, focuses: [neck, pushUps] }, neck.id, today)
+    ).toEqual({ day: today, focuses: [pushUps] });
+  });
+
+  it("can remove a focus stored in the original single-focus format", () => {
+    expect(
+      removeDailyFocusFromState({ day: "today", name: "Neck" }, "stretch:neck", "today")
+    ).toEqual({ day: "today", focuses: [] });
   });
 });
