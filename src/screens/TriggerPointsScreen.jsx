@@ -1,11 +1,24 @@
+import { useState } from "react";
 import { T, font } from "../theme.js";
 import { triggerPointSections } from "../data/triggerPoints.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
+import { TriggerPointOverview } from "../components/TriggerPointOverview.jsx";
 import { TriggerPointCard } from "../components/TriggerPointCard.jsx";
 import { ManualActivityLog } from "../components/ManualActivityLog.jsx";
 import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
 
 export function TriggerPointsScreen({ onBack, onAddActivity, onUpdateActivity }) {
+  const [selectedPoint, setSelectedPoint] = useState(null);
+
+  const selectPoint = (key) => {
+    setSelectedPoint(key);
+    window.requestAnimationFrame(() => {
+      document
+        .getElementById(`trigger-point-${key}`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    });
+  };
+
   return (
     <div
       style={{
@@ -24,6 +37,7 @@ export function TriggerPointsScreen({ onBack, onAddActivity, onUpdateActivity })
         onBack={onBack}
       />
       <div style={{ maxWidth: 500, margin: "0 auto", padding: "0 20px" }}>
+        <TriggerPointOverview onSelect={selectPoint} />
         <div
           style={{
             background: `${T.red}12`,
@@ -54,7 +68,13 @@ export function TriggerPointsScreen({ onBack, onAddActivity, onUpdateActivity })
               {section.label.toUpperCase()}
             </p>
             {section.items.map((item) => (
-              <TriggerPointCard key={item.key} item={item} section={section} />
+              <TriggerPointCard
+                key={item.key}
+                item={item}
+                section={section}
+                requestedOpen={selectedPoint === item.key}
+                highlighted={selectedPoint === item.key}
+              />
             ))}
           </div>
         ))}

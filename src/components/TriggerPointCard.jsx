@@ -1,22 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { T } from "../theme.js";
 import { triggerPointVideos } from "../data/triggerPoints.js";
 
-export function TriggerPointCard({ item, section }) {
+export function TriggerPointCard({ item, section, requestedOpen = false, highlighted = false }) {
   const [expanded, setExpanded] = useState(false);
   const videoUrl = triggerPointVideos[item.key];
   const imagesUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(
-    `${item.name} trigger point ${item.muscle}`,
+    `${item.name} trigger point ${item.muscle}`
   )}`;
+
+  useEffect(() => {
+    if (requestedOpen) setExpanded(true);
+  }, [requestedOpen]);
 
   return (
     <div
+      id={`trigger-point-${item.key}`}
+      tabIndex={-1}
       style={{
         background: T.surface,
-        border: `1px solid ${T.border}`,
+        border: `1px solid ${highlighted ? section.color : T.border}`,
         borderRadius: 14,
         marginBottom: 8,
         overflow: "hidden",
+        boxShadow: highlighted ? `0 0 0 3px ${section.color}20` : "none",
+        transition: "border-color 0.2s, box-shadow 0.2s",
       }}
     >
       <button
