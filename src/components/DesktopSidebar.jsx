@@ -20,7 +20,9 @@ const groups = [
 
 function normalizedScreen(screen) {
   if (screen === "simple-exercise") return "simple";
-  if (["breathing", "cold-shower", "body-scan", "ohming"].includes(screen)) return "calm";
+  if (["breathing", "calming-foods", "cold-shower", "body-scan", "ohming"].includes(screen)) {
+    return "calm";
+  }
   if (screen === "quick-timer") return "home";
   return screen;
 }
@@ -199,11 +201,7 @@ export function DesktopSidebar({ activeScreen, onNavigate, activeTheme, onThemeC
           >
             🥗 Diet Plan
           </a>
-          <a
-            href={activityById.youtube.url}
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a href={activityById.youtube.url} target="_blank" rel="noreferrer">
             ▶️ Videos
           </a>
         </div>
