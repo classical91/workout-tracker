@@ -1,19 +1,28 @@
-export const T = {
-  bg: "#0A0A0C",
-  surface: "#131315",
-  surface2: "#1A1A1E",
-  border: "#1E1E22",
-  text: "#F0EDE8",
-  muted: "#666",
-  dim: "#3A3A3E",
-  orange: "#FF6B35",
-  yellow: "#FFD93D",
-  purple: "#C77DFF",
-  teal: "#4ECDC4",
-  green: "#2ECC71",
-  blue: "#378ADD",
-  red: "#E74C3C",
-};
+import {
+  DEFAULT_THEME,
+  getStoredThemeName,
+  resolveThemeName,
+  storeThemeName,
+  themeTemplates,
+} from "./themeTemplates.js";
+
+const initialThemeName = getStoredThemeName();
+
+export const T = { ...themeTemplates[initialThemeName].tokens };
 
 export const font = "'DM Sans', sans-serif";
 export const display = "'Bebas Neue', sans-serif";
+
+export { DEFAULT_THEME, themeTemplates };
+
+export function applyTheme(name) {
+  const resolved = resolveThemeName(name);
+  Object.assign(T, themeTemplates[resolved].tokens);
+  return resolved;
+}
+
+export function selectTheme(name) {
+  const resolved = applyTheme(name);
+  storeThemeName(resolved);
+  return resolved;
+}

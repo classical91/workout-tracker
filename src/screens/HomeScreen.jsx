@@ -18,13 +18,14 @@ export function HomeScreen({ onNavigate, onStartTimer, dailyFocuses = [] }) {
       }}
     >
       <div
+        className="home-header"
         style={{
           padding: "36px 20px 20px",
           borderBottom: `1px solid ${T.border}`,
           marginBottom: 20,
         }}
       >
-        <div style={{ maxWidth: 500, margin: "0 auto" }}>
+        <div className="home-header-inner" style={{ maxWidth: 500, margin: "0 auto" }}>
           <p
             style={{
               fontSize: 10,
@@ -41,7 +42,10 @@ export function HomeScreen({ onNavigate, onStartTimer, dailyFocuses = [] }) {
           </h1>
         </div>
       </div>
-      <div style={{ maxWidth: 500, margin: "0 auto", padding: "0 20px" }}>
+      <div
+        className="home-content"
+        style={{ maxWidth: 500, margin: "0 auto", padding: "0 20px" }}
+      >
         {dailyFocuses.length > 0 && (
           <div
             aria-label={dailyFocuses.length === 1 ? "Today's focus" : "Today's focuses"}
@@ -98,7 +102,10 @@ export function HomeScreen({ onNavigate, onStartTimer, dailyFocuses = [] }) {
             })}
           </div>
         )}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div
+          className="home-activity-grid"
+          style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}
+        >
           {activities.map((a) => (
             <ActivityCard key={a.id} activity={a} onSelect={onNavigate} />
           ))}

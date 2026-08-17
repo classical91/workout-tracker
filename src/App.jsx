@@ -12,6 +12,7 @@ import {
   removeDailyFocusFromState,
 } from "./utils/dailyFocus.js";
 import { StorageWarning } from "./components/StorageWarning.jsx";
+import { DesktopSidebar } from "./components/DesktopSidebar.jsx";
 import { HomeScreen } from "./screens/HomeScreen.jsx";
 import { WorkoutSetsScreen } from "./screens/WorkoutSetsScreen.jsx";
 import { StretchScreen } from "./screens/StretchScreen.jsx";
@@ -29,6 +30,8 @@ import { SimpleExerciseScreen } from "./screens/SimpleExerciseScreen.jsx";
 import { WeeklyPlanScreen } from "./screens/WeeklyPlanScreen.jsx";
 import { ExcusesScreen } from "./screens/ExcusesScreen.jsx";
 import { SaunaScreen } from "./screens/SaunaScreen.jsx";
+import { T, selectTheme } from "./theme.js";
+import { getStoredThemeName } from "./themeTemplates.js";
 
 function parseHash() {
   const parts = window.location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
@@ -46,6 +49,7 @@ function toHash(screen, param) {
 export default function App() {
   const [route, setRoute] = useState(parseHash);
   const [timerActivity, setTimerActivity] = useState(null);
+  const [activeTheme, setActiveTheme] = useState(getStoredThemeName);
   const { screen, param } = route;
 
   useEffect(() => {
@@ -60,6 +64,11 @@ export default function App() {
     else window.location.hash = target;
   };
   const setScreen = (next) => navigate(next);
+
+  const changeTheme = (name) => {
+    const selected = selectTheme(name);
+    setActiveTheme(selected);
+  };
 
   const [checked, setChecked, checkedSaveError] = useLocalStorage(STORAGE_KEYS.checked, {});
   const [dailyFocusState, setDailyFocusState, dailyFocusSaveError] = useLocalStorage(
@@ -331,12 +340,20 @@ export default function App() {
   };
 
   return (
-    <>
-      {renderScreen()}
-      {(checkedSaveError ||
-        dailyFocusSaveError ||
-        logSaveError ||
-        customSaveError) && <StorageWarning />}
-    </>
+    <div className="app-shell" style={{ background: T.bg, color: T.text }}>
+      <DesktopSidebar
+        activeScreen={screen}
+        onNavigate={setScreen}
+        activeTheme={activeTheme}
+        onThemeChange={changeTheme}
+      />
+      <main className="app-main">
+        {renderScreen()}
+        {(checkedSaveError ||
+          dailyFocusSaveError ||
+          logSaveError ||
+          customSaveError) && <StorageWarning />}
+      </main>
+    </div>
   );
 }
