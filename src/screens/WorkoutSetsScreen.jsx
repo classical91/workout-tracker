@@ -2,9 +2,14 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { T, font, display } from "../theme.js";
 import {
   workouts as builtInWorkouts,
-  tsStyle,
-  workoutStepKey,
+  clampSetCount,
+  resolvePlan,
+  stepLabel,
+  stepProgress,
   summarizeWorkoutSession,
+  tsStyle,
+  workoutSetKey,
+  workoutUnitKeys,
 } from "../data/workouts.js";
 import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
 import { useLocalStorage } from "../hooks/useLocalStorage.js";
@@ -13,11 +18,15 @@ import { ActivityCompletionForm } from "../components/ActivityCompletionForm.jsx
 import { BackButton } from "../components/BackButton.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
 import { IllusCard } from "../components/IllusCard.jsx";
+import { ExerciseSets } from "../components/ExerciseSets.jsx";
 import { WorkoutBuilder } from "../components/WorkoutBuilder.jsx";
 
 // The user's current local calendar day, used to reset checkmarks at midnight.
 const localDay = () => new Date().toDateString();
 
+// The log entry writes itself from the plan: every exercise carries the sets
+// actually ticked off and the reps they were planned at, so there is nothing to
+// re-enter afterwards.
 function buildWorkoutActivity(workout, summary) {
   return {
     type: ACTIVITY_TYPES.WORKOUT,
@@ -31,7 +40,13 @@ function buildWorkoutActivity(workout, summary) {
       workoutId: workout.id,
       completedSteps: summary.doneCount,
       totalSteps: summary.totalCount,
-      exercises: summary.doneExercises.map((step) => ({ name: step.phase, planned: step.reps })),
+      completedSets: summary.doneUnits,
+      exercises: summary.doneExercises.map((step) => ({
+        name: step.phase,
+        setCount: step.doneCount,
+        plannedSets: step.plan.setCount,
+        reps: step.plan.repCount,
+      })),
     },
   };
 }
@@ -46,6 +61,9 @@ export function WorkoutSetsScreen({
   onAddWorkout,
   onUpdateWorkout,
   onDeleteWorkout,
+  plans = {},
+  onSetPlan,
+  onClearPlans,
 }) {
   const workouts = [...builtInWorkouts, ...customWorkouts];
   const [aw, setAw] = useState(0);
@@ -56,14 +74,17 @@ export function WorkoutSetsScreen({
   // Keep the active index in range if the list shrinks (e.g. a routine is deleted).
   const safeAw = Math.min(aw, workouts.length - 1);
   const w = workouts[safeAw];
-  const stepKey = (si) => workoutStepKey(w.id, si);
-  const doneSteps = w.steps.filter((_, si) => checked[stepKey(si)]).length;
-  const doneEx = w.steps.filter((s, si) => s.type === "exercise" && checked[stepKey(si)]).length;
+  // Progress is counted in sets, not steps: an exercise planned at three sets
+  // contributes three checks, so finishing two of them shows as two-thirds.
+  const unitKeys = workoutUnitKeys(w, plans);
+  const doneUnits = unitKeys.filter((key) => checked[key]).length;
+  const totalUnits = unitKeys.length;
+  const doneEx = w.steps.filter(
+    (step, si) => step.type === "exercise" && stepProgress(w, si, checked, plans).done
+  ).length;
   const totalEx = w.steps.filter((s) => s.type === "exercise").length;
-  const pct = Math.round((doneSteps / w.steps.length) * 100);
-  const allDone = workouts.map((wk) =>
-    wk.steps.every((_, si) => checked[workoutStepKey(wk.id, si)])
-  );
+  const pct = totalUnits ? Math.round((doneUnits / totalUnits) * 100) : 0;
+  const allDone = workouts.map((wk) => workoutUnitKeys(wk, plans).every((key) => checked[key]));
   const isCustom = safeAw >= builtInWorkouts.length;
 
   const [completedActivity, setCompletedActivity] = useState(null);
@@ -77,11 +98,9 @@ export function WorkoutSetsScreen({
   });
   // Checked-but-unlogged steps for the active workout, so a partial routine can
   // be logged from the button and the button hides when nothing is new.
-  const unloggedCount = w.steps.filter(
-    (_, si) => checked[stepKey(si)] && !session.logged?.[stepKey(si)]
-  ).length;
+  const unloggedCount = unitKeys.filter((key) => checked[key] && !session.logged?.[key]).length;
 
-  // Track the previous done-count per workout id so a routine is logged once
+  // Track the previous done-set count per workout id so a routine is logged once
   // when it crosses into fully complete, without re-logging when switching away
   // and back. A workout's first appearance seeds its prior value with the
   // current count so navigating straight to an already-complete routine doesn't
@@ -98,6 +117,8 @@ export function WorkoutSetsScreen({
   workoutsRef.current = workouts;
   const setSessionRef = useRef(setSession);
   setSessionRef.current = setSession;
+  const plansRef = useRef(plans);
+  plansRef.current = plans;
   // Source of truth for "already logged today", mirrored into state for render.
   const loggedRef = useRef(session.logged || {});
 
@@ -107,14 +128,13 @@ export function WorkoutSetsScreen({
   const logWorkout = useCallback((workout) => {
     const current = checkedRef.current || {};
     const logged = loggedRef.current;
-    const pendingKeys = [];
-    workout.steps.forEach((_, si) => {
-      const key = workoutStepKey(workout.id, si);
-      if (current[key] && !logged[key]) pendingKeys.push(key);
-    });
+    const activePlans = plansRef.current;
+    const pendingKeys = workoutUnitKeys(workout, activePlans).filter(
+      (key) => current[key] && !logged[key]
+    );
     if (pendingKeys.length === 0) return null;
     const pendingChecked = Object.fromEntries(pendingKeys.map((key) => [key, true]));
-    const summary = summarizeWorkoutSession(workout, pendingChecked);
+    const summary = summarizeWorkoutSession(workout, pendingChecked, activePlans);
     const activity = addActivityRef.current(buildWorkoutActivity(workout, summary));
     const nextLogged = { ...logged };
     for (const key of pendingKeys) nextLogged[key] = true;
@@ -140,13 +160,13 @@ export function WorkoutSetsScreen({
   // Auto-log the moment a workout is finished, unless a form is already open
   // (which would double-fire on checks made while it's up).
   useEffect(() => {
-    const prior = w.id in prevDone.current ? prevDone.current[w.id] : doneSteps;
-    if (!completedActivity && doneSteps === w.steps.length && prior < w.steps.length) {
+    const prior = w.id in prevDone.current ? prevDone.current[w.id] : doneUnits;
+    if (!completedActivity && totalUnits > 0 && doneUnits === totalUnits && prior < totalUnits) {
       const activity = logWorkout(w);
       if (activity) setCompletedActivity(activity);
     }
-    prevDone.current[w.id] = doneSteps;
-  }, [doneSteps, w, completedActivity, logWorkout]);
+    prevDone.current[w.id] = doneUnits;
+  }, [doneUnits, totalUnits, w, completedActivity, logWorkout]);
 
   // Roll the checkmarks over at local midnight: on the first render of a new
   // day, clear the workout checkmarks and forget what was logged. On first-ever
@@ -190,13 +210,36 @@ export function WorkoutSetsScreen({
     setCompletedActivity(null);
   }, [w.id]);
 
-  // Clear any saved checklist progress for a routine (its steps may have changed).
-  const clearProgress = (workout) =>
+  // Clear a routine's saved checkmarks and sets/reps plans — its steps may have
+  // changed, so neither its progress nor the old line-up's numbers still apply.
+  const clearProgress = (workout) => {
     setChecked((prev) => {
       const next = { ...prev };
-      workout.steps.forEach((_, si) => delete next[`w-${workout.id}-${si}`]);
+      for (const key of Object.keys(next)) {
+        if (key === `w-${workout.id}` || key.startsWith(`w-${workout.id}-`)) delete next[key];
+      }
       return next;
     });
+    onClearPlans?.(workout.id);
+  };
+
+  const toggleUnit = (key) => setChecked((previous) => ({ ...previous, [key]: !previous[key] }));
+
+  // Changing a plan mid-session must not leave orphaned checkmarks behind: if
+  // the set count drops, the checks for the sets that no longer exist go too.
+  const changePlan = (stepIndex, nextPlan) => {
+    const current = resolvePlan(w, stepIndex, plans);
+    const nextSetCount = clampSetCount(nextPlan.setCount, current.setCount);
+    onSetPlan?.(w.id, stepIndex, { ...nextPlan, setCount: nextSetCount });
+    if (nextSetCount >= current.setCount) return;
+    setChecked((previous) => {
+      const next = { ...previous };
+      for (let index = nextSetCount; index < current.setCount; index += 1) {
+        delete next[workoutSetKey(w.id, stepIndex, index)];
+      }
+      return next;
+    });
+  };
 
   const handleSave = (workout) => {
     onAddWorkout(workout);
@@ -400,19 +443,22 @@ export function WorkoutSetsScreen({
           </div>
         </div>
         {w.steps.map((step, si) => {
-          const key = stepKey(si);
-          const done = !!checked[key];
           const ts = tsStyle[step.type];
           const ac = ts.ac || w.color;
+          const plan = resolvePlan(w, si, plans);
+          const progress = stepProgress(w, si, checked, plans);
           return (
             <IllusCard
               key={`${w.id}-${si}`}
               label={step.phase}
               detail={step.detail}
-              reps={step.reps}
-              done={done}
+              reps={stepLabel(w, si, plans)}
+              done={progress.done}
+              progressLabel={progress.doneCount > 0 ? String(progress.doneCount) : undefined}
               color={ac}
-              onToggle={() => setChecked((p) => ({ ...p, [key]: !p[key] }))}
+              // Exercises are ticked off set by set below; warm-up and
+              // cool-down stay a single check on the card itself.
+              onToggle={plan ? undefined : () => toggleUnit(progress.keys[0])}
               illusKey={step.phase}
               image={step.image}
               link={
@@ -422,7 +468,19 @@ export function WorkoutSetsScreen({
                     )}`
                   : undefined
               }
-            />
+            >
+              {plan && (
+                <ExerciseSets
+                  label={step.phase}
+                  plan={plan}
+                  unit={step.repUnit || "set"}
+                  doneSets={progress.keys.map((key) => Boolean(checked[key]))}
+                  color={ac}
+                  onToggleSet={(index) => toggleUnit(progress.keys[index])}
+                  onChangePlan={(next) => changePlan(si, next)}
+                />
+              )}
+            </IllusCard>
           );
         })}
         {pct === 100 && <CompletionBanner color={w.color} emoji="🎉" text="WORKOUT COMPLETE!" />}
@@ -444,7 +502,7 @@ export function WorkoutSetsScreen({
               cursor: "pointer",
             }}
           >
-            Log this session ({unloggedCount} of {w.steps.length})
+            Log this session ({unloggedCount} of {totalUnits})
           </button>
         )}
         {completedActivity && (

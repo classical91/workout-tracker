@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { T } from "../theme.js";
 
+// `onToggle` is optional: a card whose progress is tracked elsewhere (an
+// exercise ticked off one set at a time, via `children`) shows its state in the
+// header without the whole header being a checkbox.
 export function IllusCard({
   label,
   muscles,
@@ -13,9 +16,15 @@ export function IllusCard({
   IllusMap,
   image,
   link,
+  children,
+  // Shown inside the checkbox while a card is part-way done (e.g. "2" of three
+  // sets ticked off), so the header reflects progress it no longer toggles.
+  progressLabel,
 }) {
   const [open, setOpen] = useState(false);
   const Illus = image || (IllusMap && IllusMap[illusKey]);
+  const Header = onToggle ? "button" : "div";
+  const headerProps = onToggle ? { type: "button", "aria-pressed": done, onClick: onToggle } : {};
 
   return (
     <div
@@ -27,17 +36,16 @@ export function IllusCard({
         overflow: "hidden",
       }}
     >
-      <button
-        type="button"
-        aria-pressed={done}
-        onClick={onToggle}
+      <Header
+        {...headerProps}
         style={{
           display: "flex",
           gap: 14,
           alignItems: "flex-start",
           padding: "14px 16px",
-          cursor: "pointer",
+          cursor: onToggle ? "pointer" : "default",
           width: "100%",
+          boxSizing: "border-box",
           background: "transparent",
           border: "none",
           color: T.text,
@@ -61,6 +69,9 @@ export function IllusCard({
           }}
         >
           {done && <span style={{ fontSize: 13, color: "#000", fontWeight: 800 }}>✓</span>}
+          {!done && progressLabel && (
+            <span style={{ fontSize: 12, color, fontWeight: 800 }}>{progressLabel}</span>
+          )}
         </span>
         <span style={{ flex: 1 }}>
           <span
@@ -115,7 +126,9 @@ export function IllusCard({
             {detail}
           </span>
         </span>
-      </button>
+      </Header>
+
+      {children}
 
       {(link || Illus) && (
         <div

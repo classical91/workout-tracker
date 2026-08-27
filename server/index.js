@@ -3,19 +3,22 @@
 // It does two jobs:
 //   1. Serves the built static app from ../dist (single-page app).
 //   2. Exposes a small "sync by code" API so a person can see the same activity
-//      log on their phone and their desktop. There are no accounts: anyone who
-//      knows a code shares that code's log. Pick something unguessable.
+//      log, sets/reps plans, and custom routines on their phone and their
+//      desktop. There are no accounts: anyone who knows a code shares that
+//      code's data. Pick something unguessable.
 //
-// Storage is one JSON file per code under DATA_DIR. On a platform with an
-// ephemeral filesystem (e.g. Railway without a volume) the data survives while
-// the container is alive but resets on redeploy — mount a persistent volume at
-// DATA_DIR to keep logs across deploys.
+// Storage is Postgres when DATABASE_URL is set, and one JSON file per code under
+// DATA_DIR otherwise (see server/store.js). Prefer Postgres in production: on a
+// platform with an ephemeral filesystem (e.g. Railway without a volume) the file
+// store survives while the container is alive but resets on redeploy.
 
 import http from "node:http";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { mergeActivityLogs } from "../src/utils/mergeActivityLog.js";
+import { mergeSyncDocs } from "../src/utils/mergeSyncDocs.js";
+import { createStore } from "./store.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -23,6 +26,9 @@ const DIST_DIR = path.join(ROOT, "dist");
 const DATA_DIR = path.resolve(process.env.DATA_DIR || path.join(ROOT, "data"));
 const PORT = Number(process.env.PORT) || 3000;
 const MAX_BODY_BYTES = 5 * 1024 * 1024; // 5 MB — generous for a personal log.
+
+// Postgres when DATABASE_URL is set, JSON files under DATA_DIR otherwise.
+const store = await createStore({ dataDir: DATA_DIR });
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -47,45 +53,6 @@ const MIME_TYPES = {
 function normalizeCode(raw) {
   const code = String(raw || "").trim().toLowerCase();
   return /^[a-z0-9][a-z0-9-]{3,63}$/.test(code) ? code : null;
-}
-
-// Serialize writes for a given code so two near-simultaneous PUTs can't
-// clobber each other (read-modify-write race).
-const codeLocks = new Map();
-function withCodeLock(code, task) {
-  const previous = codeLocks.get(code) || Promise.resolve();
-  const next = previous.then(task, task);
-  // Keep the chain alive but don't let a rejection poison later callers.
-  codeLocks.set(
-    code,
-    next.catch(() => {})
-  );
-  return next;
-}
-
-function dataFileFor(code) {
-  return path.join(DATA_DIR, `${code}.json`);
-}
-
-async function readStoredLog(code) {
-  try {
-    const raw = await fs.readFile(dataFileFor(code), "utf8");
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed?.log) ? parsed.log : [];
-  } catch (error) {
-    if (error.code === "ENOENT") return [];
-    throw error;
-  }
-}
-
-async function writeStoredLog(code, log) {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-  const payload = JSON.stringify({ log, updatedAt: Date.now() });
-  const target = dataFileFor(code);
-  const tmp = `${target}.${process.pid}.${Date.now()}.tmp`;
-  // Write to a temp file then rename so a crash mid-write can't corrupt data.
-  await fs.writeFile(tmp, payload);
-  await fs.rename(tmp, target);
 }
 
 function sendJson(res, status, body) {
@@ -115,10 +82,24 @@ function readBody(req) {
   });
 }
 
+// A PUT body may be a bare log array or `{ log }` (what older app versions
+// sent), or `{ log, docs }` — docs being the sets/reps plans and the custom
+// routines, each `{ value, updatedAt }`.
+function parseSyncBody(raw) {
+  const parsed = raw ? JSON.parse(raw) : {};
+  if (Array.isArray(parsed)) return { log: parsed, docs: {} };
+  if (!parsed || typeof parsed !== "object") return null;
+  if (!Array.isArray(parsed.log)) return null;
+  return {
+    log: parsed.log,
+    docs: parsed.docs && typeof parsed.docs === "object" ? parsed.docs : {},
+  };
+}
+
 async function handleSync(req, res, code) {
   if (req.method === "GET") {
-    const log = await readStoredLog(code);
-    sendJson(res, 200, { log });
+    const record = await store.read(code);
+    sendJson(res, 200, record);
     return;
   }
 
@@ -126,24 +107,21 @@ async function handleSync(req, res, code) {
     const raw = await readBody(req);
     let incoming;
     try {
-      const parsed = raw ? JSON.parse(raw) : {};
-      incoming = Array.isArray(parsed) ? parsed : parsed.log;
+      incoming = parseSyncBody(raw);
     } catch {
       sendJson(res, 400, { error: "Invalid JSON body" });
       return;
     }
-    if (!Array.isArray(incoming)) {
-      sendJson(res, 400, { error: "Body must be a log array or { log: [...] }" });
+    if (!incoming) {
+      sendJson(res, 400, { error: "Body must be a log array or { log: [...], docs: {...} }" });
       return;
     }
 
-    const merged = await withCodeLock(code, async () => {
-      const stored = await readStoredLog(code);
-      const result = mergeActivityLogs(stored, incoming);
-      await writeStoredLog(code, result);
-      return result;
-    });
-    sendJson(res, 200, { log: merged });
+    const merged = await store.update(code, (stored) => ({
+      log: mergeActivityLogs(stored.log, incoming.log),
+      docs: mergeSyncDocs(stored.docs, incoming.docs),
+    }));
+    sendJson(res, 200, merged);
     return;
   }
 
@@ -223,5 +201,5 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   // eslint-disable-next-line no-console
-  console.log(`Wellness Tracker listening on :${PORT} (data dir: ${DATA_DIR})`);
+  console.log(`Wellness Tracker listening on :${PORT} (storage: ${store.description})`);
 });

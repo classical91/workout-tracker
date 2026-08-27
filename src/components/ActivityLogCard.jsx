@@ -57,8 +57,10 @@ function DetailSummary({ entry }) {
       const sets = exercise.setCount || exercise.sets?.length;
       const weight = exercise.weight ?? exercise.sets?.find((set) => set.weight)?.weight;
       const unit = exercise.weightUnit || exercise.sets?.find((set) => set.weightUnit)?.weightUnit;
+      const reps = exercise.reps;
+      const setsLine = sets && reps ? `${sets} × ${reps}` : sets ? `${sets} sets` : null;
       const summary = [
-        sets ? `${sets} sets` : exercise.planned,
+        setsLine || exercise.planned,
         weight ? `${weight} ${unit || "lb"}` : null,
       ]
         .filter(Boolean)

@@ -1,5 +1,14 @@
 import { useState } from "react";
 import { T, font, display } from "../theme.js";
+import {
+  DEFAULT_REP_COUNT,
+  DEFAULT_SET_COUNT,
+  MAX_REP_COUNT,
+  MAX_SET_COUNT,
+  clampRepCount,
+  clampSetCount,
+  stepPlanDefaults,
+} from "../data/workouts.js";
 import { BackButton } from "./BackButton.jsx";
 
 const COLORS = [T.orange, T.yellow, T.purple, T.teal, T.green, T.blue, T.red];
@@ -18,21 +27,25 @@ const inputStyle = (accent) => ({
 });
 
 function emptyExercise() {
-  return { phase: "", reps: "" };
+  return { phase: "", setCount: DEFAULT_SET_COUNT, repCount: DEFAULT_REP_COUNT };
 }
 
-// Pull the editable exercise rows (name + reps) out of a routine's steps,
-// dropping the auto warm-up/cool-down that get re-added on save.
+// Pull the editable exercise rows out of a routine's steps, dropping the auto
+// warm-up/cool-down that get re-added on save.
 function exercisesFromWorkout(workout) {
   const rows = workout.steps
     .filter((s) => s.type === "exercise")
-    .map((s) => ({ phase: s.phase, reps: s.reps }));
+    .map((s) => {
+      const plan = stepPlanDefaults(s);
+      return { phase: s.phase, setCount: plan.setCount, repCount: plan.repCount };
+    });
   return rows.length ? rows : [emptyExercise(), emptyExercise()];
 }
 
 // Form for creating or editing a custom routine. Collects a title, emoji, accent
-// color, and a list of exercises, then hands a fully-formed workout (with an auto
-// Warm-Up and Cool-Down, matching built-in routines) to onSave. When `initial`
+// color, and a list of exercises — for each exercise only its name, how many
+// sets, and how many reps per set — then hands a fully-formed workout (with an
+// auto Warm-Up and Cool-Down, matching built-in routines) to onSave. When `initial`
 // is provided the form is pre-filled and acts as an editor; otherwise it creates
 // a new routine.
 export function WorkoutBuilder({ onSave, onCancel, count, initial }) {
@@ -67,7 +80,8 @@ export function WorkoutBuilder({ onSave, onCancel, count, initial }) {
       { phase: "Warm-Up", reps: "5–10 min", detail: "Light cardio to warm up", type: "warmup" },
       ...named.map((e) => ({
         phase: e.phase.trim(),
-        reps: e.reps.trim() || "3 × 12",
+        setCount: clampSetCount(e.setCount),
+        repCount: clampRepCount(e.repCount),
         detail: "",
         type: "exercise",
       })),
@@ -159,67 +173,106 @@ export function WorkoutBuilder({ onSave, onCancel, count, initial }) {
         <p style={{ fontSize: 10, letterSpacing: 2, color: T.muted, fontWeight: 700 }}>EXERCISES</p>
         <div style={{ margin: "8px 0 0" }}>
           {exercises.map((ex, i) => (
-            <div key={i} style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 8 }}>
-              <input
-                value={ex.phase}
-                onChange={(e) => updateExercise(i, "phase", e.target.value)}
-                placeholder="Exercise name"
-                style={{ ...inputStyle(color), flex: 2 }}
-              />
-              <input
-                value={ex.reps}
-                onChange={(e) => updateExercise(i, "reps", e.target.value)}
-                placeholder="3 × 12"
-                style={{ ...inputStyle(color), flex: 1 }}
-              />
-              <button
-                onClick={() => moveRow(i, -1)}
-                aria-label="move exercise up"
-                disabled={i === 0}
+            <div
+              key={i}
+              style={{
+                border: `1px solid ${T.border}`,
+                borderRadius: 12,
+                padding: "10px 12px",
+                marginBottom: 8,
+              }}
+            >
+              <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <input
+                  value={ex.phase}
+                  onChange={(e) => updateExercise(i, "phase", e.target.value)}
+                  placeholder="Exercise name"
+                  style={{ ...inputStyle(color), flex: 1 }}
+                />
+                <button
+                  onClick={() => moveRow(i, -1)}
+                  aria-label="move exercise up"
+                  disabled={i === 0}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: T.muted,
+                    cursor: i === 0 ? "default" : "pointer",
+                    fontSize: 14,
+                    opacity: i === 0 ? 0.25 : 1,
+                    padding: "0 2px",
+                  }}
+                >
+                  ▲
+                </button>
+                <button
+                  onClick={() => moveRow(i, 1)}
+                  aria-label="move exercise down"
+                  disabled={i === exercises.length - 1}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: T.muted,
+                    cursor: i === exercises.length - 1 ? "default" : "pointer",
+                    fontSize: 14,
+                    opacity: i === exercises.length - 1 ? 0.25 : 1,
+                    padding: "0 2px",
+                  }}
+                >
+                  ▼
+                </button>
+                <button
+                  onClick={() => removeRow(i)}
+                  aria-label="remove exercise"
+                  disabled={exercises.length === 1}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: T.muted,
+                    cursor: exercises.length === 1 ? "default" : "pointer",
+                    fontSize: 18,
+                    opacity: exercises.length === 1 ? 0.3 : 1,
+                    padding: "0 4px",
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+              <div
                 style={{
-                  background: "none",
-                  border: "none",
-                  color: T.muted,
-                  cursor: i === 0 ? "default" : "pointer",
-                  fontSize: 14,
-                  opacity: i === 0 ? 0.25 : 1,
-                  padding: "0 2px",
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 8,
+                  marginTop: 8,
                 }}
               >
-                ▲
-              </button>
-              <button
-                onClick={() => moveRow(i, 1)}
-                aria-label="move exercise down"
-                disabled={i === exercises.length - 1}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: T.muted,
-                  cursor: i === exercises.length - 1 ? "default" : "pointer",
-                  fontSize: 14,
-                  opacity: i === exercises.length - 1 ? 0.25 : 1,
-                  padding: "0 2px",
-                }}
-              >
-                ▼
-              </button>
-              <button
-                onClick={() => removeRow(i)}
-                aria-label="remove exercise"
-                disabled={exercises.length === 1}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: T.muted,
-                  cursor: exercises.length === 1 ? "default" : "pointer",
-                  fontSize: 18,
-                  opacity: exercises.length === 1 ? 0.3 : 1,
-                  padding: "0 4px",
-                }}
-              >
-                ✕
-              </button>
+                <label style={{ display: "grid", gap: 4, fontSize: 10, color: T.muted }}>
+                  How many sets?
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min="1"
+                    max={MAX_SET_COUNT}
+                    aria-label={`sets for exercise ${i + 1}`}
+                    value={ex.setCount}
+                    onChange={(e) => updateExercise(i, "setCount", e.target.value)}
+                    style={inputStyle(color)}
+                  />
+                </label>
+                <label style={{ display: "grid", gap: 4, fontSize: 10, color: T.muted }}>
+                  Reps per set
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min="1"
+                    max={MAX_REP_COUNT}
+                    aria-label={`reps per set for exercise ${i + 1}`}
+                    value={ex.repCount}
+                    onChange={(e) => updateExercise(i, "repCount", e.target.value)}
+                    style={inputStyle(color)}
+                  />
+                </label>
+              </div>
             </div>
           ))}
         </div>
@@ -242,7 +295,8 @@ export function WorkoutBuilder({ onSave, onCancel, count, initial }) {
         </button>
 
         <div style={{ marginTop: 24, fontSize: 11, color: T.dim }}>
-          A warm-up and cool-down are added automatically.
+          A warm-up and cool-down are added automatically. You&apos;ll tick off each set as you
+          finish it — three sets means three checks.
         </div>
 
         <button

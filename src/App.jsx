@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocalStorage } from "./hooks/useLocalStorage.js";
 import { useActivityLog } from "./hooks/useActivityLog.js";
 import { useCustomWorkouts } from "./hooks/useCustomWorkouts.js";
+import { useWorkoutPlans } from "./hooks/useWorkoutPlans.js";
 import { useDailyReset } from "./hooks/useDailyReset.js";
 import { STORAGE_KEYS } from "./constants/storageKeys.js";
 import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "./constants/activityTypes.js";
@@ -89,6 +90,24 @@ export default function App() {
     setDailyFocusState((previous) => removeDailyFocusFromState(previous, focusId, today));
   };
   const {
+    customWorkouts,
+    addWorkout,
+    updateWorkout,
+    deleteWorkout,
+    doc: customWorkoutsDoc,
+    saveError: customSaveError,
+  } = useCustomWorkouts();
+  const {
+    plans,
+    setPlan,
+    clearPlans,
+    doc: plansDoc,
+    saveError: plansSaveError,
+  } = useWorkoutPlans();
+  // The sets/reps plans and the custom routines ride along with the activity
+  // log on every sync, so a routine built on the phone (and the numbers set for
+  // it) is there on the desktop.
+  const {
     log,
     addActivity,
     updateActivity,
@@ -97,14 +116,7 @@ export default function App() {
     clearToday,
     saveError: logSaveError,
     sync,
-  } = useActivityLog();
-  const {
-    customWorkouts,
-    addWorkout,
-    updateWorkout,
-    deleteWorkout,
-    saveError: customSaveError,
-  } = useCustomWorkouts();
+  } = useActivityLog({ docs: { plans: plansDoc, customWorkouts: customWorkoutsDoc } });
 
   const goHome = () => setScreen("home");
   const goCalm = () => setScreen("calm");
@@ -138,6 +150,9 @@ export default function App() {
             onAddWorkout={addWorkout}
             onUpdateWorkout={updateWorkout}
             onDeleteWorkout={deleteWorkout}
+            plans={plans}
+            onSetPlan={setPlan}
+            onClearPlans={clearPlans}
           />
         );
       case "weekly-plan":
@@ -352,7 +367,8 @@ export default function App() {
         {(checkedSaveError ||
           dailyFocusSaveError ||
           logSaveError ||
-          customSaveError) && <StorageWarning />}
+          customSaveError ||
+          plansSaveError) && <StorageWarning />}
       </main>
     </div>
   );
