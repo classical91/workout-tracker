@@ -112,7 +112,7 @@ export function HomeScreen({ onNavigate, onStartTimer, dailyFocuses = [] }) {
         </div>
         <QuickLog onStart={onStartTimer} />
         <a
-          href="https://diet-plan-production-30bd.up.railway.app"
+          href="https://nutri-mind-production-d054.up.railway.app/work-meals"
           target="_blank"
           rel="noreferrer"
           style={{
@@ -135,7 +135,7 @@ export function HomeScreen({ onNavigate, onStartTimer, dailyFocuses = [] }) {
             maxWidth: "260px",
           }}
         >
-          🥗 Go to Diet Plan
+          🥗 View Daily Meal Plan
         </a>
       </div>
     </div>
