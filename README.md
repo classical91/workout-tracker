@@ -2,13 +2,13 @@
 
 ## Overview
 
-Wellness Tracker is a single-page wellness app built with React. It provides guided workout/checklist screens, timers, breathing patterns, recovery guides (foam rolling + trigger points), and an activity log persisted in browser `localStorage`. The React app is bundled with Vite into a static `dist/`, which is served by a tiny zero-dependency Node server (`server/index.js`). That server also exposes an optional "sync by code" API so the activity log can be shared across a user's devices; without a sync code the app is fully local and works offline.
+Wellness Tracker is a single-page wellness app built with React. It provides guided workout/checklist screens, timers, breathing patterns, recovery guides (foam rolling + trigger points), and an activity log persisted in browser `localStorage`. The React app is bundled with Vite into a static `dist/`, which is served by a small Node server (`server/index.js`). That server also exposes an optional "sync by code" API so the activity log, the sets/reps plans, and custom routines can be shared across a user's devices — backed by Postgres when `DATABASE_URL` is set, and by JSON files otherwise. Without a sync code the app is fully local and works offline.
 
 ## Project Type
 
 - **Type:** Frontend SPA / static site
 - **Build system:** Vite
-- **Runtime model in active scripts:** static `dist/` plus a small sync API, served by `node server/index.js`
+- **Runtime model in active scripts:** static `dist/` plus a small sync API, served by `node server/index.js` (Postgres-backed when `DATABASE_URL` is set)
 - **Repository shape:** single-package repo (not a monorepo)
 
 ## Current Features (from code)
@@ -25,7 +25,9 @@ Wellness Tracker is a single-page wellness app built with React. It provides gui
   - Trigger Points
   - Progress (stats)
   - Exercise Log
-- Workout Sets flow with three predefined dumbbell routines and per-step completion state, plus user-created custom routines (build via the "New" tab, run through the same checklist, edit or delete when done). The builder supports reordering exercises with up/down controls, and deleting a routine asks for confirmation first. Custom routines persist in `localStorage` (`wellness_custom_workouts`) and checklist progress is keyed by a stable workout id so adding, editing, or deleting one routine never shifts another's saved progress. Editing a routine clears its own checklist progress, since its steps may have changed.
+- Workout Sets flow with three predefined dumbbell routines and user-created custom routines (build via the "New" tab, run through the same checklist, edit or delete when done). The builder supports reordering exercises with up/down controls, and deleting a routine asks for confirmation first. Custom routines persist in `localStorage` (`wellness_custom_workouts`) and checklist progress is keyed by a stable workout id so adding, editing, or deleting one routine never shifts another's saved progress. Editing a routine clears its own checklist progress and its saved plans, since its steps may have changed.
+- **Sets and reps are planned up front, then ticked off set by set.** Every exercise carries a plan — how many sets you intend to do and how many reps per set — shown on the step as `3 × 12`. The exercise is not one checkbox: it renders one check per planned set, so three sets means three taps, each confirming a set you just finished. Adding an exercise in the builder asks for exactly two numbers (sets, reps per set), and the same numbers can be adjusted on any exercise — built-in routines included — from the "✎ SETS & REPS" control on its card. Shrinking the set count drops the checkmarks of the sets that no longer exist. Plans live in `localStorage` (`wellness_workout_plans`), keyed by workout id + step index, and sync across devices. See `src/data/workouts.js` (plan model), `src/components/ExerciseSets.jsx`, and `src/hooks/useWorkoutPlans.js`.
+- Session logging is set-aware: progress is counted in sets, a partially finished exercise logs the sets actually completed, and each logged exercise carries its sets and planned reps, so the log fills itself in instead of asking you to re-type what you just did.
 - Stretch checklist grouped by body regions.
 - Simple bodyweight workouts checklist.
 - Foam roller technique checklist with tips.
@@ -39,9 +41,10 @@ Wellness Tracker is a single-page wellness app built with React. It provides gui
   - `wellness_checked`
   - `wellness_log`
   - `wellness_custom_workouts`
+  - `wellness_workout_plans`
   - `wellness_sync_code`
 - A non-blocking warning banner if `localStorage` writes fail (storage full, disabled, or private browsing), so progress is never lost silently.
-- **Cross-device sync (optional):** the activity log is local by default, but you can connect a device to a shared **sync code** (Activity Log → “Sync across devices”). Enter the same code on your phone and desktop and the log stays in sync through a lightweight server API (`/api/sync/:code`). There are no accounts — the code is the shared key, so pick something only you would guess. Merges are conflict-safe (newest edit per entry wins) and deletions propagate via tombstones, so nothing is silently overwritten or resurrected. See `src/hooks/useCloudSync.js`, `src/utils/mergeActivityLog.js`, and `server/index.js`.
+- **Cross-device sync (optional):** your data is local by default, but you can connect a device to a shared **sync code** (Activity Log → “Sync across devices”). Enter the same code on your phone and desktop and three things stay in sync through the server API (`/api/sync/:code`): the activity log, the sets/reps plans, and your custom routines. There are no accounts — the code is the shared key, so pick something only you would guess (the server stores only its SHA-256 hash). The log merges entry by entry (newest edit wins) with deletions propagating via tombstones; plans and custom routines are whole documents, so the most recently edited copy wins. Nothing is silently overwritten or resurrected. See `src/hooks/useCloudSync.js`, `src/hooks/useSyncedDoc.js`, `src/utils/mergeActivityLog.js`, `src/utils/mergeSyncDocs.js`, `server/store.js`, and `server/index.js`.
 - External “Go to Diet Plan” link on the home screen.
 
 ## Tech Stack
@@ -97,9 +100,18 @@ No required app-specific environment variables are read by frontend code.
 For hosting/runtime, these may be relevant:
 
 - `PORT` (optional) — port the server listens on (default `3000`).
-- `DATA_DIR` (optional) — directory where synced logs are stored as one JSON file
-  per code (default `./data`, set to `/app/data` in the Docker image). Point this
-  at a persistent volume in production so synced logs survive redeploys.
+- `DATABASE_URL` (optional, recommended in production) — Postgres connection
+  string. When set, synced data is stored in Postgres (table `wellness_sync`,
+  created on first use; see `migrations/001_create_wellness_sync.sql`) and
+  survives redeploys with no volume to manage. TLS is enabled automatically for
+  anything that isn't a localhost URL. If the database can't be reached at
+  startup the server logs a warning and falls back to file storage rather than
+  refusing to boot.
+- `DATA_DIR` (optional) — used only when `DATABASE_URL` is unset: directory where
+  synced data is stored as one JSON file per code (default `./data`, set to
+  `/app/data` in the Docker image). Point this at a persistent volume if you run
+  without Postgres, otherwise a redeploy wipes it.
+- `PGPOOL_MAX` (optional) — Postgres pool size (default `5`).
 
 Use placeholders in deployment systems as needed, for example:
 
@@ -109,17 +121,20 @@ Use placeholders in deployment systems as needed, for example:
 
 - `railway.json` points Railway to build using the repository `Dockerfile`.
 - `Dockerfile` is a multi-stage build: it runs `npm ci && npm run build` inside the
-  container, then copies the freshly generated `dist/`, the `server/` code, and the
-  shared merge util into a minimal runtime image started with `node server/index.js`.
-  It does **not** depend on a prebuilt `dist/` from the repo.
+  container, then installs production dependencies (`pg`) and copies the freshly
+  generated `dist/`, the `server/` code, and the shared merge utils into a minimal
+  runtime image started with `node server/index.js`. It does **not** depend on a
+  prebuilt `dist/` from the repo.
 - `nixpacks.toml` defines a start command of `node server/index.js`. Railway uses
   the Dockerfile, so this only matters if you switch builders.
 - The canonical path is: **Vite build → static `dist/` + sync API → `node server/index.js`**.
-- **Persistent sync storage:** synced logs are written under `DATA_DIR`. On a
-  platform with an ephemeral filesystem (e.g. Railway without a volume) they survive
-  while the container is alive but reset on redeploy. To keep synced logs across
-  deploys, attach a persistent volume and mount it at `DATA_DIR` (`/app/data` in the
-  image). Local-only use (no sync code) needs no volume.
+- **Persistent sync storage:** set `DATABASE_URL` (Railway → add a Postgres
+  database; it injects the variable) and synced data lives in Postgres, surviving
+  redeploys with nothing to mount. Without it the server falls back to JSON files
+  under `DATA_DIR`, which on a platform with an ephemeral filesystem survive while
+  the container is alive but reset on redeploy — attach a volume mounted at
+  `DATA_DIR` (`/app/data` in the image) if you go that route. Local-only use (no
+  sync code) needs neither.
 
 ## Folder Structure
 
@@ -163,10 +178,15 @@ Use placeholders in deployment systems as needed, for example:
   2. corresponding screen component in `src/screens/`
   3. screen switch logic in `App.jsx`
 - If changing deploy docs, cross-check `Dockerfile`, `railway.json`, and `nixpacks.toml` together.
-- Avoid claiming backend/API functionality; this is a static frontend with no server.
+- The sync API is the one piece of backend: keep `src/utils/mergeActivityLog.js` and
+  `src/utils/mergeSyncDocs.js` import-free so the browser and the server keep
+  resolving conflicts identically, and add any new file they need to the runtime
+  stage of the `Dockerfile`.
 
 ## Known Limitations / TODOs visible in code
 
-- App data and progress live only in browser storage; no account sync or backend persistence.
+- App data and progress live in browser storage by default. There are still no
+  accounts: cross-device persistence is opt-in per device via a shared sync code,
+  and anyone who knows the code can read and write that code's data.
 - The app no longer hotlinks third-party exercise images. Workout exercises and stretches link out to a Google image search, and trigger points link to their instructional YouTube videos, so nothing breaks if a remote host changes. There are no bundled image assets to keep in sync.
 - `dist/` is committed so the `nixpacks` start command can serve it without a build step; remember to rebuild and commit `dist/` after changing source if you rely on that path. (The Dockerfile/Railway path rebuilds automatically.)

@@ -4,5 +4,7 @@ import { afterEach } from "vitest";
 
 afterEach(() => {
   cleanup();
-  localStorage.clear();
+  // The server tests run in the node environment, where there is no DOM
+  // storage to reset.
+  if (typeof localStorage !== "undefined") localStorage.clear();
 });

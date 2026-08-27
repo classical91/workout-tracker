@@ -16,4 +16,8 @@ export const STORAGE_KEYS = {
   // and which workout steps have already been logged that day, so a partial
   // routine can be logged without re-logging the same steps.
   workoutSession: "wellness_workout_session",
+  // How many sets and reps the user intends to do for each exercise, keyed by
+  // workout id + step index. Overrides whatever numbers a routine ships with,
+  // and syncs across devices alongside the log.
+  workoutPlans: "wellness_workout_plans",
 };

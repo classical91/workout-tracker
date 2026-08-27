@@ -16,7 +16,9 @@ function tombstone(entry) {
   return { id: entry.id, ts: entry.ts, deleted: true, updatedAt: Date.now() };
 }
 
-export function useActivityLog() {
+// `docs` holds the extra documents that sync alongside the log (the sets/reps
+// plans and the custom routines), each a handle from useSyncedDoc.
+export function useActivityLog({ docs } = {}) {
   const [storedLog, setStoredLog, saveError] = useLocalStorage(STORAGE_KEYS.log, []);
   const log = useMemo(
     () => normalizeActivityLog(storedLog).filter((entry) => !entry.deleted),
@@ -37,7 +39,7 @@ export function useActivityLog() {
     [setStoredLog]
   );
 
-  const sync = useCloudSync(storedLog, applyRemote);
+  const sync = useCloudSync(storedLog, applyRemote, docs);
 
   const addActivity = useCallback(
     (entry) => {
