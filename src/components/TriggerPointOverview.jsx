@@ -2,7 +2,8 @@ import { triggerPointSections } from "../data/triggerPoints.js";
 import {
   MAP_IMAGE_HEIGHT,
   MAP_IMAGE_WIDTH,
-  hotspotPanelX,
+  MAP_PANELS,
+  hotspotPanelPosition,
   triggerPointHotspots,
 } from "../data/triggerPointHotspots.js";
 import "./triggerPointOverview.css";
@@ -10,22 +11,6 @@ import "./triggerPointOverview.css";
 const regions = triggerPointSections.flatMap((section) =>
   section.items.map((item) => ({ ...item, color: section.color }))
 );
-
-// The artwork is one image holding both figures side by side. Splitting it into
-// two panels lets them stack on a phone, where a single half-width figure would
-// leave the dots too close together to tap apart.
-const panels = [
-  {
-    view: "anterior",
-    label: "Front",
-    alt: "Front view of the muscular anatomy, marked with trigger-point hotspots",
-  },
-  {
-    view: "posterior",
-    label: "Back",
-    alt: "Back view of the muscular anatomy, marked with trigger-point hotspots",
-  },
-];
 
 export function TriggerPointOverview({
   onSelect,
@@ -55,44 +40,56 @@ export function TriggerPointOverview({
       </p>
 
       <div className="trigger-point-overview__views">
-        {panels.map((panel) => (
-          <div key={panel.view} className="trigger-point-overview__view">
+        {MAP_PANELS.map((panel) => (
+          <div
+            key={panel.view}
+            className={`trigger-point-overview__view trigger-point-overview__view--${panel.view}`}
+          >
             <span className="trigger-point-overview__view-label">{panel.label}</span>
-            <div className="trigger-point-overview__figure">
+            <div
+              className={`trigger-point-overview__figure trigger-point-overview__figure--${panel.view}`}
+              style={{ aspectRatio: `${panel.width} / ${panel.height}` }}
+            >
               <picture>
                 <source srcSet="/trigger-points/body-map-overview.avif" type="image/avif" />
                 <source srcSet="/trigger-points/body-map-overview.webp" type="image/webp" />
                 <img
-                  className={`trigger-point-overview__art trigger-point-overview__art--${panel.view}`}
+                  className="trigger-point-overview__art"
                   src="/trigger-points/body-map-overview.png"
                   width={MAP_IMAGE_WIDTH}
                   height={MAP_IMAGE_HEIGHT}
                   alt={panel.alt}
+                  style={{
+                    width: `${(MAP_IMAGE_WIDTH / panel.width) * 100}%`,
+                    left: `${(-panel.x / panel.width) * 100}%`,
+                    top: `${(-panel.y / panel.height) * 100}%`,
+                  }}
                 />
               </picture>
               {triggerPointHotspots
                 .filter((hotspot) => hotspot.view === panel.view)
-                .map((hotspot) => (
-                  <button
-                    key={hotspot.id}
-                    type="button"
-                    data-testid="trigger-point-hotspot"
-                    className="trigger-point-overview__hotspot"
-                    aria-label={hotspot.label}
-                    aria-pressed={selectedHotspotId === hotspot.id}
-                    data-highlighted={hotspot.triggerPointKey === highlightedKey || undefined}
-                    title={`${hotspot.name} — ${hotspot.muscle}`}
-                    onClick={() => onHotspotSelect?.(hotspot)}
-                    style={{
-                      left: `${hotspotPanelX(hotspot)}%`,
-                      top: `${hotspot.y}%`,
-                      "--hotspot-color": hotspot.color,
-                      "--hotspot-target": `${hotspot.targetSize}%`,
-                    }}
-                  >
-                    <span aria-hidden="true" className="trigger-point-overview__dot" />
-                  </button>
-                ))}
+                .map((hotspot) => {
+                  const position = hotspotPanelPosition(hotspot);
+                  return (
+                    <button
+                      key={hotspot.id}
+                      type="button"
+                      data-testid="trigger-point-hotspot"
+                      className="trigger-point-overview__hotspot"
+                      aria-label={hotspot.label}
+                      aria-pressed={selectedHotspotId === hotspot.id}
+                      data-highlighted={hotspot.triggerPointKey === highlightedKey || undefined}
+                      title={`${hotspot.name} — ${hotspot.muscle}`}
+                      onClick={() => onHotspotSelect?.(hotspot)}
+                      style={{
+                        left: `${position.x}%`,
+                        top: `${position.y}%`,
+                        "--hotspot-color": hotspot.color,
+                        "--hotspot-target": `${hotspot.targetSize}%`,
+                      }}
+                    />
+                  );
+                })}
             </div>
           </div>
         ))}

@@ -15,6 +15,9 @@ const itemsByKey = new Map(
   )
 );
 
+const hotspotSideDescription = (side) =>
+  side === "bilateral" ? "bilateral / midline" : `${side} side`;
+
 export function TriggerPointsScreen({
   onBack,
   onAddActivity,
@@ -175,8 +178,8 @@ export function TriggerPointsScreen({
         description={
           pendingFocus
             ? `This hotspot is in the ${pendingFocus.item.name.toLowerCase()} region (${
-                pendingFocus.hotspot.side
-              } side). Add it to today's focuses?`
+                hotspotSideDescription(pendingFocus.hotspot.side)
+              }). Add it to today's focuses?`
             : ""
         }
         confirmLabel="Yes, focus today"

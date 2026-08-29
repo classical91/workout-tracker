@@ -11,7 +11,14 @@ const focusColor = (focus) => {
   return T.green;
 };
 
-const sideLabel = (side) => (side === "left" ? "Left side" : side === "right" ? "Right side" : "");
+const sideLabel = (side) =>
+  side === "left"
+    ? "Left side"
+    : side === "right"
+      ? "Right side"
+      : side === "bilateral"
+        ? "Bilateral / midline"
+        : "";
 
 export function HomeScreen({ onNavigate, onStartTimer, dailyFocuses = [] }) {
   // The panel takes its accent from the focuses inside it when they all come

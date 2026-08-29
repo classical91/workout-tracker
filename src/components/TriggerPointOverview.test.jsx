@@ -1,7 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { triggerPointSections } from "../data/triggerPoints.js";
-import { triggerPointHotspots } from "../data/triggerPointHotspots.js";
+import {
+  MAP_PANELS,
+  NON_INTERACTIVE_BAKED_DOTS,
+  hotspotPanelPosition,
+  triggerPointHotspots,
+} from "../data/triggerPointHotspots.js";
 import { TriggerPointOverview } from "./TriggerPointOverview.jsx";
 
 const regions = triggerPointSections.flatMap((section) => section.items);
@@ -13,6 +18,7 @@ describe("TriggerPointOverview", () => {
     expect(screen.getAllByTestId("trigger-point-hotspot")).toHaveLength(
       triggerPointHotspots.length
     );
+    expect(triggerPointHotspots).toHaveLength(54);
     expect(screen.getByText(`${regions.length} MYOFASCIAL REGIONS`)).toBeInTheDocument();
     expect(screen.getByText("Trigger-point hotspot map")).toBeInTheDocument();
 
@@ -40,7 +46,7 @@ describe("TriggerPointOverview", () => {
       screen.getByRole("button", { name: "Upper Trapezius, left hotspot 1" })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Upper Trapezius, left hotspot 2" })
+      screen.getByRole("button", { name: "Posterior Deltoid, right hotspot 2" })
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Piriformis, right hotspot 1" })).toBeInTheDocument();
   });
@@ -116,8 +122,8 @@ describe("TriggerPointOverview", () => {
       expect(image).toHaveAttribute("src", "/trigger-points/body-map-overview.png");
       // Intrinsic size on the tag plus a fixed aspect ratio in CSS: the dots
       // have somewhere to sit before the artwork arrives, so nothing shifts.
-      expect(image).toHaveAttribute("width", "1086");
-      expect(image).toHaveAttribute("height", "1448");
+      expect(image).toHaveAttribute("width", "971");
+      expect(image).toHaveAttribute("height", "1619");
     });
 
     const types = [...container.querySelectorAll("source")].map((source) =>
@@ -136,14 +142,15 @@ describe("TriggerPointOverview", () => {
     });
   });
 
-  it("splits the artwork into a stacked front and back panel", () => {
+  it("uses stacked front, back and dedicated plantar panels", () => {
     const { container } = render(
       <TriggerPointOverview onSelect={() => {}} onHotspotSelect={() => {}} />
     );
 
-    expect(container.querySelectorAll(".trigger-point-overview__view")).toHaveLength(2);
+    expect(container.querySelectorAll(".trigger-point-overview__view")).toHaveLength(3);
     expect(screen.getByText("Front")).toBeInTheDocument();
     expect(screen.getByText("Back")).toBeInTheDocument();
+    expect(screen.getByText("Foot / Plantar")).toBeInTheDocument();
 
     // Each panel holds only its own figure's hotspots, so no dot is rendered
     // twice and every one lands inside the half it belongs to.
@@ -151,9 +158,44 @@ describe("TriggerPointOverview", () => {
     const perPanel = panels.map(
       (panel) => panel.querySelectorAll("[data-testid='trigger-point-hotspot']").length
     );
-    expect(perPanel[0] + perPanel[1]).toBe(triggerPointHotspots.length);
+    expect(perPanel.reduce((total, count) => total + count, 0)).toBe(
+      triggerPointHotspots.length
+    );
     expect(perPanel[0]).toBe(
       triggerPointHotspots.filter((hotspot) => hotspot.view === "anterior").length
     );
+    expect(perPanel[2]).toBe(3);
+  });
+
+  it("does not draw a second visible dot over the baked artwork", () => {
+    const { container } = render(
+      <TriggerPointOverview onSelect={() => {}} onHotspotSelect={() => {}} />
+    );
+
+    expect(container.querySelector(".trigger-point-overview__dot")).toBeNull();
+    screen.getAllByTestId("trigger-point-hotspot").forEach((button) => {
+      expect(button).toBeEmptyDOMElement();
+    });
+  });
+
+  it("keeps every circular target short of every other baked-dot centre", () => {
+    const allBakedDots = [...triggerPointHotspots, ...NON_INTERACTIVE_BAKED_DOTS];
+
+    [278, 348, 458, 486].forEach((panelWidth) => {
+      triggerPointHotspots.forEach((hotspot) => {
+        const panel = MAP_PANELS.find((entry) => entry.view === hotspot.view);
+        const point = hotspotPanelPosition(hotspot);
+        const targetRadius = Math.min((panelWidth * hotspot.targetSize) / 100, 44) / 2;
+
+        allBakedDots.forEach((other) => {
+          if (other === hotspot || other.view !== hotspot.view) return;
+          const otherPoint = hotspotPanelPosition(other);
+          const dx = ((point.x - otherPoint.x) * panelWidth) / 100;
+          const dy =
+            ((point.y - otherPoint.y) * panelWidth * (panel.height / panel.width)) / 100;
+          expect(targetRadius).toBeLessThan(Math.hypot(dx, dy));
+        });
+      });
+    });
   });
 });

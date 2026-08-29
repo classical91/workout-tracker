@@ -53,10 +53,10 @@
   line-height: 1.55;
 }
 
-/* The two figures stack rather than sitting side by side, at every width. The
+/* The figures stack rather than sitting side by side, at every width. The
    app's column is capped at 500px, so side-by-side would leave each figure
    about 230px wide — and at that size the dots in a cluster are close enough
-   that one target covers the next. Stacked, each figure gets the whole column. */
+   that one target covers the next. The sole inset is a dedicated third panel. */
 .trigger-point-overview__views {
   display: grid;
   grid-template-columns: 1fr;
@@ -70,6 +70,12 @@
 .trigger-point-overview__view {
   position: relative;
   min-width: 0;
+}
+
+.trigger-point-overview__view--plantar {
+  width: min(42%, 180px);
+  justify-self: center;
+  border-inline: 1px solid #242429;
 }
 
 .trigger-point-overview__view-label {
@@ -89,37 +95,59 @@
   text-transform: uppercase;
 }
 
-/* Each panel is a window onto one half of the shared artwork. Fixing the
-   aspect ratio here means the dots have somewhere to sit before the image
-   itself has loaded, so nothing jumps once it arrives. */
+/* Each panel is a measured crop window onto the shared artwork. Its inline
+   aspect ratio and the image offsets come from MAP_PANELS, so the source pixel
+   centres convert exactly to responsive percentage positions. */
 .trigger-point-overview__figure {
   position: relative;
   overflow: hidden;
-  aspect-ratio: 543 / 1448;
+  background: #050608;
+}
+
+.trigger-point-overview__figure picture {
+  position: absolute;
+  inset: 0;
 }
 
 .trigger-point-overview__art {
+  position: absolute;
   display: block;
-  width: 200%;
   height: auto;
   max-width: none;
 }
 
-.trigger-point-overview__art--posterior {
-  margin-left: -100%;
-}
-
-/* The tappable area is far larger than the dot it draws, so a 7px marker still
-   has a finger-sized target. `--hotspot-target` is per dot: it stops a target
-   in a dense cluster from swallowing the dot next to it (see
-   triggerPointHotspots.js), while dots out on their own take the full 44px.
-   `translate(-50%, -50%)` keeps the dot itself on the coordinate at any map
-   size. */
-.trigger-point-overview__hotspot {
+/* The sole overlaps the body rows in the original canvas. These small masks
+   hide only the inset fragments in the body crop windows; the intact inset is
+   shown immediately below in Foot / Plantar. */
+.trigger-point-overview__figure--anterior::after,
+.trigger-point-overview__figure--posterior::after {
   position: absolute;
   z-index: 1;
+  bottom: 0;
+  width: 18%;
+  height: 10.5%;
+  background: #050608;
+  content: "";
+  pointer-events: none;
+}
+
+.trigger-point-overview__figure--anterior::after {
+  right: 0;
+}
+
+.trigger-point-overview__figure--posterior::after {
+  left: 0;
+}
+
+/* The art already contains every visible glow. DOM buttons are transparent hit
+   circles centred on those baked markers. `--hotspot-target` is derived from
+   the closest baked-dot centre, and has no forced pixel minimum that could make
+   dense targets overlap on a 320px screen. */
+.trigger-point-overview__hotspot {
+  position: absolute;
+  z-index: 2;
   display: grid;
-  width: clamp(20px, var(--hotspot-target, 11%), 44px);
+  width: min(var(--hotspot-target, 11%), 44px);
   aspect-ratio: 1;
   place-items: center;
   padding: 0;
@@ -131,32 +159,34 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.trigger-point-overview__dot {
+.trigger-point-overview__hotspot::after {
   display: block;
-  width: clamp(6px, 26%, 10px);
+  width: min(72%, 16px);
   aspect-ratio: 1;
-  border: 1px solid rgb(255 255 255 / 85%);
+  border: 1.5px solid rgb(255 255 255 / 92%);
   border-radius: 50%;
-  background: var(--hotspot-color, #e74c3c);
-  box-shadow:
-    0 0 0 2px rgb(0 0 0 / 55%),
-    0 0 9px 1px var(--hotspot-color, #e74c3c);
+  box-shadow: 0 0 0 2px var(--hotspot-color, #e74c3c);
+  content: "";
+  opacity: 0;
   transition:
+    opacity 150ms ease,
     transform 150ms ease,
     box-shadow 150ms ease;
 }
 
-.trigger-point-overview__hotspot:hover .trigger-point-overview__dot,
-.trigger-point-overview__hotspot:focus-visible .trigger-point-overview__dot {
-  transform: scale(1.5);
+.trigger-point-overview__hotspot:hover::after,
+.trigger-point-overview__hotspot:focus-visible::after {
+  opacity: 1;
+  transform: scale(1.18);
 }
 
 .trigger-point-overview__hotspot:focus-visible {
   outline: none;
 }
 
-.trigger-point-overview__hotspot:focus-visible .trigger-point-overview__dot,
-.trigger-point-overview__hotspot[aria-pressed="true"] .trigger-point-overview__dot {
+.trigger-point-overview__hotspot:focus-visible::after,
+.trigger-point-overview__hotspot[aria-pressed="true"]::after {
+  opacity: 1;
   box-shadow:
     0 0 0 2px #0a0a0c,
     0 0 0 4px var(--hotspot-color, #e74c3c),
@@ -169,8 +199,9 @@
   z-index: 2;
 }
 
-.trigger-point-overview__hotspot[data-highlighted] .trigger-point-overview__dot {
-  transform: scale(1.45);
+.trigger-point-overview__hotspot[data-highlighted]::after {
+  opacity: 1;
+  transform: scale(1.25);
   box-shadow:
     0 0 0 2px #0a0a0c,
     0 0 0 4px var(--hotspot-color, #e74c3c),
@@ -182,8 +213,8 @@
   z-index: 2;
 }
 
-.trigger-point-overview__hotspot[aria-pressed="true"] .trigger-point-overview__dot {
-  transform: scale(1.6);
+.trigger-point-overview__hotspot[aria-pressed="true"]::after {
+  transform: scale(1.3);
 }
 
 .trigger-point-overview__legend {
@@ -295,7 +326,7 @@
     animation: none;
   }
 
-  .trigger-point-overview__dot,
+  .trigger-point-overview__hotspot::after,
   .trigger-point-overview__legend button {
     transition: none;
   }

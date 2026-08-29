@@ -156,7 +156,7 @@ describe("TriggerPointsScreen hotspots", () => {
   it("opens the matching guide card from View details", () => {
     renderScreen();
 
-    tapHotspot("Latissimus Dorsi, left hotspot 2");
+    tapHotspot("Latissimus Dorsi, left hotspot 1");
     fireEvent.click(screen.getByRole("button", { name: "View Latissimus Dorsi details" }));
 
     expect(screen.queryByRole("dialog")).toBeNull();
@@ -195,7 +195,7 @@ describe("TriggerPointsScreen guide cards", () => {
     const highlighted = screen
       .getAllByTestId("trigger-point-hotspot")
       .filter((button) => button.hasAttribute("data-highlighted"));
-    expect(highlighted).toHaveLength(4);
+    expect(highlighted).toHaveLength(2);
     highlighted.forEach((button) => {
       expect(button.getAttribute("aria-label")).toMatch(/^Latissimus Dorsi/);
     });
@@ -230,11 +230,15 @@ describe("TriggerPointsScreen naming", () => {
   it("marks the plantar fascia on the sole side of the foot, not the top", () => {
     renderScreen();
 
-    ["Plantar Fascia, left hotspot 1", "Plantar Fascia, right hotspot 1"].forEach((name) => {
+    [
+      "Plantar Fascia, right hotspot 1",
+      "Plantar Fascia, right hotspot 2",
+      "Plantar Fascia, right hotspot 3",
+    ].forEach((name) => {
       const button = screen.getByRole("button", { name });
-      // The back view is the one that shows the heel; the front view only shows
-      // the top of the foot.
-      expect(button.closest(".trigger-point-overview__view")).toHaveTextContent("Back");
+      expect(button.closest(".trigger-point-overview__view")).toHaveTextContent(
+        "Foot / Plantar"
+      );
     });
   });
 });

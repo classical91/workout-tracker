@@ -35,9 +35,13 @@ console.log(`dimensions ${width}×${height}`);
 const outputs = [
   [`${BASE}.avif`, (image) => image.avif({ quality: 60, effort: 6 })],
   [`${BASE}.webp`, (image) => image.webp({ quality: 80, effort: 6 })],
-  // Lossless: the PNG is only reached by browsers without AVIF or WebP, so it
-  // trades size for never degrading the fallback.
-  [`${BASE}.png`, (image) => image.png({ compressionLevel: 9, effort: 10 })],
+  // Lossless: explicitly disable Sharp's palette quantization and use adaptive
+  // filtering so the fallback keeps every supplied RGB pixel unchanged.
+  [
+    `${BASE}.png`,
+    (image) =>
+      image.png({ compressionLevel: 9, effort: 10, palette: false, adaptiveFiltering: true }),
+  ],
 ];
 
 for (const [name, encode] of outputs) {
