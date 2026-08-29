@@ -2,4 +2,8 @@ node_modules/
 .env
 graphify-out/
 output/
-data/
+# The sync server's JSON store, which it writes at the repo root
+# (server/index.js: path.join(ROOT, "data")). Anchored with a leading slash:
+# unanchored, `data/` matches a directory of that name at any depth and
+# silently swallows `src/data/`, so new datasets there never get committed.
+/data/
