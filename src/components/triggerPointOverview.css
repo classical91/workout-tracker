@@ -14,7 +14,6 @@
   justify-content: space-between;
   gap: 16px;
   padding: 18px 18px 14px;
-  border-bottom: 1px solid #242429;
 }
 
 .trigger-point-overview__eyebrow {
@@ -45,59 +44,146 @@
   text-transform: uppercase;
 }
 
-.trigger-point-overview__figure {
-  position: relative;
-  overflow: hidden;
+.trigger-point-overview__intro {
+  margin: 0;
+  padding: 0 18px 14px;
+  border-bottom: 1px solid #242429;
+  color: #8e8e96;
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+/* The two figures stack rather than sitting side by side, at every width. The
+   app's column is capped at 500px, so side-by-side would leave each figure
+   about 230px wide — and at that size the dots in a cluster are close enough
+   that one target covers the next. Stacked, each figure gets the whole column. */
+.trigger-point-overview__views {
+  display: grid;
+  grid-template-columns: 1fr;
   background: #0a0a0c;
 }
 
-.trigger-point-overview__figure::after {
+.trigger-point-overview__view + .trigger-point-overview__view {
+  border-top: 1px solid #242429;
+}
+
+.trigger-point-overview__view {
+  position: relative;
+  min-width: 0;
+}
+
+.trigger-point-overview__view-label {
   position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgb(10 10 12 / 0%) 70%, rgb(10 10 12 / 28%)),
-    radial-gradient(circle at center, transparent 55%, rgb(0 0 0 / 18%));
-  content: "";
+  z-index: 2;
+  top: 8px;
+  left: 8px;
+  padding: 3px 7px;
+  border: 1px solid #ffffff1f;
+  border-radius: 999px;
+  background: #0a0a0cb8;
+  color: #b7b4af;
+  font:
+    800 8px / 1 "DM Sans",
+    sans-serif;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
 }
 
-.trigger-point-overview__figure img {
+/* Each panel is a window onto one half of the shared artwork. Fixing the
+   aspect ratio here means the dots have somewhere to sit before the image
+   itself has loaded, so nothing jumps once it arrives. */
+.trigger-point-overview__figure {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 543 / 1448;
+}
+
+.trigger-point-overview__art {
   display: block;
-  width: 100%;
+  width: 200%;
   height: auto;
+  max-width: none;
 }
 
-.trigger-point-overview__marker {
+.trigger-point-overview__art--posterior {
+  margin-left: -100%;
+}
+
+/* The tappable area is far larger than the dot it draws, so a 7px marker still
+   has a finger-sized target. `--hotspot-target` is per dot: it stops a target
+   in a dense cluster from swallowing the dot next to it (see
+   triggerPointHotspots.js), while dots out on their own take the full 44px.
+   `translate(-50%, -50%)` keeps the dot itself on the coordinate at any map
+   size. */
+.trigger-point-overview__hotspot {
   position: absolute;
   z-index: 1;
   display: grid;
-  width: clamp(20px, 5.2vw, 26px);
+  width: clamp(20px, var(--hotspot-target, 11%), 44px);
   aspect-ratio: 1;
   place-items: center;
   padding: 0;
   transform: translate(-50%, -50%);
-  border: 2px solid rgb(255 255 255 / 88%);
+  border: 0;
   border-radius: 50%;
-  box-shadow:
-    0 0 0 3px rgb(0 0 0 / 58%),
-    0 4px 12px rgb(0 0 0 / 58%);
-  color: white;
+  background: transparent;
   cursor: pointer;
-  font:
-    800 clamp(8px, 2.1vw, 10px) / 1 "DM Sans",
-    sans-serif;
-  transition:
-    filter 150ms ease,
-    transform 150ms ease;
-  animation: trigger-marker-enter 360ms ease-out both;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.trigger-point-overview__marker:hover,
-.trigger-point-overview__marker:focus-visible {
-  z-index: 3;
-  filter: brightness(1.18);
+.trigger-point-overview__dot {
+  display: block;
+  width: clamp(6px, 26%, 10px);
+  aspect-ratio: 1;
+  border: 1px solid rgb(255 255 255 / 85%);
+  border-radius: 50%;
+  background: var(--hotspot-color, #e74c3c);
+  box-shadow:
+    0 0 0 2px rgb(0 0 0 / 55%),
+    0 0 9px 1px var(--hotspot-color, #e74c3c);
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.trigger-point-overview__hotspot:hover .trigger-point-overview__dot,
+.trigger-point-overview__hotspot:focus-visible .trigger-point-overview__dot {
+  transform: scale(1.5);
+}
+
+.trigger-point-overview__hotspot:focus-visible {
   outline: none;
-  transform: translate(-50%, -50%) scale(1.22);
+}
+
+.trigger-point-overview__hotspot:focus-visible .trigger-point-overview__dot,
+.trigger-point-overview__hotspot[aria-pressed="true"] .trigger-point-overview__dot {
+  box-shadow:
+    0 0 0 2px #0a0a0c,
+    0 0 0 4px var(--hotspot-color, #e74c3c),
+    0 0 14px 3px var(--hotspot-color, #e74c3c);
+}
+
+/* "Show on body map" from a region's card lifts every dot in that region, so
+   it is obvious which ones the guide is talking about. */
+.trigger-point-overview__hotspot[data-highlighted] {
+  z-index: 2;
+}
+
+.trigger-point-overview__hotspot[data-highlighted] .trigger-point-overview__dot {
+  transform: scale(1.45);
+  box-shadow:
+    0 0 0 2px #0a0a0c,
+    0 0 0 4px var(--hotspot-color, #e74c3c),
+    0 0 14px 3px var(--hotspot-color, #e74c3c);
+}
+
+/* A chosen dot has to stay findable under the sheet that opens over it. */
+.trigger-point-overview__hotspot[aria-pressed="true"] {
+  z-index: 2;
+}
+
+.trigger-point-overview__hotspot[aria-pressed="true"] .trigger-point-overview__dot {
+  transform: scale(1.6);
 }
 
 .trigger-point-overview__legend {
@@ -120,7 +206,7 @@
   min-width: 0;
   align-items: center;
   gap: 7px;
-  padding: 6px;
+  padding: 7px 6px;
   border: 0;
   border-radius: 8px;
   background: transparent;
@@ -143,15 +229,10 @@
 }
 
 .trigger-point-overview__legend button > span:first-child {
-  display: grid;
-  width: 18px;
+  width: 8px;
   aspect-ratio: 1;
   flex: 0 0 auto;
-  place-items: center;
   border-radius: 50%;
-  color: white;
-  font-size: 8px;
-  font-weight: 800;
 }
 
 .trigger-point-overview__legend button > span:last-child {
@@ -179,17 +260,6 @@
   }
 }
 
-@keyframes trigger-marker-enter {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.45);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
 @media (max-width: 390px) {
   .trigger-point-overview__heading {
     align-items: flex-start;
@@ -205,6 +275,10 @@
     font-size: 8px;
   }
 
+  .trigger-point-overview__intro {
+    padding-inline: 14px;
+  }
+
   .trigger-point-overview__legend {
     padding-inline: 8px;
   }
@@ -217,12 +291,11 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .trigger-point-overview,
-  .trigger-point-overview__marker {
+  .trigger-point-overview {
     animation: none;
   }
 
-  .trigger-point-overview__marker,
+  .trigger-point-overview__dot,
   .trigger-point-overview__legend button {
     transition: none;
   }

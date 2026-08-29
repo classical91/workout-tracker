@@ -273,6 +273,8 @@ export default function App() {
             onBack={goHome}
             onAddActivity={addActivity}
             onUpdateActivity={updateActivity}
+            onAddDailyFocus={addDailyFocus}
+            onRemoveDailyFocus={removeDailyFocus}
           />
         );
       case "reflexology":

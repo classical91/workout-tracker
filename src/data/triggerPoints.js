@@ -90,7 +90,7 @@ export const triggerPointSections = [
       },
       {
         key: "rear-delt",
-        name: "Rear Deltoid",
+        name: "Posterior Deltoid",
         muscle: "Back of shoulder",
         pain: "Back/side shoulder ache",
         symptoms: "Pain during pulling or lifting arm back",
@@ -182,7 +182,7 @@ export const triggerPointSections = [
       },
       {
         key: "hip-flexors",
-        name: "Hip Flexors",
+        name: "Iliopsoas / Hip Flexors",
         muscle: "Front of hip",
         pain: "Front hip pinching, low back pulling",
         symptoms: "Tightness after sitting, limited hip extension",
@@ -239,7 +239,7 @@ export const triggerPointSections = [
       {
         key: "plantar",
         name: "Plantar Fascia",
-        muscle: "Bottom of foot",
+        muscle: "Sole of foot (fascia)",
         pain: "Arch pain, heel pain, foot fatigue",
         symptoms: "Pain first steps in morning, sore arches",
         release: "Roll foot on lacrosse ball or frozen water bottle.",

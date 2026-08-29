@@ -3,9 +3,21 @@ import { activities } from "../data/activities.js";
 import { ActivityCard } from "../components/ActivityCard.jsx";
 import { QuickLog } from "../components/QuickLog.jsx";
 
+// Each kind of focus keeps the colour of the screen it was chosen on, so a
+// glance at Home says where it came from.
+const focusColor = (focus) => {
+  if (focus.source === "simple") return T.blue;
+  if (focus.source === "trigger") return T.red;
+  return T.green;
+};
+
+const sideLabel = (side) => (side === "left" ? "Left side" : side === "right" ? "Right side" : "");
+
 export function HomeScreen({ onNavigate, onStartTimer, dailyFocuses = [] }) {
-  const focusAccent =
-    dailyFocuses.length === 1 && dailyFocuses[0].source === "simple" ? T.blue : T.green;
+  // The panel takes its accent from the focuses inside it when they all come
+  // from the same place, and falls back to green for a mixed day.
+  const sources = new Set(dailyFocuses.map((focus) => focus.source));
+  const focusAccent = sources.size === 1 ? focusColor(dailyFocuses[0]) : T.green;
 
   return (
     <div
@@ -66,10 +78,13 @@ export function HomeScreen({ onNavigate, onStartTimer, dailyFocuses = [] }) {
               {dailyFocuses.length === 1 ? "TODAY'S FOCUS" : "TODAY'S FOCUSES"}
             </div>
             {dailyFocuses.map((focus, index) => {
-              const color = focus.source === "simple" ? T.blue : T.green;
-              const imagesUrl = `https://www.google.com/search?udm=2&q=${encodeURIComponent(
-                focus.imageQuery
-              )}`;
+              const color = focusColor(focus);
+              // Trigger points have a curated map and guide of their own, so
+              // they show which side was tapped instead of an image search.
+              const side = focus.source === "trigger" ? sideLabel(focus.side) : "";
+              const imagesUrl = focus.imageQuery
+                ? `https://www.google.com/search?udm=2&q=${encodeURIComponent(focus.imageQuery)}`
+                : "";
               return (
                 <div
                   key={focus.id}
@@ -79,24 +94,34 @@ export function HomeScreen({ onNavigate, onStartTimer, dailyFocuses = [] }) {
                     borderTop: index === 0 ? "none" : `1px solid ${T.border}`,
                   }}
                 >
-                  <div style={{ color, fontSize: 12 }}>{focus.name}</div>
-                  <a
-                    href={imagesUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={`View images for ${focus.name}`}
-                    style={{
-                      display: "inline-block",
-                      marginTop: 6,
-                      color,
-                      fontSize: 10,
-                      fontWeight: 700,
-                      letterSpacing: 1,
-                      textDecoration: "none",
-                    }}
-                  >
-                    🔍 VIEW IMAGES
-                  </a>
+                  <div style={{ color, fontSize: 12 }}>
+                    {focus.source === "trigger" ? "🎯 " : ""}
+                    {focus.name}
+                  </div>
+                  {side && (
+                    <div style={{ marginTop: 3, color: T.muted, fontSize: 10, fontWeight: 600 }}>
+                      {side}
+                    </div>
+                  )}
+                  {imagesUrl && (
+                    <a
+                      href={imagesUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`View images for ${focus.name}`}
+                      style={{
+                        display: "inline-block",
+                        marginTop: 6,
+                        color,
+                        fontSize: 10,
+                        fontWeight: 700,
+                        letterSpacing: 1,
+                        textDecoration: "none",
+                      }}
+                    >
+                      🔍 VIEW IMAGES
+                    </a>
+                  )}
                 </div>
               );
             })}

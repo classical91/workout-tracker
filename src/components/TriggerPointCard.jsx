@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { T } from "../theme.js";
 import { triggerPointVideos } from "../data/triggerPoints.js";
 
-export function TriggerPointCard({ item, section, requestedOpen = false, highlighted = false }) {
+export function TriggerPointCard({
+  item,
+  section,
+  requestedOpen = false,
+  highlighted = false,
+  onShowOnMap,
+}) {
   const [expanded, setExpanded] = useState(false);
   const videoUrl = triggerPointVideos[item.key];
-  const imagesUrl = `https://www.google.com/search?tbm=isch&q=${encodeURIComponent(
-    `${item.name} trigger point ${item.muscle}`
-  )}`;
 
   useEffect(() => {
     if (requestedOpen) setExpanded(true);
@@ -79,15 +82,15 @@ export function TriggerPointCard({ item, section, requestedOpen = false, highlig
 
       {expanded && (
         <div style={{ padding: "0 16px 14px" }}>
-          <a
-            href={imagesUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={onShowOnMap}
             style={{
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               gap: 8,
+              width: "100%",
               background: `${section.color}12`,
               border: `1px solid ${section.color}40`,
               borderRadius: 10,
@@ -97,11 +100,12 @@ export function TriggerPointCard({ item, section, requestedOpen = false, highlig
               fontWeight: 700,
               letterSpacing: 1,
               color: section.color,
-              textDecoration: "none",
+              fontFamily: "inherit",
+              cursor: "pointer",
             }}
           >
-            🔍 VIEW IMAGES
-          </a>
+            🎯 SHOW ON BODY MAP
+          </button>
 
           <div style={{ display: "grid", gap: 8 }}>
             {[
