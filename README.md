@@ -31,7 +31,7 @@ Wellness Tracker is a single-page wellness app built with React. It provides gui
 - Stretch checklist grouped by body regions.
 - Simple bodyweight workouts checklist.
 - Foam roller technique checklist with tips.
-- Trigger point reference/checklist by body area.
+- Trigger point reference/checklist by body area, opened by an interactive **trigger-point hotspot map**. The front and back anatomy views carry 50 tappable hotspots across the 19 muscle regions; tapping one asks "Focus on <muscle> today?" and, on yes, adds that specific hotspot (muscle + side) to today's focuses, where it shows on Home alongside stretch and simple-exercise focuses. Hotspot coordinates live in `src/data/triggerPointHotspots.js` as percentages of the artwork, so they hold at any screen size. The dots mark commonly described regions, not exact anatomical coordinates.
 - Generic countdown timer screen used by Bike, Sauna, and Ohming flows.
 - Breathing screen with multiple breathing patterns.
 - Exercise log view with "Reset Today" (removes only today's entries) and "Clear Log" (removes all) actions. Every completed session is kept, including multiple sessions of the same activity on the same day.
@@ -43,6 +43,9 @@ Wellness Tracker is a single-page wellness app built with React. It provides gui
   - `wellness_custom_workouts`
   - `wellness_workout_plans`
   - `wellness_sync_code`
+  - `wellness_daily_stretch_focus` — today's focuses. The key keeps its original
+    name so a focus saved by the first version of the feature still migrates;
+    the list now holds stretches, simple exercises, and trigger-point hotspots.
 - A non-blocking warning banner if `localStorage` writes fail (storage full, disabled, or private browsing), so progress is never lost silently.
 - **Cross-device sync (optional):** your data is local by default, but you can connect a device to a shared **sync code** (Activity Log → “Sync across devices”). Enter the same code on your phone and desktop and three things stay in sync through the server API (`/api/sync/:code`): the activity log, the sets/reps plans, and your custom routines. There are no accounts — the code is the shared key, so pick something only you would guess (the server stores only its SHA-256 hash). The log merges entry by entry (newest edit wins) with deletions propagating via tombstones; plans and custom routines are whole documents, so the most recently edited copy wins. Nothing is silently overwritten or resurrected. See `src/hooks/useCloudSync.js`, `src/hooks/useSyncedDoc.js`, `src/utils/mergeActivityLog.js`, `src/utils/mergeSyncDocs.js`, `server/store.js`, and `server/index.js`.
 - External “Go to Diet Plan” link on the home screen.
@@ -150,6 +153,8 @@ Use placeholders in deployment systems as needed, for example:
 │  ├─ constants/       # storageKeys.js (centralized localStorage keys)
 │  ├─ utils/           # stats.js (streaks/weekly/totals derived from the log)
 │  └─ data/            # Workout/stretch/recovery datasets + illustration maps
+├─ public/            # Static assets served as-is (trigger-point anatomy map)
+├─ scripts/           # One-off maintenance scripts (image optimization)
 ├─ dist/               # Built static assets (generated; committed for nixpacks)
 ├─ index.html          # Vite HTML entry for development/build
 ├─ package.json        # Scripts + dependencies
@@ -188,5 +193,5 @@ Use placeholders in deployment systems as needed, for example:
 - App data and progress live in browser storage by default. There are still no
   accounts: cross-device persistence is opt-in per device via a shared sync code,
   and anyone who knows the code can read and write that code's data.
-- The app no longer hotlinks third-party exercise images. Workout exercises and stretches link out to a Google image search, and trigger points link to their instructional YouTube videos, so nothing breaks if a remote host changes. There are no bundled image assets to keep in sync.
+- The app no longer hotlinks third-party exercise images. Workout exercises and stretches link out to a Google image search, and trigger points link to their instructional YouTube videos, so nothing breaks if a remote host changes. The one bundled illustration is the trigger-point anatomy map in `public/trigger-points/` (AVIF and WebP with a PNG fallback); regenerate the three files from new artwork with `npm install --no-save sharp && node scripts/optimize-trigger-point-map.mjs <source.png>`, and re-check the hotspot coordinates afterwards if the figures moved.
 - `dist/` is committed so the `nixpacks` start command can serve it without a build step; remember to rebuild and commit `dist/` after changing source if you rely on that path. (The Dockerfile/Railway path rebuilds automatically.)

@@ -1,36 +1,159 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { triggerPointSections } from "../data/triggerPoints.js";
+import { triggerPointHotspots } from "../data/triggerPointHotspots.js";
 import { TriggerPointOverview } from "./TriggerPointOverview.jsx";
 
+const regions = triggerPointSections.flatMap((section) => section.items);
+
 describe("TriggerPointOverview", () => {
-  const points = triggerPointSections.flatMap((section) => section.items);
+  it("renders a button for every hotspot and a legend entry for every region", () => {
+    render(<TriggerPointOverview onSelect={() => {}} onHotspotSelect={() => {}} />);
 
-  it("shows a marker and exact legend entry for every website trigger point", () => {
-    render(<TriggerPointOverview onSelect={() => {}} />);
+    expect(screen.getAllByTestId("trigger-point-hotspot")).toHaveLength(
+      triggerPointHotspots.length
+    );
+    expect(screen.getByText(`${regions.length} MYOFASCIAL REGIONS`)).toBeInTheDocument();
+    expect(screen.getByText("Trigger-point hotspot map")).toBeInTheDocument();
 
-    expect(screen.getAllByTestId("trigger-point-marker")).toHaveLength(points.length);
-    expect(screen.getByText(`COMPLETE MAP · ${points.length} POINTS`)).toBeInTheDocument();
-
-    points.forEach((point) => {
+    regions.forEach((region) => {
       expect(
-        screen.getByRole("button", { name: `Open details for ${point.name}` })
+        screen.getByRole("button", { name: `Open details for ${region.name}` })
       ).toBeInTheDocument();
     });
   });
 
-  it("opens the matching website detail from the map", () => {
+  it("describes the dots as approximate rather than exact coordinates", () => {
+    render(<TriggerPointOverview onSelect={() => {}} onHotspotSelect={() => {}} />);
+
+    expect(
+      screen.getByText(/commonly described tender\/trigger-point locations/i)
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Locations vary between people/i)).toBeInTheDocument();
+    expect(screen.queryByText(/COMPLETE MAP/i)).toBeNull();
+  });
+
+  it("gives every hotspot a label naming its muscle, side and number", () => {
+    render(<TriggerPointOverview onSelect={() => {}} onHotspotSelect={() => {}} />);
+
+    expect(
+      screen.getByRole("button", { name: "Upper Trapezius, left hotspot 1" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Upper Trapezius, left hotspot 2" })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Piriformis, right hotspot 1" })).toBeInTheDocument();
+  });
+
+  it("reports the hotspot that was tapped", () => {
+    const onHotspotSelect = vi.fn();
+    render(<TriggerPointOverview onSelect={() => {}} onHotspotSelect={onHotspotSelect} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Piriformis, right hotspot 1" }));
+
+    expect(onHotspotSelect).toHaveBeenCalledTimes(1);
+    expect(onHotspotSelect.mock.calls[0][0]).toMatchObject({
+      triggerPointKey: "piriformis",
+      side: "right",
+      view: "posterior",
+    });
+  });
+
+  it("still opens a region's details from the legend", () => {
     const onSelect = vi.fn();
-    render(<TriggerPointOverview onSelect={onSelect} />);
+    render(<TriggerPointOverview onSelect={onSelect} onHotspotSelect={() => {}} />);
 
     fireEvent.click(screen.getByRole("button", { name: "Open details for Piriformis" }));
 
     expect(onSelect).toHaveBeenCalledWith("piriformis");
   });
 
-  it("uses the project anatomy artwork", () => {
-    render(<TriggerPointOverview onSelect={() => {}} />);
+  it("marks the selected hotspot as pressed and leaves the rest alone", () => {
+    render(
+      <TriggerPointOverview
+        onSelect={() => {}}
+        onHotspotSelect={() => {}}
+        selectedHotspotId="piriformis-right-1"
+      />
+    );
 
-    expect(screen.getByRole("img")).toHaveAttribute("src", "/trigger-points/body-map-overview.png");
+    expect(screen.getByRole("button", { name: "Piriformis, right hotspot 1" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
+    expect(screen.getByRole("button", { name: "Piriformis, left hotspot 1" })).toHaveAttribute(
+      "aria-pressed",
+      "false"
+    );
+    expect(
+      screen
+        .getAllByTestId("trigger-point-hotspot")
+        .filter((button) => button.getAttribute("aria-pressed") === "true")
+    ).toHaveLength(1);
+  });
+
+  it("highlights every hotspot of the region a card asked to show", () => {
+    render(
+      <TriggerPointOverview onSelect={() => {}} onHotspotSelect={() => {}} highlightedKey="lats" />
+    );
+
+    const highlighted = screen
+      .getAllByTestId("trigger-point-hotspot")
+      .filter((button) => button.hasAttribute("data-highlighted"));
+
+    expect(highlighted).toHaveLength(
+      triggerPointHotspots.filter((hotspot) => hotspot.triggerPointKey === "lats").length
+    );
+  });
+
+  it("serves modern image formats with the PNG as the fallback", () => {
+    const { container } = render(
+      <TriggerPointOverview onSelect={() => {}} onHotspotSelect={() => {}} />
+    );
+
+    const images = screen.getAllByRole("img");
+    images.forEach((image) => {
+      expect(image).toHaveAttribute("src", "/trigger-points/body-map-overview.png");
+      // Intrinsic size on the tag plus a fixed aspect ratio in CSS: the dots
+      // have somewhere to sit before the artwork arrives, so nothing shifts.
+      expect(image).toHaveAttribute("width", "1086");
+      expect(image).toHaveAttribute("height", "1448");
+    });
+
+    const types = [...container.querySelectorAll("source")].map((source) =>
+      source.getAttribute("type")
+    );
+    expect(types).toContain("image/avif");
+    expect(types).toContain("image/webp");
+  });
+
+  it("positions hotspots in percentages so they hold at any map size", () => {
+    render(<TriggerPointOverview onSelect={() => {}} onHotspotSelect={() => {}} />);
+
+    screen.getAllByTestId("trigger-point-hotspot").forEach((button) => {
+      expect(button.style.left).toMatch(/%$/);
+      expect(button.style.top).toMatch(/%$/);
+    });
+  });
+
+  it("splits the artwork into a stacked front and back panel", () => {
+    const { container } = render(
+      <TriggerPointOverview onSelect={() => {}} onHotspotSelect={() => {}} />
+    );
+
+    expect(container.querySelectorAll(".trigger-point-overview__view")).toHaveLength(2);
+    expect(screen.getByText("Front")).toBeInTheDocument();
+    expect(screen.getByText("Back")).toBeInTheDocument();
+
+    // Each panel holds only its own figure's hotspots, so no dot is rendered
+    // twice and every one lands inside the half it belongs to.
+    const panels = [...container.querySelectorAll(".trigger-point-overview__figure")];
+    const perPanel = panels.map(
+      (panel) => panel.querySelectorAll("[data-testid='trigger-point-hotspot']").length
+    );
+    expect(perPanel[0] + perPanel[1]).toBe(triggerPointHotspots.length);
+    expect(perPanel[0]).toBe(
+      triggerPointHotspots.filter((hotspot) => hotspot.view === "anterior").length
+    );
   });
 });

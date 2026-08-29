@@ -4,6 +4,11 @@ const slugifyFocus = (name) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 
+// Every source a focus can come from. Anything else stored — including the very
+// first version of this feature, which had no `source` at all — reads back as a
+// stretch, which is what it was.
+const FOCUS_SOURCES = new Set(["stretch", "simple", "trigger"]);
+
 export const stretchDailyFocus = (item) => ({
   id: `stretch:${item.key}`,
   name: item.name,
@@ -17,6 +22,21 @@ export const simpleExerciseDailyFocus = (exercise) => ({
   source: "simple",
   imageQuery: `${exercise.name} exercise`,
 });
+
+// One hotspot on the trigger-point body map. The id is per hotspot rather than
+// per muscle so the left and right side of the same muscle can both be focuses,
+// and so tapping the same dot twice can't add it twice.
+export const triggerPointDailyFocus = (item, hotspot) => ({
+  id: `trigger:${hotspot.id}`,
+  name: item.name,
+  source: "trigger",
+  triggerPointKey: item.key,
+  hotspotId: hotspot.id,
+  side: hotspot.side,
+});
+
+const defaultImageQuery = (name, source) =>
+  source === "simple" ? `${name} exercise` : `${name} stretch`;
 
 // Read the current list while preserving the first version of this feature,
 // which stored one stretch as `{ day, name }`.
@@ -38,14 +58,24 @@ export function dailyFocusesFromState(state) {
   return candidates
     .filter((focus) => focus?.name)
     .map((focus) => {
-      const source = focus.source === "simple" ? "simple" : "stretch";
-      return {
+      const source = FOCUS_SOURCES.has(focus.source) ? focus.source : "stretch";
+      const normalized = {
         id: focus.id || `${source}:${slugifyFocus(focus.name)}`,
         name: focus.name,
         source,
-        imageQuery:
-          focus.imageQuery || `${focus.name} ${source === "simple" ? "exercise" : "stretch"}`,
       };
+
+      // Trigger points carry which muscle and which side the hotspot was on,
+      // and have a curated guide on the map instead of an image search.
+      if (source === "trigger") {
+        if (focus.triggerPointKey) normalized.triggerPointKey = focus.triggerPointKey;
+        if (focus.hotspotId) normalized.hotspotId = focus.hotspotId;
+        if (focus.side) normalized.side = focus.side;
+        return normalized;
+      }
+
+      normalized.imageQuery = focus.imageQuery || defaultImageQuery(focus.name, source);
+      return normalized;
     })
     .filter((focus) => {
       if (seen.has(focus.id)) return false;
