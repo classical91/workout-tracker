@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ActivityLogCard } from "./ActivityLogCard.jsx";
 import { stretchSections } from "../data/stretches.js";
@@ -76,5 +76,31 @@ describe("ActivityLogCard name highlighting", () => {
 
     const title = screen.getByText("Core Blast");
     expect(title.querySelector("span")).toBeNull();
+  });
+
+  it("summarizes structured recovery history", () => {
+    const entry = {
+      ...baseEntry,
+      type: "recovery",
+      category: "recovery",
+      name: "Stretch + Foam Roll",
+      details: {
+        stretchingCompleted: true,
+        stretchType: "targeted",
+        stretchDuration: 12,
+        bodyCheckIn: "muscle_knot",
+        problemArea: "traps",
+        recoveryToolsUsed: ["foam_roller"],
+        afterState: "better",
+      },
+    };
+    render(<ActivityLogCard entry={entry} onUpdate={vi.fn()} onDelete={vi.fn()} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Stretch \+ Foam Roll/i }));
+    expect(screen.getByText("Stretch: Targeted · 12 min")).toBeTruthy();
+    expect(screen.getByText("Check-in: I have a muscle knot")).toBeTruthy();
+    expect(screen.getByText("Area: Traps")).toBeTruthy();
+    expect(screen.getByText("Tools: Foam Roll")).toBeTruthy();
+    expect(screen.getByText("After: Better")).toBeTruthy();
   });
 });

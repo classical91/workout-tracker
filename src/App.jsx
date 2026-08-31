@@ -153,6 +153,7 @@ export default function App() {
             plans={plans}
             onSetPlan={setPlan}
             onClearPlans={clearPlans}
+            activityLog={log}
           />
         );
       case "weekly-plan":

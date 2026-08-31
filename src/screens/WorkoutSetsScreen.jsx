@@ -20,6 +20,7 @@ import { CompletionBanner } from "../components/CompletionBanner.jsx";
 import { IllusCard } from "../components/IllusCard.jsx";
 import { ExerciseSets } from "../components/ExerciseSets.jsx";
 import { WorkoutBuilder } from "../components/WorkoutBuilder.jsx";
+import { RecoveryFlow } from "../components/RecoveryFlow.jsx";
 
 // The user's current local calendar day, used to reset checkmarks at midnight.
 const localDay = () => new Date().toDateString();
@@ -64,6 +65,7 @@ export function WorkoutSetsScreen({
   plans = {},
   onSetPlan,
   onClearPlans,
+  activityLog = [],
 }) {
   const workouts = [...builtInWorkouts, ...customWorkouts];
   const [aw, setAw] = useState(0);
@@ -88,6 +90,7 @@ export function WorkoutSetsScreen({
   const isCustom = safeAw >= builtInWorkouts.length;
 
   const [completedActivity, setCompletedActivity] = useState(null);
+  const [recoveryWorkoutActivity, setRecoveryWorkoutActivity] = useState(null);
 
   // Which local day the current checkmarks belong to, and which workout steps
   // have already been logged that day. Checkmarks persist until the day rolls
@@ -151,7 +154,10 @@ export function WorkoutSetsScreen({
 
   const logSession = useCallback(() => {
     const activity = logWorkout(w);
-    if (activity) setCompletedActivity(activity);
+    if (activity) {
+      setCompletedActivity(activity);
+      setRecoveryWorkoutActivity(activity);
+    }
   }, [logWorkout, w]);
 
   // Closing the details form keeps the checkmarks — they stay until the new day.
@@ -163,7 +169,10 @@ export function WorkoutSetsScreen({
     const prior = w.id in prevDone.current ? prevDone.current[w.id] : doneUnits;
     if (!completedActivity && totalUnits > 0 && doneUnits === totalUnits && prior < totalUnits) {
       const activity = logWorkout(w);
-      if (activity) setCompletedActivity(activity);
+      if (activity) {
+        setCompletedActivity(activity);
+        setRecoveryWorkoutActivity(activity);
+      }
     }
     prevDone.current[w.id] = doneUnits;
   }, [doneUnits, totalUnits, w, completedActivity, logWorkout]);
@@ -208,6 +217,7 @@ export function WorkoutSetsScreen({
   useEffect(() => {
     setConfirmingDelete(false);
     setCompletedActivity(null);
+    setRecoveryWorkoutActivity(null);
   }, [w.id]);
 
   // Clear a routine's saved checkmarks and sets/reps plans — its steps may have
@@ -516,6 +526,14 @@ export function WorkoutSetsScreen({
               onSkip={dismissForm}
             />
           </div>
+        )}
+        {recoveryWorkoutActivity && (
+          <RecoveryFlow
+            workoutActivity={recoveryWorkoutActivity}
+            activityLog={activityLog}
+            onAddActivity={onAddActivity}
+            onClose={() => setRecoveryWorkoutActivity(null)}
+          />
         )}
         {isCustom &&
           (confirmingDelete ? (

@@ -3,6 +3,7 @@ import { labelActivityValue, ACTIVITY_TYPES } from "../constants/activityTypes.j
 import { ActivityDetailEditor } from "./ActivityDetailEditor.jsx";
 import { classifyDay } from "../utils/relativeDay.js";
 import { T, font } from "../theme.js";
+import { BODY_CHECK_INS, BODY_REGIONS, RECOVERY_TOOL_CONFIG } from "../data/recovery.js";
 
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -35,17 +36,15 @@ function ActivityName({ entry }) {
   const terms = Object.keys(colorMap).sort((a, b) => b.length - a.length);
   const pattern = new RegExp(`\\b(${terms.map(escapeRegExp).join("|")})\\b`, "g");
 
-  return entry.name
-    .split(pattern)
-    .map((part, index) =>
-      colorMap[part] ? (
-        <span key={index} style={{ color: colorMap[part] }}>
-          {part}
-        </span>
-      ) : (
-        <span key={index}>{part}</span>
-      )
-    );
+  return entry.name.split(pattern).map((part, index) =>
+    colorMap[part] ? (
+      <span key={index} style={{ color: colorMap[part] }}>
+        {part}
+      </span>
+    ) : (
+      <span key={index}>{part}</span>
+    )
+  );
 }
 
 function DetailSummary({ entry }) {
@@ -59,10 +58,7 @@ function DetailSummary({ entry }) {
       const unit = exercise.weightUnit || exercise.sets?.find((set) => set.weightUnit)?.weightUnit;
       const reps = exercise.reps;
       const setsLine = sets && reps ? `${sets} × ${reps}` : sets ? `${sets} sets` : null;
-      const summary = [
-        setsLine || exercise.planned,
-        weight ? `${weight} ${unit || "lb"}` : null,
-      ]
+      const summary = [setsLine || exercise.planned, weight ? `${weight} ${unit || "lb"}` : null]
         .filter(Boolean)
         .join(" · ");
       return (
@@ -77,7 +73,9 @@ function DetailSummary({ entry }) {
   if (details.holds?.length) {
     return details.holds.map((hold, index) => (
       <div key={`${hold.name}-${index}`} style={{ marginTop: 8 }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: hold.color || T.text }}>{hold.name}</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: hold.color || T.text }}>
+          {hold.name}
+        </div>
         <div style={{ fontSize: 11, color: T.muted }}>
           {hold.seconds ? `${hold.seconds}s` : hold.planned}
           {hold.region ? ` · ${hold.region}` : ""}
@@ -107,6 +105,30 @@ function DetailSummary({ entry }) {
     if (pattern.length) lines.push(`${pattern.join("-")} pattern`);
   }
   if (details.bodyAreas?.length) lines.push(details.bodyAreas.join(", "));
+  if (entry.type === ACTIVITY_TYPES.RECOVERY) {
+    if (details.stretchingCompleted) {
+      const stretchType = labelActivityValue(details.stretchType || "stretching");
+      lines.push(
+        `Stretch: ${stretchType}${details.stretchDuration ? ` · ${details.stretchDuration} min` : ""}`
+      );
+    }
+    if (details.bodyCheckIn) {
+      const checkIn = BODY_CHECK_INS.find((option) => option.id === details.bodyCheckIn);
+      lines.push(`Check-in: ${checkIn?.label || labelActivityValue(details.bodyCheckIn)}`);
+    }
+    if (details.problemArea) {
+      const region = BODY_REGIONS.find((option) => option.id === details.problemArea);
+      lines.push(`Area: ${region?.label || labelActivityValue(details.problemArea)}`);
+    }
+    if (details.recoveryToolsUsed?.length) {
+      lines.push(
+        `Tools: ${details.recoveryToolsUsed
+          .map((tool) => RECOVERY_TOOL_CONFIG[tool]?.label || labelActivityValue(tool))
+          .join(", ")}`
+      );
+    }
+    if (details.afterState) lines.push(`After: ${labelActivityValue(details.afterState)}`);
+  }
   if (details.pressure) lines.push(`Pressure: ${details.pressure}`);
   if (details.tenderPoints !== "" && details.tenderPoints != null)
     lines.push(`Tender points: ${details.tenderPoints}`);
