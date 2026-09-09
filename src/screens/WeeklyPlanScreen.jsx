@@ -1,9 +1,24 @@
+import { useState } from "react";
 import { T, font, display } from "../theme.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { weeklyPlan } from "../data/weeklyPlan.js";
 
 // weeklyPlan is ordered Mon–Sun; Date.getDay() is Sun-first, so remap.
 const todayIndex = () => (new Date().getDay() + 6) % 7;
+
+function startOfWeek(date) {
+  const d = new Date(date);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function formatWeekRange(monday) {
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  const fmt = (d) => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return `${fmt(monday)} – ${fmt(sunday)}`;
+}
 
 function PlanItem({ item, color, onNavigate }) {
   const clickable = !!item.screen;
@@ -97,10 +112,19 @@ function DayCard({ plan, isToday, onNavigate }) {
 }
 
 export function WeeklyPlanScreen({ onBack, onNavigate }) {
+  const [weekOffset, setWeekOffset] = useState(0);
+  const isCurrentWeek = weekOffset === 0;
   const today = todayIndex();
-  // Show today's card first so the day's plan is always at the top,
-  // then the rest of the week in order.
-  const ordered = [...weeklyPlan.slice(today), ...weeklyPlan.slice(0, today)];
+  // The schedule is a fixed weekly rhythm, so past/future weeks reuse the
+  // same items. Only the current week rotates to put today's card first.
+  const ordered = isCurrentWeek
+    ? [...weeklyPlan.slice(today), ...weeklyPlan.slice(0, today)]
+    : weeklyPlan;
+
+  const viewedMonday = startOfWeek(new Date());
+  viewedMonday.setDate(viewedMonday.getDate() + weekOffset * 7);
+  const weekLabel =
+    weekOffset === -1 ? "Last Week" : `${-weekOffset} Weeks Ago`;
 
   return (
     <div
@@ -124,8 +148,76 @@ export function WeeklyPlanScreen({ onBack, onNavigate }) {
           The same rhythm every week: three dumbbell days, two easy-movement days, one recovery day
           and one full rest day. Today is always on top — tap any item to jump straight in.
         </p>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 8,
+            marginBottom: 16,
+            padding: "8px 10px",
+            background: T.surface2,
+            border: `1px solid ${T.border}`,
+            borderRadius: 10,
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setWeekOffset((w) => w - 1)}
+            aria-label="Show last week's plan"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 28,
+              height: 28,
+              flexShrink: 0,
+              background: "transparent",
+              border: `1px solid ${T.border}`,
+              borderRadius: 8,
+              color: T.purple,
+              fontSize: 16,
+              cursor: "pointer",
+            }}
+          >
+            ←
+          </button>
+          <span style={{ fontSize: 12, fontWeight: 700, color: T.text, letterSpacing: 0.5 }}>
+            {isCurrentWeek ? "This Week" : `${weekLabel} · ${formatWeekRange(viewedMonday)}`}
+          </span>
+          {isCurrentWeek ? (
+            <span style={{ width: 28, height: 28, flexShrink: 0 }} aria-hidden />
+          ) : (
+            <button
+              type="button"
+              onClick={() => setWeekOffset(0)}
+              aria-label="Back to this week's plan"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 28,
+                height: 28,
+                flexShrink: 0,
+                background: "transparent",
+                border: `1px solid ${T.border}`,
+                borderRadius: 8,
+                color: T.purple,
+                fontSize: 16,
+                cursor: "pointer",
+              }}
+            >
+              →
+            </button>
+          )}
+        </div>
         {ordered.map((plan, i) => (
-          <DayCard key={plan.day} plan={plan} isToday={i === 0} onNavigate={onNavigate} />
+          <DayCard
+            key={plan.day}
+            plan={plan}
+            isToday={isCurrentWeek && i === 0}
+            onNavigate={onNavigate}
+          />
         ))}
       </div>
     </div>
