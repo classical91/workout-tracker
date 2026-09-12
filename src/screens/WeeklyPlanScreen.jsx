@@ -2,9 +2,7 @@ import { useState } from "react";
 import { T, font, display } from "../theme.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { weeklyPlan } from "../data/weeklyPlan.js";
-
-// weeklyPlan is ordered Mon–Sun; Date.getDay() is Sun-first, so remap.
-const todayIndex = () => (new Date().getDay() + 6) % 7;
+import { planIndexForDate } from "../utils/weeklyPlanDay.js";
 
 function startOfWeek(date) {
   const d = new Date(date);
@@ -114,7 +112,7 @@ function DayCard({ plan, isToday, onNavigate }) {
 export function WeeklyPlanScreen({ onBack, onNavigate }) {
   const [weekOffset, setWeekOffset] = useState(0);
   const isCurrentWeek = weekOffset === 0;
-  const today = todayIndex();
+  const today = planIndexForDate();
   // The schedule is a fixed weekly rhythm, so past/future weeks reuse the
   // same items. Only the current week rotates to put today's card first.
   const ordered = isCurrentWeek
