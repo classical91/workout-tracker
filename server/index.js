@@ -1,11 +1,14 @@
 // Tiny zero-dependency server for the Wellness Tracker.
 //
-// It does two jobs:
+// It does three jobs:
 //   1. Serves the built static app from ../dist (single-page app).
 //   2. Exposes a small "sync by code" API so a person can see the same activity
 //      log, sets/reps plans, and custom routines on their phone and their
 //      desktop. There are no accounts: anyone who knows a code shares that
 //      code's data. Pick something unguessable.
+//   3. Publishes the fixed weekly schedule at GET /api/weekly-plan, so another
+//      app can show what today's workout is without keeping a second copy of
+//      the plan that quietly drifts from this one.
 //
 // Storage is Postgres when DATABASE_URL is set, and one JSON file per code under
 // DATA_DIR otherwise (see server/store.js). Prefer Postgres in production: on a
@@ -18,6 +21,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { mergeActivityLogs } from "../src/utils/mergeActivityLog.js";
 import { mergeSyncDocs } from "../src/utils/mergeSyncDocs.js";
+import { weeklyPlan } from "../src/data/weeklyPlan.js";
+import { parseCalendarDay, planForDate } from "../src/utils/weeklyPlanDay.js";
 import { createStore } from "./store.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -55,11 +60,12 @@ function normalizeCode(raw) {
   return /^[a-z0-9][a-z0-9-]{3,63}$/.test(code) ? code : null;
 }
 
-function sendJson(res, status, body) {
+function sendJson(res, status, body, headers = {}) {
   const text = JSON.stringify(body);
   res.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
     "Cache-Control": "no-store",
+    ...headers,
   });
   res.end(text);
 }
@@ -129,6 +135,70 @@ async function handleSync(req, res, code) {
   res.end();
 }
 
+// ─── The weekly plan, published ─────────────────────────────────────────────
+//
+// The schedule is this app's to decide, and it is read straight out of
+// src/data/weeklyPlan.js so there is exactly one copy of it. Everything here is
+// a fixed rota — no log, no code, nothing personal — which is why it answers
+// without a token and carries an open CORS header: the Main Hub dashboard reads
+// it from its own server, and a browser page may read it too.
+//
+// `screen` is the app's own route name; `path` is that route as a link into
+// this app, so a caller can send someone straight to the exercise rather than
+// having to know how the hash routing is spelled.
+function publicPlanDay(plan) {
+  return {
+    day: plan.day,
+    short: plan.short,
+    theme: plan.theme,
+    emoji: plan.emoji,
+    color: plan.color,
+    focus: plan.focus,
+    items: plan.items.map((item) => ({
+      emoji: item.emoji,
+      name: item.name,
+      detail: item.detail,
+      screen: item.screen,
+      path: item.screen ? `/#/${item.screen}` : null,
+    })),
+  };
+}
+
+function handleWeeklyPlan(req, res, url) {
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    res.writeHead(405, { Allow: "GET" });
+    res.end();
+    return;
+  }
+
+  // A caller may ask for its own calendar day rather than this container's —
+  // the hub asking is in Vancouver and this server is on UTC, so "today" is a
+  // question only the caller can answer for itself.
+  const requested = url.searchParams.get("date");
+  const date = requested === null ? new Date() : parseCalendarDay(requested);
+  if (!date) {
+    sendJson(res, 400, { error: "date must be YYYY-MM-DD." });
+    return;
+  }
+
+  const dateKey = [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+
+  sendJson(
+    res,
+    200,
+    {
+      date: dateKey,
+      today: publicPlanDay(planForDate(date)),
+      week: weeklyPlan.map(publicPlanDay),
+    },
+    { "Access-Control-Allow-Origin": "*" },
+  );
+}
+
 async function serveStatic(req, res) {
   // Hash-based routing means every non-file request should return index.html.
   const urlPath = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
@@ -166,10 +236,16 @@ async function serveStatic(req, res) {
 
 const server = http.createServer(async (req, res) => {
   try {
-    const { pathname } = new URL(req.url, "http://localhost");
+    const url = new URL(req.url, "http://localhost");
+    const { pathname } = url;
 
     if (pathname === "/api/health") {
       sendJson(res, 200, { ok: true });
+      return;
+    }
+
+    if (pathname === "/api/weekly-plan") {
+      handleWeeklyPlan(req, res, url);
       return;
     }
 
