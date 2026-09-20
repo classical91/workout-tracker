@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   addDailyFocusToState,
+  dailyFocusPath,
   dailyFocusesFromState,
   removeDailyFocusFromState,
   simpleExerciseDailyFocus,
@@ -138,5 +139,30 @@ describe("daily focus helpers", () => {
     ).toEqual([
       { id: "mystery:1", name: "Mystery", source: "stretch", imageQuery: "Mystery stretch" },
     ]);
+  });
+});
+
+describe("dailyFocusPath", () => {
+  it("sends a stretch focus to the stretch screen", () => {
+    expect(dailyFocusPath({ id: "stretch:hips", name: "Hips", source: "stretch" })).toBe(
+      "/#/stretch"
+    );
+  });
+
+  it("sends a simple exercise focus to that exercise", () => {
+    expect(dailyFocusPath({ id: "simple:wall-sit", name: "Wall Sit", source: "simple" })).toBe(
+      "/#/simple/wall-sit"
+    );
+  });
+
+  it("sends a trigger point focus to the body map", () => {
+    expect(
+      dailyFocusPath({ id: "trigger:upper-trap-left", name: "Upper Trapezius", source: "trigger" })
+    ).toBe("/#/trigger-points");
+  });
+
+  it("falls back to the stretch screen for a focus stored before sources existed", () => {
+    expect(dailyFocusPath({ id: "stretch:hips", name: "Hips" })).toBe("/#/stretch");
+    expect(dailyFocusPath({ id: "simple:", name: "Mystery", source: "simple" })).toBe("/#/simple");
   });
 });

@@ -3,12 +3,14 @@
 // It does three jobs:
 //   1. Serves the built static app from ../dist (single-page app).
 //   2. Exposes a small "sync by code" API so a person can see the same activity
-//      log, sets/reps plans, and custom routines on their phone and their
-//      desktop. There are no accounts: anyone who knows a code shares that
+//      log, sets/reps plans, custom routines, and today's focuses on their
+//      phone and their desktop. There are no accounts: anyone who knows a code shares that
 //      code's data. Pick something unguessable.
 //   3. Publishes the fixed weekly schedule at GET /api/weekly-plan, so another
 //      app can show what today's workout is without keeping a second copy of
-//      the plan that quietly drifts from this one.
+//      the plan that quietly drifts from this one, and today's chosen focuses
+//      at GET /api/daily-focus — the same data a device syncs, read back by
+//      sync code so the Main Hub dashboard can show what today is about.
 //
 // Storage is Postgres when DATABASE_URL is set, and one JSON file per code under
 // DATA_DIR otherwise (see server/store.js). Prefer Postgres in production: on a
@@ -20,7 +22,8 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { mergeActivityLogs } from "../src/utils/mergeActivityLog.js";
-import { mergeSyncDocs } from "../src/utils/mergeSyncDocs.js";
+import { mergeSyncDocs, normalizeSyncDoc } from "../src/utils/mergeSyncDocs.js";
+import { dailyFocusesFromState, dailyFocusPath } from "../src/utils/dailyFocus.js";
 import { weeklyPlan } from "../src/data/weeklyPlan.js";
 import { parseCalendarDay, planForDate } from "../src/utils/weeklyPlanDay.js";
 import { createStore } from "./store.js";
@@ -89,8 +92,8 @@ function readBody(req) {
 }
 
 // A PUT body may be a bare log array or `{ log }` (what older app versions
-// sent), or `{ log, docs }` — docs being the sets/reps plans and the custom
-// routines, each `{ value, updatedAt }`.
+// sent), or `{ log, docs }` — docs being the sets/reps plans, the custom
+// routines and today's focuses, each `{ value, updatedAt }`.
 function parseSyncBody(raw) {
   const parsed = raw ? JSON.parse(raw) : {};
   if (Array.isArray(parsed)) return { log: parsed, docs: {} };
@@ -164,21 +167,23 @@ function publicPlanDay(plan) {
   };
 }
 
-function handleWeeklyPlan(req, res, url) {
+// Which day a published route is being asked about. A caller may name its own
+// calendar day rather than this container's — the hub asking is in Vancouver
+// and this server is on UTC, so "today" is a question only the caller can
+// answer for itself. Returns null once it has answered the request itself: a
+// method this route does not take, or a date it cannot read.
+function calendarDayFor(req, res, url) {
   if (req.method !== "GET" && req.method !== "HEAD") {
     res.writeHead(405, { Allow: "GET" });
     res.end();
-    return;
+    return null;
   }
 
-  // A caller may ask for its own calendar day rather than this container's —
-  // the hub asking is in Vancouver and this server is on UTC, so "today" is a
-  // question only the caller can answer for itself.
   const requested = url.searchParams.get("date");
   const date = requested === null ? new Date() : parseCalendarDay(requested);
   if (!date) {
     sendJson(res, 400, { error: "date must be YYYY-MM-DD." });
-    return;
+    return null;
   }
 
   const dateKey = [
@@ -187,16 +192,75 @@ function handleWeeklyPlan(req, res, url) {
     String(date.getDate()).padStart(2, "0"),
   ].join("-");
 
+  return { date, dateKey };
+}
+
+function handleWeeklyPlan(req, res, url) {
+  const day = calendarDayFor(req, res, url);
+  if (!day) return;
+
   sendJson(
     res,
     200,
     {
-      date: dateKey,
-      today: publicPlanDay(planForDate(date)),
+      date: day.dateKey,
+      today: publicPlanDay(planForDate(day.date)),
       week: weeklyPlan.map(publicPlanDay),
     },
     { "Access-Control-Allow-Origin": "*" },
   );
+}
+
+// ─── Today's focuses, published ─────────────────────────────────────────────
+//
+// What was tapped as today's focus on any device that shares this sync code:
+// the stretches, exercises and trigger points chosen on the Stretch screen and
+// the body map. The Main Hub dashboard shows them at the top of its morning
+// page, which is the whole reason this route exists — the list is already in
+// the sync record, so this reads it rather than keeping a second copy.
+//
+// Unlike the weekly plan this is personal, so it answers only to the sync code
+// and carries no CORS header: it is read server to server, and a code in a
+// query string ends up in an access log, so it travels in a header.
+//
+// The day the focuses belong to is stored with them. A list from another day
+// is not today's answer, so this says as much rather than showing yesterday's
+// pick — the same reading the app itself makes of a stale list.
+async function handleDailyFocus(req, res, url) {
+  const day = calendarDayFor(req, res, url);
+  if (!day) return;
+
+  const code = normalizeCode(req.headers["x-sync-code"]);
+  if (!code) {
+    sendJson(res, 401, { error: "A valid sync code is required in the x-sync-code header." });
+    return;
+  }
+
+  const record = await store.read(code);
+  const stored = normalizeSyncDoc(record.docs?.dailyFocus);
+  // An unknown code and a code that has never synced a focus read the same
+  // here, and they mean the same thing to a caller: there is a setup step left,
+  // not an outage.
+  if (!stored) {
+    sendJson(res, 404, { error: "No focuses have been synced under this code yet." });
+    return;
+  }
+
+  const state = stored.value;
+  const focuses = state?.day === day.dateKey ? dailyFocusesFromState(state) : [];
+
+  sendJson(res, 200, {
+    date: day.dateKey,
+    // An empty list is an answer: nothing has been picked today. It is not the
+    // same as the 404 above, which is nothing having been synced at all.
+    focuses: focuses.map((focus) => ({
+      id: focus.id,
+      name: focus.name,
+      source: focus.source,
+      path: dailyFocusPath(focus),
+    })),
+    updatedAt: stored.updatedAt || null,
+  });
 }
 
 async function serveStatic(req, res) {
@@ -246,6 +310,11 @@ const server = http.createServer(async (req, res) => {
 
     if (pathname === "/api/weekly-plan") {
       handleWeeklyPlan(req, res, url);
+      return;
+    }
+
+    if (pathname === "/api/daily-focus") {
+      await handleDailyFocus(req, res, url);
       return;
     }
 

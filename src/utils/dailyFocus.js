@@ -99,3 +99,16 @@ export function removeDailyFocusFromState(state, focusId, today) {
     focuses: current.filter((focus) => focus.id !== focusId),
   };
 }
+
+// Where a focus lives in the app, as a link rather than a screen name. The
+// sync server publishes this to the Main Hub dashboard so a focus on the hub
+// can be tapped straight through to the stretch, the exercise, or the body map
+// it came from — and so how the hash routing is spelled stays known here only.
+export function dailyFocusPath(focus) {
+  if (focus?.source === "simple") {
+    const slug = String(focus.id || "").slice("simple:".length);
+    return slug ? `/#/simple/${slug}` : "/#/simple";
+  }
+  if (focus?.source === "trigger") return "/#/trigger-points";
+  return "/#/stretch";
+}

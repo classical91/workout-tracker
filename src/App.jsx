@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocalStorage } from "./hooks/useLocalStorage.js";
 import { useActivityLog } from "./hooks/useActivityLog.js";
 import { useCustomWorkouts } from "./hooks/useCustomWorkouts.js";
+import { useSyncedDoc } from "./hooks/useSyncedDoc.js";
 import { useWorkoutPlans } from "./hooks/useWorkoutPlans.js";
 import { useDailyReset } from "./hooks/useDailyReset.js";
 import { STORAGE_KEYS } from "./constants/storageKeys.js";
@@ -72,15 +73,26 @@ export default function App() {
   };
 
   const [checked, setChecked, checkedSaveError] = useLocalStorage(STORAGE_KEYS.checked, {});
-  const [dailyFocusState, setDailyFocusState, dailyFocusSaveError] = useLocalStorage(
+  // Today's focuses travel between devices, and off the device entirely: the
+  // Main Hub dashboard reads them back out of the sync record to show what
+  // today is about, so a focus picked on the phone is the one the hub shows.
+  // Same `{ value, updatedAt }` shape as the plans, so the most recent pick
+  // wins when two devices both chose something.
+  const [dailyFocusState, setDailyFocusState, dailyFocusDoc] = useSyncedDoc(
     STORAGE_KEYS.dailyStretchFocus,
     { day: "", focuses: [] }
   );
-  useDailyReset(dailyFocusState.day, (today) => {
-    setDailyFocusState({ day: today, focuses: [] });
-  });
+  const dailyFocusSaveError = dailyFocusDoc.saveError;
+  // Yesterday's list is cleared by being ignored, not by being overwritten. The
+  // day the focuses belong to is stored with them, so a list from another day
+  // already reads as no focuses, and the first pick of a new day replaces it.
+  // Writing the empty list instead would stamp the document as this device's
+  // most recent edit — and a laptop opened at ten would then clobber the focus
+  // the phone picked at nine.
+  const [today, setToday] = useState(localDay());
+  useDailyReset(today, setToday);
   const activeDailyFocuses =
-    dailyFocusState.day === localDay() ? dailyFocusesFromState(dailyFocusState) : [];
+    dailyFocusState.day === today ? dailyFocusesFromState(dailyFocusState) : [];
   const addDailyFocus = (focus) => {
     const today = localDay();
     setDailyFocusState((previous) => addDailyFocusToState(previous, focus, today));
@@ -104,9 +116,9 @@ export default function App() {
     doc: plansDoc,
     saveError: plansSaveError,
   } = useWorkoutPlans();
-  // The sets/reps plans and the custom routines ride along with the activity
-  // log on every sync, so a routine built on the phone (and the numbers set for
-  // it) is there on the desktop.
+  // The sets/reps plans, the custom routines and today's focuses ride along
+  // with the activity log on every sync, so a routine built on the phone (and
+  // the numbers set for it) is there on the desktop.
   const {
     log,
     addActivity,
@@ -116,7 +128,9 @@ export default function App() {
     clearToday,
     saveError: logSaveError,
     sync,
-  } = useActivityLog({ docs: { plans: plansDoc, customWorkouts: customWorkoutsDoc } });
+  } = useActivityLog({
+    docs: { plans: plansDoc, customWorkouts: customWorkoutsDoc, dailyFocus: dailyFocusDoc },
+  });
 
   const goHome = () => setScreen("home");
   const goCalm = () => setScreen("calm");
