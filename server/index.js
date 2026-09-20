@@ -24,6 +24,7 @@ import { fileURLToPath } from "node:url";
 import { mergeActivityLogs } from "../src/utils/mergeActivityLog.js";
 import { mergeSyncDocs, normalizeSyncDoc } from "../src/utils/mergeSyncDocs.js";
 import { dailyFocusesFromState, dailyFocusPath } from "../src/utils/dailyFocus.js";
+import { localDay } from "../src/utils/localDay.js";
 import { weeklyPlan } from "../src/data/weeklyPlan.js";
 import { parseCalendarDay, planForDate } from "../src/utils/weeklyPlanDay.js";
 import { createStore } from "./store.js";
@@ -247,7 +248,14 @@ async function handleDailyFocus(req, res, url) {
   }
 
   const state = stored.value;
-  const focuses = state?.day === day.dateKey ? dailyFocusesFromState(state) : [];
+  // Compared in the app's own spelling of a day, not in the caller's. A focus
+  // is stamped with `localDay()` — "Sun Sep 20 2026" — and a caller asks in
+  // "2026-09-20", so comparing the two strings directly is a test that can
+  // never pass: every list reads as another day's and the route answers empty
+  // forever. localDay is imported rather than reimplemented here for the same
+  // reason the merge logic is shared: one definition, or the two sides drift
+  // again the next time either changes.
+  const focuses = state?.day === localDay(day.date) ? dailyFocusesFromState(state) : [];
 
   sendJson(res, 200, {
     date: day.dateKey,
