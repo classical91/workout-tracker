@@ -10,6 +10,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { localDay } from "../src/utils/localDay.js";
 
 const SERVER = fileURLToPath(new URL("./index.js", import.meta.url));
 const PORT = 4700 + Math.floor(Math.random() * 200);
@@ -28,6 +29,16 @@ async function sync(value, code = CODE) {
   });
   expect(response.status).toBe(200);
 }
+
+// The app stamps a focus list with `localDay()` — "Sun Sep 20 2026" — not with
+// the "2026-09-20" a caller asks in. Every fixture below is built through the
+// same function the app uses, so the two spellings can never quietly drift
+// apart again: a route that compared the raw strings answered "nothing picked
+// today" forever, and a fixture written in the caller's spelling agreed with it.
+const APP_DAY = (dateKey) => {
+  const [year, month, day] = dateKey.split("-").map(Number);
+  return localDay(new Date(year, month - 1, day));
+};
 
 const read = (query = "", headers = { "x-sync-code": CODE }) =>
   fetch(`${BASE}/api/daily-focus${query}`, { headers });
@@ -68,7 +79,7 @@ afterAll(async () => {
 describe("GET /api/daily-focus", () => {
   it("answers with what was picked for the day the caller asked about", async () => {
     await sync({
-      day: "2026-09-16",
+      day: APP_DAY("2026-09-16"),
       focuses: [
         { id: "stretch:hips", name: "Hips", source: "stretch" },
         { id: "simple:wall-sit", name: "Wall Sit", source: "simple" },
@@ -96,7 +107,7 @@ describe("GET /api/daily-focus", () => {
   });
 
   it("does not show another day's picks as today's", async () => {
-    await sync({ day: "2026-09-16", focuses: [{ id: "stretch:hips", name: "Hips" }] });
+    await sync({ day: APP_DAY("2026-09-16"), focuses: [{ id: "stretch:hips", name: "Hips" }] });
 
     const payload = await (await read("?date=2026-09-17")).json();
     expect(payload.date).toBe("2026-09-17");
@@ -104,11 +115,22 @@ describe("GET /api/daily-focus", () => {
   });
 
   it("says plainly that nothing was picked today", async () => {
-    await sync({ day: "2026-09-16", focuses: [] });
+    await sync({ day: APP_DAY("2026-09-16"), focuses: [] });
 
     const response = await read("?date=2026-09-16");
     expect(response.status).toBe(200);
     expect((await response.json()).focuses).toEqual([]);
+  });
+
+  it("finds a focus stored the way the app stores it", async () => {
+    // The regression this route shipped with: the app stamps the list with
+    // `localDay()` and the route compared that to "YYYY-MM-DD", so a focus
+    // picked on the phone never came back. Stored here through the app's own
+    // function, for today, and asked for the same way the hub asks.
+    await sync({ day: localDay(), focuses: [{ id: "stretch:neck", name: "Neck", source: "stretch" }] });
+
+    const payload = await (await read(`?date=${today()}`)).json();
+    expect(payload.focuses.map((focus) => focus.name)).toEqual(["Neck"]);
   });
 
   it("falls back to this server's day when no date is given", async () => {
@@ -152,7 +174,7 @@ describe("GET /api/daily-focus", () => {
     // fields are named here: anything new on a focus is a decision rather than
     // something that leaks out on the next edit.
     await sync({
-      day: "2026-09-16",
+      day: APP_DAY("2026-09-16"),
       focuses: [
         {
           id: "trigger:upper-trap-left",

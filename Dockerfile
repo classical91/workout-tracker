@@ -25,6 +25,7 @@ COPY src/utils/mergeSyncDocs.js ./src/utils/mergeSyncDocs.js
 COPY src/utils/weeklyPlanDay.js ./src/utils/weeklyPlanDay.js
 COPY src/data/weeklyPlan.js ./src/data/weeklyPlan.js
 COPY src/utils/dailyFocus.js ./src/utils/dailyFocus.js
+COPY src/utils/localDay.js ./src/utils/localDay.js
 ENV PORT=3000
 # Used only when DATABASE_URL is unset: synced data then lives in JSON files
 # here, and a redeploy wipes it unless a volume is mounted at this path.
