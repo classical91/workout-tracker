@@ -36,4 +36,18 @@ describe("mergeSyncDocs", () => {
     );
     expect(Object.keys(merged).sort()).toEqual(["customWorkouts", "plans"]);
   });
+
+  it("carries today's focuses between devices, newest pick winning", () => {
+    const morning = { value: { day: "2026-09-16", focuses: [{ id: "stretch:hips" }] }, updatedAt: 1 };
+    const later = {
+      value: { day: "2026-09-16", focuses: [{ id: "stretch:hips" }, { id: "stretch:neck" }] },
+      updatedAt: 2,
+    };
+
+    const merged = mergeSyncDocs({ dailyFocus: morning }, { dailyFocus: later });
+    expect(merged.dailyFocus).toEqual(later);
+    // The other direction too: a device pushing an older copy cannot undo a
+    // pick made on another one.
+    expect(mergeSyncDocs({ dailyFocus: later }, { dailyFocus: morning }).dailyFocus).toEqual(later);
+  });
 });
