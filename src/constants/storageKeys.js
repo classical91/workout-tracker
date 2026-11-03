@@ -20,4 +20,6 @@ export const STORAGE_KEYS = {
   // workout id + step index. Overrides whatever numbers a routine ships with,
   // and syncs across devices alongside the log.
   workoutPlans: "wellness_workout_plans",
+  // Whether the Weekly Plan screen shows one week or the whole month.
+  planView: "wellness_plan_view",
 };
