@@ -61,6 +61,17 @@ describe("GET /api/weekly-plan", () => {
     expect(payload.week[0].day).toBe("Monday");
   });
 
+  it("publishes a pick-one item's choices with links", async () => {
+    // 2026-09-17 is a Thursday, the stretching day.
+    const payload = await (await fetch(`${BASE}/api/weekly-plan?date=2026-09-17`)).json();
+    const pairing = payload.today.items.find((item) => item.choices);
+    expect(pairing.name).toBe("Pair It With One");
+    expect(pairing.choices.find((c) => c.name === "Sauna").path).toBe("/#/sauna");
+    expect(pairing.choices.find((c) => c.name === "Paddle Boarding").path).toBeNull();
+    // Items without choices stay as they were.
+    expect(payload.today.items[0]).not.toHaveProperty("choices");
+  });
+
   it("falls back to this server's day when no date is given", async () => {
     const payload = await (await fetch(`${BASE}/api/weekly-plan`)).json();
     const now = new Date();
@@ -107,7 +118,11 @@ describe("GET /api/weekly-plan", () => {
         "theme",
       ]);
       for (const item of day.items) {
-        expect(Object.keys(item).sort()).toEqual(["detail", "emoji", "name", "path", "screen"]);
+        const { choices, ...rest } = item;
+        expect(Object.keys(rest).sort()).toEqual(["detail", "emoji", "name", "path", "screen"]);
+        for (const choice of choices || []) {
+          expect(Object.keys(choice).sort()).toEqual(["emoji", "name", "path", "screen"]);
+        }
       }
     }
   });

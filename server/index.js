@@ -164,6 +164,14 @@ function publicPlanDay(plan) {
       detail: item.detail,
       screen: item.screen,
       path: item.screen ? `/#/${item.screen}` : null,
+      ...(item.choices && {
+        choices: item.choices.map((choice) => ({
+          emoji: choice.emoji,
+          name: choice.name,
+          screen: choice.screen,
+          path: choice.screen ? `/#/${choice.screen}` : null,
+        })),
+      }),
     })),
   };
 }

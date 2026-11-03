@@ -1,6 +1,8 @@
 // The set weekly schedule. Every activity in the app gets a fixed home across
 // the week: three dumbbell days, two bodyweight days, one recovery day and one
-// full rest day. Items with a `screen` link straight to that screen.
+// full rest day. Items with a `screen` link straight to that screen. An item
+// with `choices` is a "pick one" — each choice is its own option, and the ones
+// with a `screen` link straight to it.
 export const weeklyPlan = [
   {
     day: "Monday",
@@ -80,13 +82,28 @@ export const weeklyPlan = [
     theme: "Recovery",
     emoji: "🌿",
     color: "#2ECC71",
-    focus: "Active Recovery",
+    focus: "Stretch + One Add-On",
     items: [
       {
         emoji: "🧘",
         name: "Stretch",
         detail: "Full-body flexibility · 10 min",
         screen: "stretch",
+      },
+      {
+        emoji: "➕",
+        name: "Pair It With One",
+        detail: "Pick one to go with your stretch, log it when done · 10–30 min",
+        screen: null,
+        choices: [
+          { emoji: "😮‍💨", name: "Breathing", screen: "breathing" },
+          { emoji: "🧖", name: "Sauna", screen: "sauna" },
+          { emoji: "🏊", name: "Swimming", screen: null },
+          { emoji: "🏃", name: "Running", screen: null },
+          { emoji: "🚴", name: "Biking", screen: null },
+          { emoji: "🏄", name: "Paddle Boarding", screen: null },
+          { emoji: "🔋", name: "Massage Gun", screen: null },
+        ],
       },
       {
         emoji: "🎯",
