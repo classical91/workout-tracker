@@ -49,3 +49,36 @@ describe("WeeklyPlanScreen month view", () => {
     expect(screen.getAllByText(/day$/).length).toBeGreaterThanOrEqual(7);
   });
 });
+
+describe("WeeklyPlanScreen stretching day", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 10, 5, 10, 0)); // Thu Nov 5 2026
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it("pairs the stretch with one add-on, linking the ones that have a screen", () => {
+    const onNavigate = vi.fn();
+    render(<WeeklyPlanScreen onBack={() => {}} onNavigate={onNavigate} />);
+    const group = screen.getByRole("group", { name: "Pair It With One" });
+    for (const name of [
+      "Breathing",
+      "Sauna",
+      "Swimming",
+      "Running",
+      "Biking",
+      "Paddle Boarding",
+      "Massage Gun",
+    ]) {
+      expect(group).toHaveTextContent(name);
+    }
+
+    fireEvent.click(screen.getByRole("button", { name: /Sauna/ }));
+    expect(onNavigate).toHaveBeenCalledWith("sauna");
+    fireEvent.click(screen.getByRole("button", { name: /Breathing/ }));
+    expect(onNavigate).toHaveBeenCalledWith("breathing");
+    // Logged from the home screen, so nothing to jump to.
+    expect(screen.queryByRole("button", { name: /Paddle Boarding/ })).toBeNull();
+  });
+});

@@ -20,8 +20,43 @@ function formatWeekRange(monday) {
   return `${fmt(monday)} – ${fmt(sunday)}`;
 }
 
+// One option of a "pick one" item. Options with a screen open it; the rest
+// (swimming, paddle boarding, …) are logged from the home screen.
+function ChoiceChip({ choice, color, onNavigate }) {
+  const clickable = !!choice.screen;
+  const Tag = clickable ? "button" : "span";
+  return (
+    <Tag
+      {...(clickable ? { type: "button", onClick: () => onNavigate(choice.screen) } : {})}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        background: T.surface,
+        border: `1px solid ${clickable ? color : T.border}`,
+        borderRadius: 99,
+        padding: "4px 10px",
+        color: T.text,
+        font: "inherit",
+        fontSize: 11.5,
+        fontWeight: 600,
+        cursor: clickable ? "pointer" : "default",
+      }}
+    >
+      <span aria-hidden>{choice.emoji}</span>
+      {choice.name}
+      {clickable && (
+        <span style={{ color }} aria-hidden>
+          ›
+        </span>
+      )}
+    </Tag>
+  );
+}
+
 function PlanItem({ item, color, onNavigate }) {
-  const clickable = !!item.screen;
+  // An item with choices holds its own buttons, so it is never one itself.
+  const clickable = !!item.screen && !item.choices;
   const Tag = clickable ? "button" : "div";
   return (
     <Tag
@@ -53,6 +88,17 @@ function PlanItem({ item, color, onNavigate }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 13.5, fontWeight: 700 }}>{item.name}</div>
         <div style={{ fontSize: 11.5, color: T.muted, marginTop: 1 }}>{item.detail}</div>
+        {item.choices && (
+          <div
+            role="group"
+            aria-label={item.name}
+            style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}
+          >
+            {item.choices.map((choice) => (
+              <ChoiceChip key={choice.name} choice={choice} color={color} onNavigate={onNavigate} />
+            ))}
+          </div>
+        )}
       </div>
       {clickable && (
         <span style={{ color, fontSize: 16, flexShrink: 0 }} aria-hidden>
