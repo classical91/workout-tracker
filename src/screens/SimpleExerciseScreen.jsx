@@ -3,7 +3,7 @@ import { T, font, display } from "../theme.js";
 import { simpleEx, findSimpleEx } from "../data/simpleExercises.js";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 import { ActivityCompletionForm } from "../components/ActivityCompletionForm.jsx";
-import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
+import { simpleCheckKey, simpleGroupId } from "../data/liveLogGroups.js";
 import { DailyFocusPrompt } from "../components/DailyFocusPrompt.jsx";
 import { simpleExerciseDailyFocus } from "../utils/dailyFocus.js";
 
@@ -13,14 +13,14 @@ export function SimpleExerciseScreen({
   onOpen,
   checked,
   setChecked,
-  onAddActivity,
+  getLiveActivity = () => null,
   onUpdateActivity,
   onAddDailyFocus,
   onRemoveDailyFocus,
 }) {
   const color = T.blue;
   const match = findSimpleEx(slug);
-  const [completedActivity, setCompletedActivity] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
   const [pendingFocus, setPendingFocus] = useState(null);
 
   // Unknown slug — send the visitor back to the full list.
@@ -52,24 +52,18 @@ export function SimpleExerciseScreen({
   }
 
   const { exercise, index } = match;
-  const key = `sim-${index}`;
+  const key = simpleCheckKey(index);
   const isDone = !!checked[key];
+  // Checking it logs it straight away (see useLiveCheckLog); unchecking takes
+  // the entry back out. The details form edits that same entry.
+  const liveActivity = isDone ? getLiveActivity(simpleGroupId(exercise.slug)) : null;
   const toggle = () => {
     if (!isDone) {
       setPendingFocus(simpleExerciseDailyFocus(exercise));
-      setCompletedActivity(
-        onAddActivity({
-          type: ACTIVITY_TYPES.EXERCISE,
-          category: ACTIVITY_CATEGORIES.STRENGTH,
-          name: exercise.name,
-          emoji: "🏃",
-          color,
-          duration: "",
-          details: { exercises: [{ name: exercise.name, planned: exercise.reps }] },
-        })
-      );
+      setShowDetails(true);
     } else {
       onRemoveDailyFocus?.(`simple:${exercise.slug}`);
+      setShowDetails(false);
     }
     setChecked((previous) => ({ ...previous, [key]: !previous[key] }));
   };
@@ -145,14 +139,15 @@ export function SimpleExerciseScreen({
           </button>
         </div>
 
-        {completedActivity && (
+        {showDetails && liveActivity && (
           <ActivityCompletionForm
-            activity={completedActivity}
+            key={liveActivity.id}
+            activity={liveActivity}
             onSave={(updates) => {
-              onUpdateActivity(completedActivity.id, updates);
-              setCompletedActivity(null);
+              onUpdateActivity(liveActivity.id, updates);
+              setShowDetails(false);
             }}
-            onSkip={() => setCompletedActivity(null)}
+            onSkip={() => setShowDetails(false)}
           />
         )}
 

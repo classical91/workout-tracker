@@ -20,6 +20,9 @@ export const STORAGE_KEYS = {
   // workout id + step index. Overrides whatever numbers a routine ships with,
   // and syncs across devices alongside the log.
   workoutPlans: "wellness_workout_plans",
+  // Which local day the checkmarks belong to and the log entry each routine's
+  // checkmarks are mirrored into, so every check is logged the moment it's made.
+  liveCheckLog: "wellness_live_check_log",
   // Whether the Weekly Plan screen shows one week or the whole month.
   planView: "wellness_plan_view",
 };

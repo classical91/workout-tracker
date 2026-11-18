@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { WorkoutSetsScreen } from "./WorkoutSetsScreen.jsx";
 import {
@@ -7,10 +7,8 @@ import {
   clampSetCount,
   workoutPlanKey,
   workoutSetKey,
-  workoutUnitKeys,
   workouts,
 } from "../data/workouts.js";
-import { STORAGE_KEYS } from "../constants/storageKeys.js";
 
 function Harness({
   initialChecked = {},
@@ -52,10 +50,6 @@ function Harness({
     />
   );
 }
-
-// Every set of every step checked — a fully finished routine.
-const checkAll = (workout, plans = {}) =>
-  Object.fromEntries(workoutUnitKeys(workout, plans).map((key) => [key, true]));
 
 const firstWorkout = workouts[0];
 const firstExercise = firstWorkout.steps[1];
@@ -126,7 +120,7 @@ describe("WorkoutSetsScreen sets and reps", () => {
   });
 });
 
-describe("WorkoutSetsScreen logging", () => {
+describe("WorkoutSetsScreen images", () => {
   it("shows the supplied form image for exercises in each built-in workout", () => {
     render(<Harness />);
 
@@ -150,162 +144,4 @@ describe("WorkoutSetsScreen logging", () => {
     );
   });
 
-  it("logs once when the last set of the routine is checked", async () => {
-    const onAddActivity = vi.fn((entry) => entry);
-    const allButCoolDown = { ...checkAll(firstWorkout) };
-    delete allButCoolDown[`w-${firstWorkout.id}-6`];
-    render(<Harness initialChecked={allButCoolDown} onAddActivity={onAddActivity} />);
-
-    fireEvent.click(screen.getByRole("button", { name: /Cool-Down/i }));
-    await waitFor(() => expect(onAddActivity).toHaveBeenCalledTimes(1));
-    expect(onAddActivity.mock.calls[0][0]).toMatchObject({
-      type: "workout",
-      category: "strength",
-      completed: true,
-      name: firstWorkout.title,
-      details: { workoutId: firstWorkout.id, completedSets: 17 },
-    });
-    // Each logged exercise carries the sets done and the reps they were planned
-    // at, so nothing has to be typed in afterwards.
-    expect(onAddActivity.mock.calls[0][0].details.exercises[0]).toEqual({
-      name: firstExercise.phase,
-      setCount: 3,
-      plannedSets: 3,
-      reps: 12,
-    });
-
-    fireEvent.click(screen.getByRole("button", { name: /Workout 2/i }));
-    fireEvent.click(screen.getByRole("button", { name: /Workout 1/i }));
-    expect(onAddActivity).toHaveBeenCalledTimes(1);
-  });
-
-  it("does not log an already-completed workout on first render", () => {
-    const onAddActivity = vi.fn((entry) => entry);
-    render(<Harness initialChecked={checkAll(firstWorkout)} onAddActivity={onAddActivity} />);
-    expect(onAddActivity).not.toHaveBeenCalled();
-  });
-
-  it("logs a custom workout with the sets it actually ticked off", async () => {
-    const onAddActivity = vi.fn((entry) => entry);
-    const custom = {
-      id: "custom-1",
-      title: "Custom Strength",
-      tag: "Custom",
-      emoji: "🏋️",
-      color: "#378ADD",
-      steps: [{ phase: "Rows", setCount: 3, repCount: 10, detail: "Pull", type: "exercise" }],
-    };
-    render(<Harness onAddActivity={onAddActivity} customWorkouts={[custom]} />);
-    fireEvent.click(screen.getByRole("button", { name: /Custom/i }));
-
-    fireEvent.click(screen.getByRole("button", { name: "Rows set 1" }));
-    fireEvent.click(screen.getByRole("button", { name: "Rows set 2" }));
-    fireEvent.click(screen.getByRole("button", { name: "Rows set 3" }));
-
-    await waitFor(() => expect(onAddActivity).toHaveBeenCalledTimes(1));
-    expect(onAddActivity.mock.calls[0][0].details.exercises[0]).toEqual({
-      name: "Rows",
-      setCount: 3,
-      plannedSets: 3,
-      reps: 10,
-    });
-  });
-
-  it("logs a half-finished exercise as the sets that were done", async () => {
-    const onAddActivity = vi.fn((entry) => entry);
-    render(
-      <Harness
-        initialChecked={{ [workoutSetKey(firstWorkout.id, 1, 0)]: true }}
-        onAddActivity={onAddActivity}
-      />
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: /Log this session \(1 of 17\)/i }));
-
-    await waitFor(() => expect(onAddActivity).toHaveBeenCalledTimes(1));
-    expect(onAddActivity.mock.calls[0][0]).toMatchObject({
-      type: "workout",
-      completed: false,
-      name: `${firstWorkout.title} (Partial)`,
-    });
-    expect(onAddActivity.mock.calls[0][0].details.exercises[0]).toEqual({
-      name: firstExercise.phase,
-      setCount: 1,
-      plannedSets: 3,
-      reps: 12,
-    });
-  });
-
-  it("hides the manual button until at least one set is checked", () => {
-    render(<Harness />);
-    expect(screen.queryByRole("button", { name: /Log this session/i })).toBeNull();
-  });
-
-  it("auto-logs checked-but-unlogged sets when leaving the screen", () => {
-    const onAddActivity = vi.fn((entry) => entry);
-    const { unmount } = render(
-      <Harness
-        initialChecked={{ [workoutSetKey(firstWorkout.id, 1, 0)]: true }}
-        onAddActivity={onAddActivity}
-      />
-    );
-
-    // Nothing logged while on the screen — the user never tapped the button.
-    expect(onAddActivity).not.toHaveBeenCalled();
-
-    unmount();
-
-    expect(onAddActivity).toHaveBeenCalledTimes(1);
-    expect(onAddActivity.mock.calls[0][0]).toMatchObject({ type: "workout", completed: false });
-  });
-
-  it("does not re-log on leave when the session was just logged manually", () => {
-    const onAddActivity = vi.fn((entry) => entry);
-    const { unmount } = render(
-      <Harness
-        initialChecked={{ [workoutSetKey(firstWorkout.id, 1, 0)]: true }}
-        onAddActivity={onAddActivity}
-      />
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: /Log this session/i }));
-    expect(onAddActivity).toHaveBeenCalledTimes(1);
-
-    unmount();
-    expect(onAddActivity).toHaveBeenCalledTimes(1);
-  });
-
-  it("keeps a logged set checked and does not re-log it on the same day", () => {
-    const today = new Date().toDateString();
-    const loggedKey = workoutSetKey(firstWorkout.id, 1, 0);
-    localStorage.setItem(
-      STORAGE_KEYS.workoutSession,
-      JSON.stringify({ day: today, logged: { [loggedKey]: true } })
-    );
-    const onAddActivity = vi.fn((entry) => entry);
-    const { unmount } = render(
-      <Harness initialChecked={{ [loggedKey]: true }} onAddActivity={onAddActivity} />
-    );
-
-    // Already logged today → still checked, but no button and no re-log.
-    expect(screen.queryByRole("button", { name: /Log this session/i })).toBeNull();
-    unmount();
-    expect(onAddActivity).not.toHaveBeenCalled();
-  });
-
-  it("clears workout checkmarks on a new local day without logging them", () => {
-    localStorage.setItem(
-      STORAGE_KEYS.workoutSession,
-      JSON.stringify({ day: "Mon Jan 01 2001", logged: {} })
-    );
-    const onAddActivity = vi.fn((entry) => entry);
-    const { unmount } = render(
-      <Harness initialChecked={checkAll(firstWorkout)} onAddActivity={onAddActivity} />
-    );
-
-    // Stale-day checks are wiped: no manual button, and nothing is logged.
-    expect(screen.queryByRole("button", { name: /Log this session/i })).toBeNull();
-    unmount();
-    expect(onAddActivity).not.toHaveBeenCalled();
-  });
 });

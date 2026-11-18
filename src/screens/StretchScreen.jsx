@@ -1,16 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { T, font } from "../theme.js";
-import {
-  StretchIllus,
-  stretchCheckKey,
-  stretchSections,
-  summarizeStretchSession,
-} from "../data/stretches.js";
-import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
-import { useLocalStorage } from "../hooks/useLocalStorage.js";
-import { useDailyReset } from "../hooks/useDailyReset.js";
-import { STORAGE_KEYS } from "../constants/storageKeys.js";
-import { localDay } from "../utils/localDay.js";
+import { StretchIllus, stretchCheckKey, stretchSections } from "../data/stretches.js";
+import { STRETCH_GROUP } from "../data/liveLogGroups.js";
 import { ActivityCompletionForm } from "../components/ActivityCompletionForm.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
 import { IllusCard } from "../components/IllusCard.jsx";
@@ -25,40 +16,21 @@ const allItems = stretchSections.flatMap((section) => section.items);
 // without changing which stretches are counted, checked, or logged.
 const REGION_FILTERS = [{ label: "All", color: T.green }, ...stretchSections];
 
-function buildStretchActivity(summary) {
-  return {
-    type: ACTIVITY_TYPES.STRETCH,
-    category: ACTIVITY_CATEGORIES.MOBILITY,
-    name: summary.name,
-    emoji: "🧘",
-    color: T.green,
-    duration: summary.fullBody ? "10 min" : "",
-    completed: summary.fullBody,
-    details: {
-      bodyAreas: summary.doneItems.map((item) => item.name),
-      completedSections: summary.completedSections,
-      holds: summary.doneItems.map((item) => ({
-        name: item.name,
-        planned: item.hold,
-        region: item.region,
-        color: item.color,
-      })),
-    },
-  };
-}
-
+// Each checkmark is logged the moment it's made (see useLiveCheckLog): today's
+// stretches share one log entry that grows and shrinks with the checks. This
+// screen only offers the optional details form once the full routine is done.
 export function StretchScreen({
   onBack,
   checked,
   setChecked,
-  onAddActivity,
+  getLiveActivity = () => null,
   onUpdateActivity,
   onAddDailyFocus,
   onRemoveDailyFocus,
 }) {
   const done = allItems.filter((item) => checked[stretchCheckKey(item)]).length;
   const previousDone = useRef(done);
-  const [completedActivity, setCompletedActivity] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
   const [pendingFocus, setPendingFocus] = useState(null);
   // Which body-region section to show ("All" or one of stretchSections' labels).
   // Purely a display filter — checking, counting, and logging always consider
@@ -68,84 +40,7 @@ export function StretchScreen({
     regionFilter === "All"
       ? stretchSections
       : stretchSections.filter((section) => section.label === regionFilter);
-
-  // Which local day the current checkmarks belong to, and which stretches have
-  // already been logged that day. Checkmarks persist until the day rolls over;
-  // `logged` prevents re-logging a stretch that's still checked.
-  const [session, setSession] = useLocalStorage(STORAGE_KEYS.stretchSession, {
-    day: "",
-    logged: {},
-  });
-  const isLogged = useCallback((item) => Boolean(session.logged?.[stretchCheckKey(item)]), [session]);
-  const unloggedCount = allItems.filter(
-    (item) => checked[stretchCheckKey(item)] && !isLogged(item)
-  ).length;
-
-  // Latest values captured for logic that runs outside render (the leave-time
-  // auto-log and the once-per-day reset), so it never uses stale props.
-  const checkedRef = useRef(checked);
-  checkedRef.current = checked;
-  const addActivityRef = useRef(onAddActivity);
-  addActivityRef.current = onAddActivity;
-  const setCheckedRef = useRef(setChecked);
-  setCheckedRef.current = setChecked;
-  const setSessionRef = useRef(setSession);
-  setSessionRef.current = setSession;
-  // Source of truth for "already logged today", mirrored into state for render.
-  const loggedRef = useRef(session.logged || {});
-
-  // Roll the checkmarks over at local midnight: whenever the day changes, clear
-  // the stretch checkmarks — completed or partial — and forget what was logged,
-  // so every new day starts empty. On first-ever use (no stored day) we adopt
-  // today without clearing, so existing checks and other screens' checkmarks are
-  // left alone. useDailyReset also catches midnight while the screen is open and
-  // a return to the app after the device slept through midnight.
-  useDailyReset(session.day, (today, previousDay) => {
-    if (!previousDay) {
-      loggedRef.current = session.logged || {};
-      setSessionRef.current({ day: today, logged: loggedRef.current });
-      return;
-    }
-    loggedRef.current = {};
-    setCheckedRef.current((previous) => {
-      const next = { ...previous };
-      for (const item of allItems) delete next[stretchCheckKey(item)];
-      return next;
-    });
-    setSessionRef.current({ day: today, logged: {} });
-    // Nothing is left checked, so a details form for yesterday's session would
-    // no longer match what's on screen.
-    setCompletedActivity(null);
-  });
-
-  // Log every currently-checked stretch that hasn't been logged yet today as a
-  // single session, mark those as logged, and leave the checkmarks in place.
-  // Returns the created activity, or null when nothing new needed logging.
-  const logPending = useCallback(() => {
-    const current = checkedRef.current || {};
-    const pendingItems = allItems.filter(
-      (item) => current[stretchCheckKey(item)] && !loggedRef.current[stretchCheckKey(item)]
-    );
-    if (pendingItems.length === 0) return null;
-    const pendingChecked = Object.fromEntries(
-      pendingItems.map((item) => [stretchCheckKey(item), true])
-    );
-    const summary = summarizeStretchSession(pendingChecked);
-    const activity = addActivityRef.current(buildStretchActivity(summary));
-    const logged = { ...loggedRef.current };
-    for (const item of pendingItems) logged[stretchCheckKey(item)] = true;
-    loggedRef.current = logged;
-    setSessionRef.current({ day: localDay(), logged });
-    return activity;
-  }, []);
-
-  const logSession = useCallback(() => {
-    const activity = logPending();
-    if (activity) setCompletedActivity(activity);
-  }, [logPending]);
-
-  // Closing the details form keeps the checkmarks — they stay until the new day.
-  const dismissForm = useCallback(() => setCompletedActivity(null), []);
+  const liveActivity = getLiveActivity(STRETCH_GROUP);
 
   const toggleStretch = (item, color) => {
     const key = stretchCheckKey(item);
@@ -167,24 +62,13 @@ export function StretchScreen({
     setPendingFocus(null);
   };
 
-  // Auto-log the moment the full routine is finished, unless a form is already
-  // open (which would double-fire on checks made while it's up).
+  // Offer the details form the moment the full routine is finished; hide it
+  // again if a stretch is unchecked before it's filled in.
   useEffect(() => {
-    if (!completedActivity && done === allItems.length && previousDone.current < allItems.length) {
-      const activity = logPending();
-      if (activity) setCompletedActivity(activity);
-    }
+    if (done === allItems.length && previousDone.current < allItems.length) setShowDetails(true);
+    if (done < allItems.length) setShowDetails(false);
     previousDone.current = done;
-  }, [done, completedActivity, logPending]);
-
-  // When leaving the screen, record any checked-but-unlogged stretches so a
-  // partial routine is never lost by forgetting to tap "Log this session". The
-  // checkmarks are kept (they reset at midnight, not on leave).
-  useEffect(() => {
-    return () => {
-      logPending();
-    };
-  }, [logPending]);
+  }, [done]);
 
   return (
     <div
@@ -275,35 +159,20 @@ export function StretchScreen({
         {done === allItems.length && (
           <CompletionBanner color={T.green} emoji="🌿" text="FULLY STRETCHED!" />
         )}
-        {unloggedCount > 0 && !completedActivity && (
-          <button
-            type="button"
-            onClick={logSession}
-            style={{
-              width: "100%",
-              marginTop: 4,
-              background: T.green,
-              border: "none",
-              borderRadius: 12,
-              padding: 14,
-              color: "#000",
-              fontFamily: font,
-              fontWeight: 700,
-              fontSize: 14,
-              cursor: "pointer",
-            }}
-          >
-            Log this session ({unloggedCount} of {allItems.length})
-          </button>
+        {done > 0 && (
+          <p style={{ fontSize: 11, color: T.muted, textAlign: "center", margin: "4px 0 12px" }}>
+            ✓ Saved to your log as you check
+          </p>
         )}
-        {completedActivity && (
+        {showDetails && liveActivity && (
           <ActivityCompletionForm
-            activity={completedActivity}
+            key={liveActivity.id}
+            activity={liveActivity}
             onSave={(updates) => {
-              onUpdateActivity(completedActivity.id, updates);
-              dismissForm();
+              onUpdateActivity(liveActivity.id, updates);
+              setShowDetails(false);
             }}
-            onSkip={dismissForm}
+            onSkip={() => setShowDetails(false)}
           />
         )}
       </div>
