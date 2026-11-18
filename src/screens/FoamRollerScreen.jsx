@@ -1,34 +1,32 @@
 import { useEffect, useRef, useState } from "react";
 import { T, font } from "../theme.js";
 import { foamTech } from "../data/foamRoller.js";
-import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
+import { FOAM_GROUP, foamCheckKey } from "../data/liveLogGroups.js";
 import { ActivityCompletionForm } from "../components/ActivityCompletionForm.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
 import { ProgressBar } from "../components/ProgressBar.jsx";
 import { ScreenHeader } from "../components/ScreenHeader.jsx";
 
-export function FoamRollerScreen({ onBack, checked, setChecked, onAddActivity, onUpdateActivity }) {
+// Each area is logged the moment it's checked (see useLiveCheckLog); the
+// details form is offered once the whole routine is done.
+export function FoamRollerScreen({
+  onBack,
+  checked,
+  setChecked,
+  getLiveActivity = () => null,
+  onUpdateActivity,
+}) {
   const color = T.teal;
-  const done = foamTech.filter((_, index) => checked[`foam-${index}`]).length;
+  const done = foamTech.filter((_, index) => checked[foamCheckKey(index)]).length;
   const previousDone = useRef(done);
-  const [completedActivity, setCompletedActivity] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const liveActivity = getLiveActivity(FOAM_GROUP);
 
   useEffect(() => {
-    if (done === foamTech.length && previousDone.current < foamTech.length) {
-      setCompletedActivity(
-        onAddActivity({
-          type: ACTIVITY_TYPES.FOAM_ROLLING,
-          category: ACTIVITY_CATEGORIES.RECOVERY,
-          name: "Foam Rolling",
-          emoji: "🧴",
-          color,
-          duration: "10 min",
-          details: { bodyAreas: foamTech.map((technique) => technique.area) },
-        })
-      );
-    }
+    if (done === foamTech.length && previousDone.current < foamTech.length) setShowDetails(true);
+    if (done < foamTech.length) setShowDetails(false);
     previousDone.current = done;
-  }, [color, done, onAddActivity]);
+  }, [done]);
 
   return (
     <div
@@ -151,14 +149,15 @@ export function FoamRollerScreen({ onBack, checked, setChecked, onAddActivity, o
         {done === foamTech.length && (
           <CompletionBanner color={color} emoji="✨" text="RECOVERY COMPLETE!" />
         )}
-        {completedActivity && (
+        {showDetails && liveActivity && (
           <ActivityCompletionForm
-            activity={completedActivity}
+            key={liveActivity.id}
+            activity={liveActivity}
             onSave={(updates) => {
-              onUpdateActivity(completedActivity.id, updates);
-              setCompletedActivity(null);
+              onUpdateActivity(liveActivity.id, updates);
+              setShowDetails(false);
             }}
-            onSkip={() => setCompletedActivity(null)}
+            onSkip={() => setShowDetails(false)}
           />
         )}
       </div>

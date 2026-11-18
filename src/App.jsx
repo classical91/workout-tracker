@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocalStorage } from "./hooks/useLocalStorage.js";
 import { useActivityLog } from "./hooks/useActivityLog.js";
 import { useCustomWorkouts } from "./hooks/useCustomWorkouts.js";
 import { useSyncedDoc } from "./hooks/useSyncedDoc.js";
 import { useWorkoutPlans } from "./hooks/useWorkoutPlans.js";
 import { useDailyReset } from "./hooks/useDailyReset.js";
+import { useLiveCheckLog } from "./hooks/useLiveCheckLog.js";
+import { buildLiveLogGroups } from "./data/liveLogGroups.js";
 import { STORAGE_KEYS } from "./constants/storageKeys.js";
 import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "./constants/activityTypes.js";
 import { localDay } from "./utils/localDay.js";
@@ -132,6 +134,22 @@ export default function App() {
     docs: { plans: plansDoc, customWorkouts: customWorkoutsDoc, dailyFocus: dailyFocusDoc },
   });
 
+  // Every checkmark — stretches, workout sets, foam rolling, simple exercises —
+  // goes into the log the moment it's ticked, whichever screen it's on.
+  const liveLogGroups = useMemo(
+    () => buildLiveLogGroups({ customWorkouts, plans }),
+    [customWorkouts, plans]
+  );
+  const getLiveActivity = useLiveCheckLog({
+    groups: liveLogGroups,
+    checked,
+    setChecked,
+    log,
+    addActivity,
+    updateActivity,
+    deleteActivity,
+  });
+
   const goHome = () => setScreen("home");
   const goCalm = () => setScreen("calm");
   const timerDone = (activity) =>
@@ -158,6 +176,7 @@ export default function App() {
             onBack={goHome}
             checked={checked}
             setChecked={setChecked}
+            getLiveActivity={getLiveActivity}
             onAddActivity={addActivity}
             onUpdateActivity={updateActivity}
             customWorkouts={customWorkouts}
@@ -180,7 +199,7 @@ export default function App() {
             onBack={goHome}
             checked={checked}
             setChecked={setChecked}
-            onAddActivity={addActivity}
+            getLiveActivity={getLiveActivity}
             onUpdateActivity={updateActivity}
             onAddDailyFocus={addDailyFocus}
             onRemoveDailyFocus={removeDailyFocus}
@@ -200,12 +219,13 @@ export default function App() {
       case "simple-exercise":
         return (
           <SimpleExerciseScreen
+            key={param}
             slug={param}
             onBack={() => navigate("simple")}
             onOpen={(slug) => navigate("simple-exercise", slug)}
             checked={checked}
             setChecked={setChecked}
-            onAddActivity={addActivity}
+            getLiveActivity={getLiveActivity}
             onUpdateActivity={updateActivity}
             onAddDailyFocus={addDailyFocus}
             onRemoveDailyFocus={removeDailyFocus}
@@ -278,7 +298,7 @@ export default function App() {
             onBack={goHome}
             checked={checked}
             setChecked={setChecked}
-            onAddActivity={addActivity}
+            getLiveActivity={getLiveActivity}
             onUpdateActivity={updateActivity}
           />
         );

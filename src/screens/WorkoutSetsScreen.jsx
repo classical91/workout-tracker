@@ -6,14 +6,11 @@ import {
   resolvePlan,
   stepLabel,
   stepProgress,
-  summarizeWorkoutSession,
   tsStyle,
   workoutSetKey,
   workoutUnitKeys,
 } from "../data/workouts.js";
-import { ACTIVITY_CATEGORIES, ACTIVITY_TYPES } from "../constants/activityTypes.js";
-import { useLocalStorage } from "../hooks/useLocalStorage.js";
-import { STORAGE_KEYS } from "../constants/storageKeys.js";
+import { workoutGroupId } from "../data/liveLogGroups.js";
 import { ActivityCompletionForm } from "../components/ActivityCompletionForm.jsx";
 import { BackButton } from "../components/BackButton.jsx";
 import { CompletionBanner } from "../components/CompletionBanner.jsx";
@@ -22,40 +19,15 @@ import { ExerciseSets } from "../components/ExerciseSets.jsx";
 import { WorkoutBuilder } from "../components/WorkoutBuilder.jsx";
 import { RecoveryFlow } from "../components/RecoveryFlow.jsx";
 
-// The user's current local calendar day, used to reset checkmarks at midnight.
-const localDay = () => new Date().toDateString();
-
-// The log entry writes itself from the plan: every exercise carries the sets
-// actually ticked off and the reps they were planned at, so there is nothing to
-// re-enter afterwards.
-function buildWorkoutActivity(workout, summary) {
-  return {
-    type: ACTIVITY_TYPES.WORKOUT,
-    category: ACTIVITY_CATEGORIES.STRENGTH,
-    name: summary.name,
-    emoji: workout.emoji,
-    color: workout.color,
-    duration: summary.complete ? "~30 min" : "",
-    completed: summary.complete,
-    details: {
-      workoutId: workout.id,
-      completedSteps: summary.doneCount,
-      totalSteps: summary.totalCount,
-      completedSets: summary.doneUnits,
-      exercises: summary.doneExercises.map((step) => ({
-        name: step.phase,
-        setCount: step.doneCount,
-        plannedSets: step.plan.setCount,
-        reps: step.plan.repCount,
-      })),
-    },
-  };
-}
-
+// Each checked set is logged the moment it's ticked (see useLiveCheckLog): a
+// workout's checks share one log entry for the day that grows and shrinks with
+// them. This screen only offers the details form and the recovery suggestions
+// once a routine is finished.
 export function WorkoutSetsScreen({
   onBack,
   checked,
   setChecked,
+  getLiveActivity = () => null,
   onAddActivity,
   onUpdateActivity,
   customWorkouts,
@@ -89,135 +61,39 @@ export function WorkoutSetsScreen({
   const allDone = workouts.map((wk) => workoutUnitKeys(wk, plans).every((key) => checked[key]));
   const isCustom = safeAw >= builtInWorkouts.length;
 
-  const [completedActivity, setCompletedActivity] = useState(null);
-  const [recoveryWorkoutActivity, setRecoveryWorkoutActivity] = useState(null);
+  // Today's log entry for the active routine, kept in step with its checks.
+  const liveActivity = getLiveActivity(workoutGroupId(w.id));
+  // Which routine just finished: its details form and recovery suggestions are
+  // offered then, against that routine's live log entry.
+  const [detailsFor, setDetailsFor] = useState(null);
+  const [recoveryFor, setRecoveryFor] = useState(null);
+  const completedActivity = detailsFor === w.id ? liveActivity : null;
+  const recoveryWorkoutActivity = recoveryFor === w.id ? liveActivity : null;
 
-  // Which local day the current checkmarks belong to, and which workout steps
-  // have already been logged that day. Checkmarks persist until the day rolls
-  // over; `logged` prevents re-logging a step that's still checked.
-  const [session, setSession] = useLocalStorage(STORAGE_KEYS.workoutSession, {
-    day: "",
-    logged: {},
-  });
-  // Checked-but-unlogged steps for the active workout, so a partial routine can
-  // be logged from the button and the button hides when nothing is new.
-  const unloggedCount = unitKeys.filter((key) => checked[key] && !session.logged?.[key]).length;
-
-  // Track the previous done-set count per workout id so a routine is logged once
-  // when it crosses into fully complete, without re-logging when switching away
-  // and back. A workout's first appearance seeds its prior value with the
-  // current count so navigating straight to an already-complete routine doesn't
-  // auto-log it.
+  // Track the previous done-set count per workout id so finishing a routine is
+  // noticed once, without re-firing when switching away and back. A workout's
+  // first appearance seeds its prior value with the current count so opening
+  // an already-complete routine doesn't pop the form up again.
   const prevDone = useRef({});
-
-  // Latest values captured for logic that runs outside render (the leave-time
-  // auto-log and the once-per-day reset), so it never uses stale props.
-  const checkedRef = useRef(checked);
-  checkedRef.current = checked;
-  const addActivityRef = useRef(onAddActivity);
-  addActivityRef.current = onAddActivity;
-  const workoutsRef = useRef(workouts);
-  workoutsRef.current = workouts;
-  const setSessionRef = useRef(setSession);
-  setSessionRef.current = setSession;
-  const plansRef = useRef(plans);
-  plansRef.current = plans;
-  // Source of truth for "already logged today", mirrored into state for render.
-  const loggedRef = useRef(session.logged || {});
-
-  // Log the checked-but-unlogged steps of one workout as a single session
-  // activity, mark those steps logged, and leave the checkmarks in place.
-  // Returns the created activity, or null when nothing new needed logging.
-  const logWorkout = useCallback((workout) => {
-    const current = checkedRef.current || {};
-    const logged = loggedRef.current;
-    const activePlans = plansRef.current;
-    const pendingKeys = workoutUnitKeys(workout, activePlans).filter(
-      (key) => current[key] && !logged[key]
-    );
-    if (pendingKeys.length === 0) return null;
-    const pendingChecked = Object.fromEntries(pendingKeys.map((key) => [key, true]));
-    const summary = summarizeWorkoutSession(workout, pendingChecked, activePlans);
-    const activity = addActivityRef.current(buildWorkoutActivity(workout, summary));
-    const nextLogged = { ...logged };
-    for (const key of pendingKeys) nextLogged[key] = true;
-    loggedRef.current = nextLogged;
-    setSessionRef.current({ day: localDay(), logged: nextLogged });
-    return activity;
-  }, []);
-
-  // Log any checked-but-unlogged steps across every workout — used when leaving
-  // the screen so a partial routine is never lost by forgetting to log it.
-  const logAllPending = useCallback(() => {
-    for (const workout of workoutsRef.current) logWorkout(workout);
-  }, [logWorkout]);
-
-  const logSession = useCallback(() => {
-    const activity = logWorkout(w);
-    if (activity) {
-      setCompletedActivity(activity);
-      setRecoveryWorkoutActivity(activity);
-    }
-  }, [logWorkout, w]);
-
-  // Closing the details form keeps the checkmarks — they stay until the new day.
-  const dismissForm = useCallback(() => setCompletedActivity(null), []);
-
-  // Auto-log the moment a workout is finished, unless a form is already open
-  // (which would double-fire on checks made while it's up).
   useEffect(() => {
     const prior = w.id in prevDone.current ? prevDone.current[w.id] : doneUnits;
-    if (!completedActivity && totalUnits > 0 && doneUnits === totalUnits && prior < totalUnits) {
-      const activity = logWorkout(w);
-      if (activity) {
-        setCompletedActivity(activity);
-        setRecoveryWorkoutActivity(activity);
-      }
+    if (totalUnits > 0 && doneUnits === totalUnits && prior < totalUnits) {
+      setDetailsFor(w.id);
+      setRecoveryFor(w.id);
     }
+    if (doneUnits < totalUnits) setDetailsFor((current) => (current === w.id ? null : current));
     prevDone.current[w.id] = doneUnits;
-  }, [doneUnits, totalUnits, w, completedActivity, logWorkout]);
+  }, [doneUnits, totalUnits, w.id]);
 
-  // Roll the checkmarks over at local midnight: on the first render of a new
-  // day, clear the workout checkmarks and forget what was logged. On first-ever
-  // use (no stored day) we adopt today without clearing, so existing checks and
-  // other screens' checkmarks are left alone.
-  useEffect(() => {
-    const today = localDay();
-    if (session.day && session.day !== today) {
-      loggedRef.current = {};
-      setChecked((previous) => {
-        const next = { ...previous };
-        for (const key of Object.keys(next)) {
-          if (key.startsWith("w-")) delete next[key];
-        }
-        return next;
-      });
-      setSession({ day: today, logged: {} });
-    } else {
-      loggedRef.current = session.logged || {};
-      if (session.day !== today) setSession({ day: today, logged: session.logged || {} });
-    }
-    // Runs once on mount; refs/state read inside are intentionally not deps.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // When leaving the screen, record any checked-but-unlogged steps across all
-  // workouts so a partial routine is never lost. Checkmarks are kept (they reset
-  // at midnight, not on leave).
-  const logAllPendingRef = useRef(logAllPending);
-  logAllPendingRef.current = logAllPending;
-  useEffect(() => {
-    return () => {
-      logAllPendingRef.current();
-    };
-  }, []);
+  // Closing the details form keeps the checkmarks — they stay until the new day.
+  const dismissForm = useCallback(() => setDetailsFor(null), []);
 
   // Cancel a pending delete confirmation and close the details form when the
   // active routine changes.
   useEffect(() => {
     setConfirmingDelete(false);
-    setCompletedActivity(null);
-    setRecoveryWorkoutActivity(null);
+    setDetailsFor(null);
+    setRecoveryFor(null);
   }, [w.id]);
 
   // Clear a routine's saved checkmarks and sets/reps plans — its steps may have
@@ -494,30 +370,15 @@ export function WorkoutSetsScreen({
           );
         })}
         {pct === 100 && <CompletionBanner color={w.color} emoji="🎉" text="WORKOUT COMPLETE!" />}
-        {unloggedCount > 0 && !completedActivity && (
-          <button
-            type="button"
-            onClick={logSession}
-            style={{
-              width: "100%",
-              marginTop: 4,
-              background: w.color,
-              border: "none",
-              borderRadius: 12,
-              padding: 14,
-              color: "#000",
-              fontFamily: font,
-              fontWeight: 700,
-              fontSize: 14,
-              cursor: "pointer",
-            }}
-          >
-            Log this session ({unloggedCount} of {totalUnits})
-          </button>
+        {doneUnits > 0 && (
+          <p style={{ fontSize: 11, color: T.muted, textAlign: "center", margin: "4px 0 12px" }}>
+            ✓ Saved to your log as you check
+          </p>
         )}
         {completedActivity && (
           <div style={{ marginTop: 12 }}>
             <ActivityCompletionForm
+              key={completedActivity.id}
               activity={completedActivity}
               onSave={(updates) => {
                 onUpdateActivity(completedActivity.id, updates);
@@ -532,7 +393,7 @@ export function WorkoutSetsScreen({
             workoutActivity={recoveryWorkoutActivity}
             activityLog={activityLog}
             onAddActivity={onAddActivity}
-            onClose={() => setRecoveryWorkoutActivity(null)}
+            onClose={() => setRecoveryFor(null)}
           />
         )}
         {isCustom &&
